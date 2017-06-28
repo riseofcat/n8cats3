@@ -1,6 +1,4 @@
-apply plugin: 'kotlin'
-version '1.0'
-
+//apply plugin: 'kotlin'
 buildscript {
   ext.kotlin_version = '1.1.1'//todo
   ext.ktor_version = '0.3.1'//todo
@@ -11,6 +9,12 @@ buildscript {
     classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
   }
 }
+plugins {
+  id "io.ratpack.ratpack-groovy" version "1.4.5"
+  id "org.jetbrains.kotlin.jvm" version "1.1.1"//todo
+}
+version '1.0'
+
 sourceSets {
   main.kotlin.srcDirs += 'src/main/kotlin'
   main.java.srcDirs += 'src/main/java'
