@@ -10,7 +10,9 @@ import org.jetbrains.ktor.host.embeddedServer
 import org.jetbrains.ktor.jetty.Jetty
 import org.jetbrains.ktor.routing.Routing
 import org.jetbrains.ktor.routing.get
+import org.jetbrains.ktor.sessions.sessionOrNull
 import org.jetbrains.ktor.websocket.Frame
+import org.jetbrains.ktor.websocket.readText
 import org.jetbrains.ktor.websocket.webSocket
 import spark.Spark
 import spark.Spark.get
@@ -43,6 +45,14 @@ fun Application.module() {
         webSocket("/socket") {
             //https://github.com/Kotlin/ktor/blob/master/ktor-samples/ktor-samples-websocket/src/org/jetbrains/ktor/samples/chat/ChatApplication.kt
             this.send(Frame.Text("hello from ktor websocket"))
+            JavaHandeKotlin.handle(this)
+            this.handle {
+                if(it is Frame.Text) {
+                    val readText = it.readText()
+                    System.out.println(readText)
+                }
+            }
+
         }
         get("/") {
             call.respond("hi")

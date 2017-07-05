@@ -6,14 +6,16 @@ public class MainJava {
         String port = System.getenv("PORT");
         if(port != null && port.length() > 0) {
             port(Integer.parseInt(port));
+        } else {
+            port(5000);
         }
-        staticFileLocation("/public");
+        staticFiles.location("/public");
+        //staticFileLocation("/public");
+        staticFiles.expireTime(600);
+        //https://github.com/tipsy/spark-websocket
+        webSocket("/socket", EchoWebSocket.class);
+        init();
         get("/", (req, res) -> "Hello from Java");
-
-        if(false) {
-            webSocket("socket", EchoWebSocket.class);//todo damn, it doesn't work!
-            init();
-        }
         if(false) {
             stop();
         }

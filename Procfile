@@ -1,1 +1,1 @@
-web: java $JAVA_OPTS -cp build/classes/*:build/libs/* com.riseofcat.MainKotlin
+web: java $JAVA_OPTS -cp build/classes/*:build/libs/* com.riseofcat.MainJava
