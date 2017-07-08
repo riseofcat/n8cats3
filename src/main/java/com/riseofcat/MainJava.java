@@ -9,6 +9,9 @@ public class MainJava {
         } else {
             port(5000);
         }
+        if(false) {//todo
+            threadPool(10, 2, 30*1000);
+        }
         staticFiles.location("/public");
         //staticFileLocation("/public");
         staticFiles.expireTime(600);
