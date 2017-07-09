@@ -1,5 +1,6 @@
 package com.riseofcat;
 
+import org.eclipse.jetty.util.ConcurrentHashSet;
 import org.eclipse.jetty.websocket.api.BatchMode;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketClose;
@@ -8,7 +9,11 @@ import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
 import org.eclipse.jetty.websocket.api.annotations.WebSocket;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.util.Map;
 import java.util.Queue;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 @WebSocket
@@ -17,14 +22,16 @@ public class EchoWebSocket {
     //http://sparkjava.com/documentation#embedded-web-server
     
     // Store sessions if you want to, for example, broadcast a message to all users
-    private static final Queue<Session> sessions = new ConcurrentLinkedQueue<>();
+    private static final Map<Session, Params> sessions = new ConcurrentHashMap<>();
 
     @OnWebSocketConnect
     public void connected(Session session) {
-        sessions.add(session);
+        InetSocketAddress localAddress = session.getLocalAddress();//server
+        InetSocketAddress remoteAddress = session.getRemoteAddress();//client
         System.out.println("connected");
-        BatchMode batchMode = session.getRemote().getBatchMode();
+        BatchMode batchMode = session.getRemote().getBatchMode();//AUTO by default
         int a=1;
+        sessions.put(session, new Params(System.currentTimeMillis()));
     }
 
     @OnWebSocketClose
@@ -38,5 +45,14 @@ public class EchoWebSocket {
         System.out.println("Got: " + message);   // Print message
         session.getRemote().sendString(message); // and send it back
         session.isOpen();
+
+    }
+
+    private static class Params {
+        private final long startTime;
+
+        public Params(long time) {
+            this.startTime = time;
+        }
     }
 }
