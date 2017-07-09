@@ -1,0 +1,3 @@
+include 'android', 'core', 'gwt', 'desktop', 'server'
+includeFlat 'lib', 'share'
+println("settings.gradle print")
