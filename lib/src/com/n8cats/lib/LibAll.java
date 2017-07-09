@@ -1,10 +1,10 @@
-package ru.gg.lib;
+package com.n8cats.lib;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
-import ru.gg.lib_gwt.*;
+import com.n8cats.lib_gwt.*;
 
 import java.io.*;
 import java.net.HttpURLConnection;

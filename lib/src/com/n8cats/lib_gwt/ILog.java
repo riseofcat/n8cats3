@@ -1,4 +1,4 @@
-package ru.gg.lib_gwt;
+package com.n8cats.lib_gwt;
 
 public interface ILog {
     String info(String s);

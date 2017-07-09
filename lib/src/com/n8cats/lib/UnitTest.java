@@ -1,6 +1,6 @@
-package ru.gg.lib;
+package com.n8cats.lib;
 
-import ru.gg.lib_gwt.LibAllGwt;
+import com.n8cats.lib_gwt.LibAllGwt;
 
 public class UnitTest {
     public static void main(String[] args) {

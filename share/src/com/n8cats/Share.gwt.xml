@@ -1,4 +1,4 @@
 <module>
-    <inherits name='ru.gg.LibAll'/>
+    <inherits name='com.n8cats.LibAll'/>
     <source path="share"/>
 </module>

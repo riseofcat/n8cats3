@@ -1,6 +1,6 @@
-package ru.gg.lib_gwt;
+package com.n8cats.lib_gwt;
 
-import ru.gg.lib_gwt.data.*;
+import com.n8cats.lib_gwt.data.*;
 
 import java.io.Serializable;
 

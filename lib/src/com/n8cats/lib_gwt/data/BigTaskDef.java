@@ -1,6 +1,6 @@
-package ru.gg.lib_gwt.data;
+package com.n8cats.lib_gwt.data;
 
-import ru.gg.lib_gwt.JsonBasic;
+import com.n8cats.lib_gwt.JsonBasic;
 
 public class BigTaskDef extends JsonBasic {
 

@@ -1,6 +1,6 @@
 package com.n8cats.share;
 
-import ru.gg.lib_gwt.Const;
+import com.n8cats.lib_gwt.Const;
 
 public class Share {
     public static String testShare() {

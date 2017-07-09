@@ -1,7 +1,7 @@
-package ru.gg.lib_gwt.data;
+package com.n8cats.lib_gwt.data;
 
-import ru.gg.lib_gwt.Const;
-import ru.gg.lib_gwt.JsonBasic;
+import com.n8cats.lib_gwt.Const;
+import com.n8cats.lib_gwt.JsonBasic;
 
 import java.util.Date;
 
