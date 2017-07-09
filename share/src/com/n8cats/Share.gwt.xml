@@ -1,0 +1,4 @@
+<module>
+    <inherits name='ru.gg.LibAll'/>
+    <source path="share"/>
+</module>

@@ -1,0 +1,12 @@
+apply plugin: "java"
+compileJava.options.encoding = 'UTF-8'
+//[compileJava]*.options*.encoding = 'UTF-8'
+
+sourceCompatibility = 1.7
+targetCompatibility = 1.7
+sourceSets.main.java.srcDirs = ["src/"]
+dependencies {
+    compile 'com.fasterxml.jackson.core:jackson-databind:2.8.5'
+    compile 'commons-codec:commons-codec:1.9'
+    compile 'commons-io:commons-io:2.4'
+}
