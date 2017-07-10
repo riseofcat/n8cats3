@@ -11,31 +11,30 @@ buildscript {
     classpath "de.richsource.gradle.plugins:gwt-gradle-plugin:$gwtPluginVersion"
   }
 }
-
-allprojects {
-  apply plugin: 'eclipse'
-  apply plugin: 'idea'
-}
-
-configure(subprojects - project(':android')) {
-  apply plugin: 'java'
-  sourceCompatibility = 1.6
-}
-
-subprojects {
-  version = '0.0.1-SNAPSHOT'
-  ext.appName = 'libgdxwebsocket'
-  repositories {
-    mavenCentral()
-    jcenter()
-    mavenLocal()
-    maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
+if(true) {//redundant
+  configure(allprojects - project(':android')) {
+    apply plugin: 'java'
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+  }
+  allprojects {
+    ext.appName = 'mass-power.io'//power-mass.io,react-mass.io
+    repositories {
+      mavenCentral()
+      jcenter()
+      maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
+      mavenLocal()
+    }
   }
 }
-
-// Clearing Eclipse project data in root folder:
-tasks.eclipse.doLast {
-  delete '.project'
-  delete '.classpath'
-  delete '.settings/'
+if(false) {//old
+  subprojects
+  allprojects {
+    apply plugin: 'idea'
+  }
+}
+if(false) {//todo
+  subprojects {
+    version = '0.0.1-SNAPSHOT'
+  }
 }
