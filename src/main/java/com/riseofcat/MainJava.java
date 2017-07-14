@@ -1,6 +1,4 @@
 package com.riseofcat;
-import com.n8cats.lib_gwt.Const;
-import com.n8cats.share.Share;
 
 import static spark.Spark.*;//http://sparkjava.com/documentation
 
@@ -21,7 +19,9 @@ public static void main(String[] args) {
 	//https://github.com/tipsy/spark-websocket
 	webSocket("/socket", EchoWebSocket.class);
 	init();
-	get("/", (req, res) -> "Hello from Java" + Share.testShare() + Const.ACTION);
+	get("/", (req, res) -> {
+		return "Hello from Java server";
+	});
 	if(false) {
 		stop();
 	}

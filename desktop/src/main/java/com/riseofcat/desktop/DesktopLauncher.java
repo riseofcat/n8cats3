@@ -26,9 +26,9 @@ private static LwjglApplicationConfiguration getDefaultConfiguration() {
 	configuration.title = "libgdxwebsocket";
 	configuration.width = Big.WIDTH;
 	configuration.height = Big.HEIGHT;
-	for(int size : new int[]{128, 64, 32, 16}) {
-		configuration.addIcon("libgdx" + size + ".png", FileType.Internal);
-	}
+//	for(int size : new int[]{128, 64, 32, 16}) {
+//		configuration.addIcon("libgdx" + size + ".png", FileType.Internal);
+//	}
 	return configuration;
 }
 }

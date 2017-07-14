@@ -1,6 +1,10 @@
 package com.riseofcat;
 
-import org.eclipse.jetty.util.ConcurrentHashSet;
+import com.badlogic.gdx.utils.Json;
+import com.n8cats.lib.LibAll;
+import com.n8cats.share.ClientSay;
+import com.n8cats.share.ServerSay;
+
 import org.eclipse.jetty.websocket.api.BatchMode;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketClose;
@@ -11,10 +15,7 @@ import org.eclipse.jetty.websocket.api.annotations.WebSocket;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.Map;
-import java.util.Queue;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentLinkedQueue;
 
 @WebSocket
 public class EchoWebSocket {
@@ -30,8 +31,19 @@ public void connected(Session session) {
 	InetSocketAddress remoteAddress = session.getRemoteAddress();//client
 	System.out.println("connected");
 	BatchMode batchMode = session.getRemote().getBatchMode();//AUTO by default
-	int a = 1;
-	sessions.put(session, new Params(System.currentTimeMillis()));
+	long currentTime = System.currentTimeMillis();
+	Params params = new Params(currentTime);
+	sessions.put(session, params);
+	ServerSay json = new ServerSay();
+//	json.latency = LibAllGwt.getRand(50,100);
+	json.message = "message from server";
+	json.ping = true;
+	try {
+		session.getRemote().sendString(new Json().toJson(json));
+		params.lastPingTime = currentTime;
+	} catch(IOException e) {
+		e.printStackTrace();
+	}
 }
 
 @OnWebSocketClose
@@ -42,15 +54,46 @@ public void closed(Session session, int statusCode, String reason) {
 
 @OnWebSocketMessage
 public void message(Session session, String message) throws IOException {
-	System.out.println("Got: " + message);   // Print message
-	session.getRemote().sendString(message); // and send it back
-	session.isOpen();
-
+//	System.out.println("Got: " + message);   // Print message
+	if(false) {
+		session.getRemote().sendString(message); // and send it back
+	}
+	if(!session.isOpen()) {
+		App.log("session not open");
+		throw new RuntimeException("handle session not open");
+	}
+	ClientSay clientSay = new Json().fromJson(ClientSay.class, message);
+	Params params = sessions.get(session);
+	if(false) {
+		LibAll.sleep(30);
+	}
+	if(clientSay.pingDelay != null) {
+		long l = System.currentTimeMillis() - params.lastPingTime - clientSay.pingDelay;
+		App.log("latency = " + l);
+		params.latency = (int) l;
+		if(false) {
+			params.lastPingTime = null;
+		}
+	}
+	params.calls++;
+	ServerSay json = new ServerSay();
+//	json.latency = LibAllGwt.getRand(50,100);
+	json.message = "message from server";
+	json.latency = params.latency;
+	json.ping = true;
+	try {
+		session.getRemote().sendString(new Json().toJson(json));
+		params.lastPingTime = System.currentTimeMillis();
+	} catch(IOException e) {
+		e.printStackTrace();
+	}
 }
 
 private static class Params {
-	private final long startTime;
-
+	public final long startTime;
+	public Long lastPingTime;
+	public Integer latency;
+	public int calls;
 	public Params(long time) {
 		this.startTime = time;
 	}

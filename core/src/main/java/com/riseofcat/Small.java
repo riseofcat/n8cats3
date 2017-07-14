@@ -6,15 +6,18 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.utils.Json;
 import com.github.czyzby.websocket.WebSocket;
 import com.github.czyzby.websocket.WebSocketAdapter;
 import com.github.czyzby.websocket.WebSockets;
 import com.github.czyzby.websocket.data.WebSocketCloseCode;
 import com.github.czyzby.websocket.net.ExtendedNet;
-import com.n8cats.share.Share;
-import com.n8cats.lib_gwt.Const;
+import com.n8cats.lib.LibAll;
+import com.n8cats.share.ClientSay;
+import com.n8cats.share.ServerSay;
 
 public class Small extends ApplicationAdapter {
+private static ServerSay serverSay;
 private SpriteBatch batch;
 private BitmapFont font;
 private WebSocket socket;
@@ -37,7 +40,6 @@ private static WebSocketAdapter getListener() {
 		@Override
 		public boolean onOpen(final WebSocket webSocket) {
 			Gdx.app.log("WS", "Connected!");
-			webSocket.send("Hello from client!");
 			return FULLY_HANDLED;
 		}
 
@@ -49,7 +51,14 @@ private static WebSocketAdapter getListener() {
 
 		@Override
 		public boolean onMessage(final WebSocket webSocket, final String packet) {
-			Gdx.app.log("WS", "Got message: " + packet);
+			serverSay = new Json().fromJson(ServerSay.class, packet);
+			ClientSay answer = new ClientSay();
+			if(serverSay.ping) {
+				answer.pingDelay = 50;
+			}
+			LibAll.sleep(50);
+			answer.message = "message from client";
+			webSocket.send(new Json().toJson(answer));
 			return FULLY_HANDLED;
 		}
 
@@ -71,7 +80,9 @@ public void render() {
 	Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 	batch.begin();
 	font.draw(batch, socket.getState().name(), 10f, Gdx.graphics.getHeight() / 2f);
-	font.draw(batch, Share.testShare() + Const.BREAK, 10f, Gdx.graphics.getHeight() / 1.5f);
+	if(serverSay != null) {
+		font.draw(batch, serverSay.latency +" " + serverSay.message, 10f, Gdx.graphics.getHeight() / 1.5f);
+	}
 	batch.end();
 }
 

@@ -75,6 +75,8 @@ dependencies {
   if(true) {
     compile 'com.sparkjava:spark-core:2.6.0' //'com.sparkjava:spark-core:+'
     compile 'org.slf4j:slf4j-simple:+' //logs
+
+    compile "com.badlogicgames.gdx:gdx:$gdxVersion"//to json
   }
   compile project(":share") //compile project(":mass_libgdx:share")//work
 //  compile project(":lib")
