@@ -6,36 +6,29 @@ buildscript {
     maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
     mavenLocal()
   }
-  //libgdx:
-  dependencies {
-    classpath "com.badlogicgames.gdx:gdx-tools:$gdxVersion"
-    classpath "com.android.tools.build:gradle:$androidPluginVersion"
-    classpath "de.richsource.gradle.plugins:gwt-gradle-plugin:$gwtPluginVersion"
-  }
 }
-buildscript {
-  //kotlin
-  ext.kotlin_version = '1.1.1'//todo
-  ext.ktor_version = '0.3.1'//todo
+buildscript {//kotlin
+  ext.kotlin_version = '1.1.1'
+  ext.ktor_version = '0.3.1'
   dependencies {
     classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
   }
 }
-sourceSets {
-  main.java.srcDirs += 'src/main/java'
+buildscript {//libgdx
+	dependencies {
+		classpath "com.badlogicgames.gdx:gdx-tools:$gdxVersion"
+		classpath "com.android.tools.build:gradle:$androidPluginVersion"
+		classpath "de.richsource.gradle.plugins:gwt-gradle-plugin:$gwtPluginVersion"
+	}
 }
-configure(file("local.properties").exists() ? allprojects - project(':android') : allprojects) {
-  //libgdx
+def applyJava = {
   apply plugin: 'java'
   sourceCompatibility = JavaVersion.VERSION_1_8
   targetCompatibility = JavaVersion.VERSION_1_8
 }
+configure(file("local.properties").exists() ? /*allprojects*/ subprojects - project(':android') : allprojects, applyJava)//libgdx,share//todo test android
 allprojects {
-  ext.appName = 'mass-power.io'//power-mass.io,react-mass.io
-  if(false) {//todo test on android
-    sourceCompatibility = JavaVersion.VERSION_1_8
-    targetCompatibility = JavaVersion.VERSION_1_8
-  }
+  ext.appName = 'mass-power.io'//power-mass.io,react-mass.io//libgdx
   repositories {
     mavenCentral()
     jcenter()
@@ -43,9 +36,18 @@ allprojects {
     mavenLocal()
   }
 }
-if(true) {
-//kotlin
-  if(true) {//may be false
+if(true) {//java server
+  applyJava()
+	sourceSets {
+		main.java.srcDirs += 'src/main/java'
+	}
+	dependencies {
+		compile 'com.sparkjava:spark-core:2.6.0' //websocket//compile 'com.sparkjava:spark-core:+'
+		compile 'org.slf4j:slf4j-simple:1.8.0-alpha2' //logs//compile 'org.slf4j:slf4j-simple:+'
+	}
+}
+if(true) {//kotlin server
+  if(true) {//may be false and compiles success
     compileKotlin {
       kotlinOptions {
         jvmTarget = "1.8"
@@ -72,16 +74,10 @@ if(true) {
   }
 }
 dependencies {
-  if(true) {
-    compile 'com.sparkjava:spark-core:2.6.0' //'com.sparkjava:spark-core:+'
-    compile 'org.slf4j:slf4j-simple:+' //logs
-
-    compile "com.badlogicgames.gdx:gdx:$gdxVersion"//to json
-  }
-  compile project(":share") //compile project(":mass_libgdx:share")//work
+  compile "com.badlogicgames.gdx:gdx:$gdxVersion"//json in server
+	compile project(":share")//compile project(":mass_libgdx:share")//share
 //  compile project(":lib")
 }
-
 if(true) {//heroku
   task copyToLib(type: Copy) {
     into "$buildDir/libs"
@@ -91,8 +87,7 @@ if(true) {//heroku
   build.mustRunAfter clean
 }
 
-if(false) {
-  //old
+if(false) { //old
   version '1.0'
   plugins {
     id "io.ratpack.ratpack-groovy" version "1.4.5"

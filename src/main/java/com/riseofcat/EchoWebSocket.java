@@ -1,7 +1,6 @@
 package com.riseofcat;
 
 import com.badlogic.gdx.utils.Json;
-import com.n8cats.lib.LibAll;
 import com.n8cats.share.ClientSay;
 import com.n8cats.share.ServerSay;
 
@@ -69,8 +68,7 @@ public void message(Session session, String message) throws IOException {
 	Params params = sessions.get(session);
 	if(clientSay.pingDelay != null) {
 		long l = System.currentTimeMillis() - params.lastPingTime - clientSay.pingDelay;
-		l = l/2;
-		App.log("latency = " + l);
+		l = l / 2;
 		params.latency = (int) l;
 		if(false) {
 			params.lastPingTime = null;
