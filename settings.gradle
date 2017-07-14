@@ -1,2 +1,12 @@
 rootProject.name = 'n8cats3'
+//include 'mass_libgdx:share'//work
+
+include 'android', 'core', 'gwt', 'desktop'
 include 'lib', 'share'
+println 'n8cats settings.gradle print'
+
+//includeBuild ('mass_libgdx') {
+//    dependencySubstitution {
+//        substitute module('com.n8cats:mass-libgdx') with project(':')
+//    }
+//}

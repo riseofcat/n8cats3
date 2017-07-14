@@ -1,3 +1,4 @@
-include 'android', 'core', 'gwt', 'desktop'
+//include 'android', 'core', 'gwt', 'desktop'
 includeFlat 'lib', 'share'
+includeFlat 'android', 'core', 'gwt', 'desktop'
 println("settings.gradle print")
