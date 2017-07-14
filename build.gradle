@@ -24,7 +24,7 @@ buildscript {
 sourceSets {
   main.java.srcDirs += 'src/main/java'
 }
-configure(allprojects - project(':android')) {
+configure(file("local.properties").exists() ? allprojects - project(':android') : allprojects) {
   //libgdx
   apply plugin: 'java'
   sourceCompatibility = JavaVersion.VERSION_1_8
