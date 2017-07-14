@@ -24,6 +24,7 @@ public class EchoWebSocket {
 
 // Store sessions if you want to, for example, broadcast a message to all users
 private static final Map<Session, Params> sessions = new ConcurrentHashMap<>();
+private static int lastId = 0;
 
 @OnWebSocketConnect
 public void connected(Session session) {
@@ -33,11 +34,13 @@ public void connected(Session session) {
 	BatchMode batchMode = session.getRemote().getBatchMode();//AUTO by default
 	long currentTime = System.currentTimeMillis();
 	Params params = new Params(currentTime);
+	params.id = ++lastId;
 	sessions.put(session, params);
 	ServerSay json = new ServerSay();
 //	json.latency = LibAllGwt.getRand(50,100);
 	json.message = "message from server";
 	json.ping = true;
+	json.id = params.id;
 	try {
 		session.getRemote().sendString(new Json().toJson(json));
 		params.lastPingTime = currentTime;
@@ -64,11 +67,9 @@ public void message(Session session, String message) throws IOException {
 	}
 	ClientSay clientSay = new Json().fromJson(ClientSay.class, message);
 	Params params = sessions.get(session);
-	if(false) {
-		LibAll.sleep(30);
-	}
 	if(clientSay.pingDelay != null) {
 		long l = System.currentTimeMillis() - params.lastPingTime - clientSay.pingDelay;
+		l = l/2;
 		App.log("latency = " + l);
 		params.latency = (int) l;
 		if(false) {
@@ -81,6 +82,7 @@ public void message(Session session, String message) throws IOException {
 	json.message = "message from server";
 	json.latency = params.latency;
 	json.ping = true;
+	json.id = params.id;
 	try {
 		session.getRemote().sendString(new Json().toJson(json));
 		params.lastPingTime = System.currentTimeMillis();
@@ -94,6 +96,7 @@ private static class Params {
 	public Long lastPingTime;
 	public Integer latency;
 	public int calls;
+	public int id;
 	public Params(long time) {
 		this.startTime = time;
 	}
