@@ -7,11 +7,11 @@ import java.util.Date;
 
 public class SmallTask extends JsonBasic {
 
-    public Const.Id.SmallTask id;
-    public Const.SmallTaskStatus status;
-    public Const.Id.BigTask bigTaskId;
-    public Const.Id.Account accountId;
-    public Rate rate;
-    public Date startTime;
+public Const.Id.SmallTask id;
+public Const.SmallTaskStatus status;
+public Const.Id.BigTask bigTaskId;
+public Const.Id.Account accountId;
+public Rate rate;
+public Date startTime;
 
 }
