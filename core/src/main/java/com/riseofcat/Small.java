@@ -27,10 +27,14 @@ public void create() {
 	Gdx.app.setLogLevel(Application.LOG_DEBUG);
 	batch = new SpriteBatch();
 	font = new BitmapFont();
+	boolean local = true;
+	if(local) {
 		socket = ExtendedNet.getNet().newWebSocket("localhost", 5000, "socket");
-//	socket = ExtendedNet.getNet().newWebSocket(SERVER, 80, "socket");
+	} else {
+		socket = ExtendedNet.getNet().newWebSocket(SERVER, 80, "socket");
+	}
 	if(false) {
-		WebSockets.newSocket(WebSockets.toWebSocketUrl(SERVER, 80, "socket"));
+		socket = WebSockets.newSocket(WebSockets.toWebSocketUrl(SERVER, 80, "socket"));
 	}
 	socket.addListener(new WebSocketAdapter() {
 		@Override
@@ -66,9 +70,8 @@ public void create() {
 			return super.onError(webSocket, error);
 		}
 	});
-	socket.connect();
+	socket.connect();//socket.close();
 }
-
 @Override
 public void render() {
 	Gdx.gl.glClearColor(0, 0, 0, 1);
@@ -78,7 +81,6 @@ public void render() {
 	font.draw(batch, say.id + ": " + say.latency + " " + say.message, 10f, 20);
 	batch.end();
 }
-
 @Override
 public void dispose() {
 	WebSockets.closeGracefully(socket); // Null-safe closing method that catches and logs any exceptions.

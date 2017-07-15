@@ -4,8 +4,7 @@ import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.backends.gwt.GwtApplication;
 import com.badlogic.gdx.backends.gwt.GwtApplicationConfiguration;
 import com.github.czyzby.websocket.GwtWebSockets;
-import com.riseofcat.Big;
-import com.riseofcat.MainClass;
+import com.riseofcat.Core;
 
 /**
  * Launches the GWT application.
@@ -13,7 +12,7 @@ import com.riseofcat.MainClass;
 public class GwtLauncher extends GwtApplication {
 @Override
 public GwtApplicationConfiguration getConfig() {
-	GwtApplicationConfiguration configuration = new GwtApplicationConfiguration(Big.WIDTH, Big.HEIGHT);
+	GwtApplicationConfiguration configuration = new GwtApplicationConfiguration(Core.WIDTH, Core.HEIGHT);
 	return configuration;
 }
 
@@ -21,6 +20,6 @@ public GwtApplicationConfiguration getConfig() {
 public ApplicationListener createApplicationListener() {
 	// Initiating GWT web sockets module:
 	GwtWebSockets.initiate();
-	return new MainClass();
+	return new Core();
 }
 }

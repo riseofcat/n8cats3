@@ -5,7 +5,7 @@ import android.os.Bundle;
 import com.badlogic.gdx.backends.android.AndroidApplication;
 import com.badlogic.gdx.backends.android.AndroidApplicationConfiguration;
 import com.github.czyzby.websocket.CommonWebSockets;
-import com.riseofcat.MainClass;
+import com.riseofcat.Core;
 
 /** Launches the Android application. */
 public class AndroidLauncher extends AndroidApplication {
@@ -15,6 +15,6 @@ public class AndroidLauncher extends AndroidApplication {
         // Initiating web sockets module:
         CommonWebSockets.initiate();
         AndroidApplicationConfiguration configuration = new AndroidApplicationConfiguration();
-        initialize(new MainClass(), configuration);
+        initialize(new Core(), configuration);
     }
 }
