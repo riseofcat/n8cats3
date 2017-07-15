@@ -1,14 +1,19 @@
 package com.riseofcat;
 
+import com.badlogic.gdx.utils.Json;
+import com.badlogic.gdx.utils.JsonWriter;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.n8cats.lib.LibAll;
+
 import spark.Request;
 import spark.Response;
 import spark.Route;
 import spark.Spark;//import static spark.Spark.*;//http://sparkjava.com/documentation
 
 public class MainJava {
-public static final float MEGA = 1E6f;
 public static void main(String[] args) {
-	String port = System.getenv("PORT");
+	String port = java.lang.System.getenv("PORT");
 	if(port != null) {
 		Spark.port(Integer.parseInt(port));
 	} else {
@@ -21,18 +26,16 @@ public static void main(String[] args) {
 	Spark.staticFiles.expireTime(600);
 	//https://github.com/tipsy/spark-websocket
 	Spark.webSocket("/socket", EchoWebSocket.class);
-	Spark.init();
+	Spark.init();//Spark.stop();
 	Spark.get("/", new Route() {
 		@Override
-		public Object handle(Request request, Response response) throws Exception {
-			return new StringBuilder().append("maxMemoty = ")
-					.append(Runtime.getRuntime().maxMemory()/MEGA)
-					.append("\n<br/>usedMemory = ")
-					.append((Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory())/MEGA);
+		public Object handle(Request request, Response response) {
+			return LibAll.JSON.toPrettyStr(App.info);
+//			return new StringBuilder().append("maxMemoty = ")
+//					.append(App.info.getMaxMemory())
+//					.append("\n<br/>usedMemory = ")
+//					.append(App.info.getUsedMemoty());
 		}
 	});
-	if(false) {
-		Spark.stop();
-	}
 }
 }

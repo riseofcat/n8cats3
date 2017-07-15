@@ -5,6 +5,7 @@ import java.io.Serializable;
 public class Const {
 
 public static final String UTF_8 = "UTF-8";
+public static final float MEGA = 1E6f;
 
 public static enum ProxyType {
 	socks5,

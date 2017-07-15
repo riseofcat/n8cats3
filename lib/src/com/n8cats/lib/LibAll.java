@@ -1,6 +1,8 @@
 package com.n8cats.lib;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.PrettyPrinter;
+import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.apache.commons.codec.digest.DigestUtils;
@@ -20,6 +22,12 @@ public class LibAll {
 
 public static class JSON {
 	private static ObjectMapper objectMapper = new ObjectMapper();
+	static {
+		if(false) {
+			DefaultPrettyPrinter pp = new DefaultPrettyPrinter("\n");
+			objectMapper.setDefaultPrettyPrinter(pp);
+		}
+	}
 	public static <T> T toObj(String content, Class<T> valueType) {
 		try {
 			return objectMapper.readValue(content, valueType);
@@ -35,6 +43,10 @@ public static class JSON {
 			e.printStackTrace();
 			return "can't writeValueAsString";
 		}
+	}
+	public static String toPrettyStr(Object value) {
+		//todo
+		return toStr(value);
 	}
 }
 
