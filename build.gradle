@@ -1,4 +1,3 @@
-apply plugin: 'kotlin'
 buildscript {
   repositories {
     mavenCentral()
@@ -46,7 +45,21 @@ if(true) {//java server
 		compile 'org.slf4j:slf4j-simple:1.8.0-alpha2' //logs//compile 'org.slf4j:slf4j-simple:+'
 	}
 }
-if(true) {//kotlin server
+dependencies {
+  compile "com.badlogicgames.gdx:gdx:$gdxVersion"//json in server
+	compile project(":share")//compile project(":mass_libgdx:share")//share
+//  compile project(":lib")
+}
+if(true) {//heroku
+  task copyToLib(type: Copy) {
+    into "$buildDir/libs"
+    from(configurations.compile)
+  }
+  task stage(dependsOn: ['clean', 'build', 'copyToLib'])
+  build.mustRunAfter clean
+}
+if(false) {//kotlin eats + 5 MB RAM//kotlin server
+  apply plugin: 'kotlin'
   if(true) {//may be false and compiles success
     compileKotlin {
       kotlinOptions {
@@ -73,20 +86,6 @@ if(true) {//kotlin server
     compile "org.jetbrains.kotlinx:kotlinx-html-jvm:0.6.3"
   }
 }
-dependencies {
-  compile "com.badlogicgames.gdx:gdx:$gdxVersion"//json in server
-	compile project(":share")//compile project(":mass_libgdx:share")//share
-//  compile project(":lib")
-}
-if(true) {//heroku
-  task copyToLib(type: Copy) {
-    into "$buildDir/libs"
-    from(configurations.compile)
-  }
-  task stage(dependsOn: ['clean', 'build', 'copyToLib'])
-  build.mustRunAfter clean
-}
-
 if(false) { //old
   version '1.0'
   plugins {
