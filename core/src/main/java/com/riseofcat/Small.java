@@ -12,7 +12,6 @@ import com.github.czyzby.websocket.WebSocketAdapter;
 import com.github.czyzby.websocket.WebSockets;
 import com.github.czyzby.websocket.data.WebSocketCloseCode;
 import com.github.czyzby.websocket.net.ExtendedNet;
-import com.n8cats.lib.LibAll;
 import com.n8cats.share.ClientSay;
 import com.n8cats.share.ServerSay;
 
@@ -52,7 +51,6 @@ public void create() {
 			if(serverSay.ping) {
 				answer.pingDelay = 50;
 			}
-			LibAll.sleep(50);
 			answer.message = "message from client";
 			webSocket.send(new Json().toJson(answer));
 			return FULLY_HANDLED;
