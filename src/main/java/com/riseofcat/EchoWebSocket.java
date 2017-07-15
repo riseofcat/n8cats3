@@ -61,7 +61,7 @@ public void message(Session session, String message) throws IOException {
 		session.getRemote().sendString(message); // and send it back
 	}
 	if(!session.isOpen()) {
-		App.log("session not open");
+		App.log.error("session not open");
 		throw new RuntimeException("handle session not open");
 	}
 	ClientSay clientSay = new Json().fromJson(ClientSay.class, message);
