@@ -25,7 +25,9 @@ def applyJava = {
 	sourceCompatibility = JavaVersion.VERSION_1_8
 	targetCompatibility = JavaVersion.VERSION_1_8
 }
+//todo configure(file("local.properties").exists() ? /*allprojects*/ subprojects - project(':android') : allprojects, applyJava)//libgdx,share//todo test android
 allprojects {
+//todo ext.appName = 'mass-power.io'//power-mass.io,react-mass.io//libgdx
 	repositories {
 		mavenCentral()
 		jcenter()
@@ -63,7 +65,7 @@ if (true)/*heroku*/ {
 	task stage(dependsOn: ['clean', 'build', 'copyToLib'])
 	build.mustRunAfter clean
 }
-if (true)/*kotlin server*/ {//kotlin eats + 5 MB RAM
+if (false)/*kotlin server*/ {//kotlin eats + 5 MB RAM
 	apply plugin: 'kotlin'
 	if (true) {//may be false and compiles success
 		compileKotlin {
