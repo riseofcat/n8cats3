@@ -1,6 +1,7 @@
 package com.riseofcat;
 
 import com.badlogic.gdx.utils.Json;
+import com.badlogic.gdx.utils.Queue;
 import com.github.czyzby.websocket.WebSocket;
 import com.github.czyzby.websocket.WebSocketAdapter;
 import com.github.czyzby.websocket.WebSockets;
@@ -15,6 +16,7 @@ public final Signal<S> incoming = new Signal<>();
 private WebSocket socket;
 public Integer latency;
 public Integer id;
+private Queue<ClientSayC> queue = new Queue<>();
 public RealTimeClient(String host, int port, String path, Class<ServerSay<S>> typeS) {
 	if(true) {
 		socket = ExtendedNet.getNet().newWebSocket(host, port, path);
@@ -24,6 +26,9 @@ public RealTimeClient(String host, int port, String path, Class<ServerSay<S>> ty
 	socket.addListener(new WebSocketAdapter() {
 		@Override
 		public boolean onOpen(final WebSocket webSocket) {
+			while(queue.first() != null) {
+				sayNow(queue.removeFirst());
+			}
 			return FULLY_HANDLED;
 		}
 		@Override
@@ -70,9 +75,14 @@ public void say(C payload) {
 }
 
 private void say(ClientSayC say) {
-	if(socket.getState() != WebSocketState.OPEN) {
-		//todo queue
+	if(socket.getState() == WebSocketState.OPEN) {
+		sayNow(say);
+	} else {
+		queue.addLast(say);
 	}
+}
+
+private void sayNow(ClientSayC say) {
 	socket.send(new Json().toJson(say));
 }
 

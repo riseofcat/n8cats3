@@ -27,8 +27,8 @@ public void create() {
 	Gdx.app.setLogLevel(Application.LOG_DEBUG);
 	batch = new SpriteBatch();
 	font = new BitmapFont();
-	for(int i=0;i < 100; i++) {
-		boolean local = false;
+	for(int i=0;i < 1; i++) {
+		boolean local = true;
 		if(local) {
 			client = new RealTimeClient("localhost", 5000, "socket", ServerSayS.class);
 		} else {
@@ -42,6 +42,9 @@ public void create() {
 			answer = arg;
 		}
 	});
+	ClientPayload payload = new ClientPayload();
+	payload.message = "from client";
+	client.say(payload);
 }
 @Override
 public void render() {

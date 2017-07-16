@@ -49,6 +49,9 @@ public int getMaxThreads() {
 	Todo.threads();
 	return 0;//todo
 }
+public float averagePing() {
+	return 0;//todo
+}
 public float getStackSizeMB() {
 	//-Xss set java thread stack size//todo test
 	return 0;//todo

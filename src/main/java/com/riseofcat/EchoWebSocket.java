@@ -30,21 +30,18 @@ private static int lastId = 0;
 public void connected(Session session) {
 	InetSocketAddress localAddress = session.getLocalAddress();//server
 	InetSocketAddress remoteAddress = session.getRemoteAddress();//client
-	System.out.println("connected");
 	BatchMode batchMode = session.getRemote().getBatchMode();//AUTO by default
-	long currentTime = System.currentTimeMillis();
-	Params params = new Params(currentTime);
+	Params params = new Params(System.currentTimeMillis());
 	params.id = ++lastId;
 	sessions.put(session, params);
 	ServerSay<ServerPayload> json = new ServerSay<>();
-//	json.latency = LibAllGwt.getRand(50,100);
 	json.payload = new ServerPayload();
 	json.payload.message = "message from server";
 	json.ping = true;
 	json.id = params.id;
 	try {
 		session.getRemote().sendString(new Json().toJson(json));
-		params.lastPingTime = currentTime;
+		params.lastPingTime = System.currentTimeMillis();
 		App.log.info("send string " + new Json().toJson(json));
 	} catch(IOException e) {
 		e.printStackTrace();
@@ -64,7 +61,7 @@ public void message(Session session, String message) throws IOException {
 		App.log.error("session not open");
 		return;
 	}
-	ClientSay clientSay = new Json().fromJson(ClientSay.class, message);
+	ClientSayC clientSay = new Json().fromJson(ClientSayC.class, message);
 	Params params = sessions.get(session);
 	if(clientSay.pong) {
 		long l = (System.currentTimeMillis() - params.lastPingTime + 1)/2;
@@ -75,7 +72,6 @@ public void message(Session session, String message) throws IOException {
 	}
 	params.calls++;
 	ServerSay<ServerPayload> json = new ServerSay<>();
-//	json.latency = LibAllGwt.getRand(50,100);
 	json.payload = new ServerPayload();
 	json.payload.message = "message from server";
 	json.latency = params.latency;
