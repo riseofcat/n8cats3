@@ -62,7 +62,6 @@ public void message(Session session, String message) throws IOException {
 //	System.out.println("Got: " + message);   // Print message
 	if(!session.isOpen()) {
 		App.log.error("session not open");
-		throw new RuntimeException("handle session not open");
 	}
 	ClientSay clientSay = new Json().fromJson(ClientSay.class, message);
 	Params params = sessions.get(session);
