@@ -25,9 +25,7 @@ def applyJava = {
 	sourceCompatibility = JavaVersion.VERSION_1_8
 	targetCompatibility = JavaVersion.VERSION_1_8
 }
-configure(file("local.properties").exists() ? /*allprojects*/ subprojects - project(':android') : allprojects, applyJava)//libgdx,share//todo test android
 allprojects {
-	ext.appName = 'mass-power.io'//power-mass.io,react-mass.io//libgdx
 	repositories {
 		mavenCentral()
 		jcenter()
@@ -35,14 +33,14 @@ allprojects {
 		mavenLocal()
 	}
 }
-if(true) {//java server
+if (true) /*java server*/{
 	applyJava()
 	sourceSets {
 		main.java.srcDirs += 'src/main/java'
 	}
 	dependencies {
-		compile 'com.sparkjava:spark-core:2.6.0' //websocket//compile 'com.sparkjava:spark-core:+'
-		compile 'org.slf4j:slf4j-simple:1.8.0-alpha2' //logs//compile 'org.slf4j:slf4j-simple:+'
+		compile 'com.sparkjava:spark-core:2.6.0' /*websocket*///compile 'com.sparkjava:spark-core:+'
+		compile 'org.slf4j:slf4j-simple:1.8.0-alpha2' /*logs*///compile 'org.slf4j:slf4j-simple:+'
 	}
 }
 dependencies {
@@ -50,7 +48,14 @@ dependencies {
 	compile project(":share")//compile project(":mass_libgdx:share")//share
 //  compile project(":lib")
 }
-if(true) {//heroku
+if(true) /*libgdx*//*share*/{
+	//todo test android
+	configure(file("local.properties").exists() ? /*allprojects*/ subprojects - project(':android') : allprojects, applyJava)
+	subprojects {
+  	ext.appName = 'mass-power.io'//power-mass.io,react-mass.io//libgdx
+	}
+}
+if (true)/*heroku*/ {
 	task copyToLib(type: Copy) {
 		into "$buildDir/libs"
 		from(configurations.compile)
@@ -58,9 +63,9 @@ if(true) {//heroku
 	task stage(dependsOn: ['clean', 'build', 'copyToLib'])
 	build.mustRunAfter clean
 }
-if(false) {//kotlin eats + 5 MB RAM//kotlin server
+if (false)/*kotlin server*/ {//kotlin eats + 5 MB RAM
 	apply plugin: 'kotlin'
-	if(true) {//may be false and compiles success
+	if (true) {//may be false and compiles success
 		compileKotlin {
 			kotlinOptions {
 				jvmTarget = "1.8"
@@ -86,7 +91,7 @@ if(false) {//kotlin eats + 5 MB RAM//kotlin server
 		compile "org.jetbrains.kotlinx:kotlinx-html-jvm:0.6.3"
 	}
 }
-if(false) { //old
+if (false)/*old*/ {
 	version '1.0'
 	plugins {
 		id "io.ratpack.ratpack-groovy" version "1.4.5"
