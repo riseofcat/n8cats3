@@ -26,7 +26,6 @@ public static void main(String[] args) {
 	Spark.staticFiles.expireTime(600);
 	//https://github.com/tipsy/spark-websocket
 	Spark.webSocket("/socket", EchoWebSocket.class);
-	Spark.init();//Spark.stop();
 	Spark.get("/", new Route() {
 		@Override
 		public Object handle(Request request, Response response) {
@@ -38,5 +37,6 @@ public static void main(String[] args) {
 //					.append(App.info.getUsedMemoty());
 		}
 	});
+	Spark.init();//Spark.stop();
 }
 }
