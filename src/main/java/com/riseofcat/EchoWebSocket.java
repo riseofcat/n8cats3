@@ -45,7 +45,7 @@ public void connected(Session session) {
 	try {
 		session.getRemote().sendString(new Json().toJson(json));
 		params.lastPingTime = currentTime;
-//		App.log.info("send string " + new Json().toJson(json));
+		App.log.info("send string " + new Json().toJson(json));
 	} catch(IOException e) {
 		e.printStackTrace();
 	}
@@ -61,7 +61,7 @@ public void closed(Session session, int statusCode, String reason) {
 public void message(Session session, String message) throws IOException {
 //	System.out.println("Got: " + message);   // Print message
 	if(!session.isOpen()) {
-//		App.log.error("session not open");
+		App.log.error("session not open");
 	}
 	ClientSay clientSay = new Json().fromJson(ClientSay.class, message);
 	Params params = sessions.get(session);
