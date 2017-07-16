@@ -63,7 +63,7 @@ if (true)/*heroku*/ {
 	task stage(dependsOn: ['clean', 'build', 'copyToLib'])
 	build.mustRunAfter clean
 }
-if (false)/*kotlin server*/ {//kotlin eats + 5 MB RAM
+if (true)/*kotlin server*/ {//kotlin eats + 5 MB RAM
 	apply plugin: 'kotlin'
 	if (true) {//may be false and compiles success
 		compileKotlin {
