@@ -25,7 +25,7 @@ def applyJava = {
 	sourceCompatibility = JavaVersion.VERSION_1_8
 	targetCompatibility = JavaVersion.VERSION_1_8
 }
-//todo configure(file("local.properties").exists() ? /*allprojects*/ subprojects - project(':android') : allprojects, applyJava)//libgdx,share//todo test android
+configure(file("local.properties").exists() ? /*allprojects*/ subprojects - project(':android') : allprojects, applyJava)//libgdx,share//todo test android
 allprojects {
 ext.appName = 'mass-power.io'//power-mass.io,react-mass.io//libgdx//heroku
 	repositories {
@@ -50,11 +50,11 @@ dependencies {
 	compile project(":share")//compile project(":mass_libgdx:share")//share
 //  compile project(":lib")
 }
-if(true) /*libgdx*//*share*/{
+if(false) /*libgdx*//*share*/{//todo
 	//todo test android
 	configure(file("local.properties").exists() ? /*allprojects*/ subprojects - project(':android') : allprojects, applyJava)
 	subprojects {
-//todo		ext.appName = 'mass-power.io'//power-mass.io,react-mass.io//libgdx
+  ext.appName = 'mass-power.io'//power-mass.io,react-mass.io//libgdx
 	}
 }
 if (true)/*heroku*/ {
