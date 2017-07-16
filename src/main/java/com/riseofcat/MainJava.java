@@ -30,11 +30,12 @@ public static void main(String[] args) {
 	Spark.get("/", new Route() {
 		@Override
 		public Object handle(Request request, Response response) {
+			return "test";
 //			return LibAll.JSON.toPrettyStr(App.info);
-			return new StringBuilder().append("maxMemoty = ")
-					.append(App.info.getMaxMemory())
-					.append("\n<br/>usedMemory = ")
-					.append(App.info.getUsedMemoty());
+//			return new StringBuilder().append("maxMemoty = ")
+//					.append(App.info.getMaxMemory())
+//					.append("\n<br/>usedMemory = ")
+//					.append(App.info.getUsedMemoty());
 		}
 	});
 }
