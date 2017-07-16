@@ -14,6 +14,7 @@ public class RealTimeClient<S, C> {
 public final Signal<S> incoming = new Signal<>();
 private WebSocket socket;
 public Integer latency;
+public Integer id;
 public RealTimeClient(String host, int port, String path, Class<ServerSay<S>> typeS) {
 	if(true) {
 		socket = ExtendedNet.getNet().newWebSocket(host, port, path);
@@ -34,6 +35,9 @@ public RealTimeClient(String host, int port, String path, Class<ServerSay<S>> ty
 			ServerSay<S> serverSay = new Json().fromJson(typeS, packet);
 			if(serverSay.latency != null) {
 				latency = serverSay.latency;
+			}
+			if(serverSay.id != null) {
+				RealTimeClient.this.id = serverSay.id;
 			}
 			if(serverSay.ping) {
 				ClientSayC answer = new ClientSayC();

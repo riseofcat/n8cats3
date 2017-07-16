@@ -84,7 +84,6 @@ public void message(Session session, String message) throws IOException {
 	try {
 		session.getRemote().sendString(new Json().toJson(json));
 		params.lastPingTime = System.currentTimeMillis();
-		App.log.info("send string " + new Json().toJson(json));
 	} catch(IOException e) {
 		e.printStackTrace();
 	}
