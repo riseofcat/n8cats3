@@ -27,7 +27,7 @@ def applyJava = {
 }
 //todo configure(file("local.properties").exists() ? /*allprojects*/ subprojects - project(':android') : allprojects, applyJava)//libgdx,share//todo test android
 allprojects {
-//todo ext.appName = 'mass-power.io'//power-mass.io,react-mass.io//libgdx
+ext.appName = 'mass-power.io'//power-mass.io,react-mass.io//libgdx//heroku
 	repositories {
 		mavenCentral()
 		jcenter()
@@ -54,7 +54,7 @@ if(true) /*libgdx*//*share*/{
 	//todo test android
 	configure(file("local.properties").exists() ? /*allprojects*/ subprojects - project(':android') : allprojects, applyJava)
 	subprojects {
-		ext.appName = 'mass-power.io'//power-mass.io,react-mass.io//libgdx
+//todo		ext.appName = 'mass-power.io'//power-mass.io,react-mass.io//libgdx
 	}
 }
 if (true)/*heroku*/ {
