@@ -1,17 +1,18 @@
+
 buildscript {
-	repositories {
-		mavenCentral()
-		jcenter()
-		maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
-		mavenLocal()
-	}
+  repositories {
+    mavenCentral()
+    jcenter()
+    maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
+    mavenLocal()
+  }
 }
 buildscript {//kotlin
-	ext.kotlin_version = '1.1.1'
-	ext.ktor_version = '0.3.1'
-	dependencies {
-		classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-	}
+  ext.kotlin_version = '1.1.1'
+  ext.ktor_version = '0.3.1'
+  dependencies {
+    classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+  }
 }
 buildscript {//libgdx
 	dependencies {
@@ -21,84 +22,79 @@ buildscript {//libgdx
 	}
 }
 def applyJava = {
-	apply plugin: 'java'
-	sourceCompatibility = JavaVersion.VERSION_1_8
-	targetCompatibility = JavaVersion.VERSION_1_8
+  apply plugin: 'java'
+  sourceCompatibility = JavaVersion.VERSION_1_8
+  targetCompatibility = JavaVersion.VERSION_1_8
 }
+configure(file("local.properties").exists() ? /*allprojects*/ subprojects - project(':android') : allprojects, applyJava)//libgdx,share//todo test android
 allprojects {
-	repositories {
-		mavenCentral()
-		jcenter()
-		maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
-		mavenLocal()
-	}
+  ext.appName = 'mass-power.io'//power-mass.io,react-mass.io//libgdx
+  repositories {
+    mavenCentral()
+    jcenter()
+    maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
+    mavenLocal()
+  }
 }
-if (true) /*java server*/{
-	applyJava()
+if(true) {//java server
+  applyJava()
 	sourceSets {
 		main.java.srcDirs += 'src/main/java'
 	}
 	dependencies {
-		compile 'com.sparkjava:spark-core:2.6.0' /*websocket*///compile 'com.sparkjava:spark-core:+'
-		compile 'org.slf4j:slf4j-simple:1.8.0-alpha2' /*logs*///compile 'org.slf4j:slf4j-simple:+'
+		compile 'com.sparkjava:spark-core:2.6.0' //websocket//compile 'com.sparkjava:spark-core:+'
+		compile 'org.slf4j:slf4j-simple:1.8.0-alpha2' //logs//compile 'org.slf4j:slf4j-simple:+'
 	}
 }
 dependencies {
-	compile "com.badlogicgames.gdx:gdx:$gdxVersion"//json in server
+  compile "com.badlogicgames.gdx:gdx:$gdxVersion"//json in server
 	compile project(":share")//compile project(":mass_libgdx:share")//share
 //  compile project(":lib")
 }
-if(true) /*libgdx*//*share*/{
-	//todo test android
-	configure(file("local.properties").exists() ? /*allprojects*/ subprojects - project(':android') : allprojects, applyJava)
-	subprojects {
-  	ext.appName = 'mass-power.io'//power-mass.io,react-mass.io//libgdx
-	}
+if(true) {//heroku
+  task copyToLib(type: Copy) {
+    into "$buildDir/libs"
+    from(configurations.compile)
+  }
+  task stage(dependsOn: ['clean', 'build', 'copyToLib'])
+  build.mustRunAfter clean
 }
-if (true)/*heroku*/ {
-	task copyToLib(type: Copy) {
-		into "$buildDir/libs"
-		from(configurations.compile)
-	}
-	task stage(dependsOn: ['clean', 'build', 'copyToLib'])
-	build.mustRunAfter clean
+if(false) {//kotlin eats + 5 MB RAM//kotlin server
+  apply plugin: 'kotlin'
+  if(true) {//may be false and compiles success
+    compileKotlin {
+      kotlinOptions {
+        jvmTarget = "1.8"
+        apiVersion = "1.1"
+        languageVersion = "1.1"
+      }
+    }
+  }
+  sourceSets {
+    main.kotlin.srcDirs += 'src/main/kotlin'
+  }
+  repositories {
+    maven { url 'http://dl.bintray.com/kotlin/kotlinx.support' }
+    maven { url 'http://dl.bintray.com/kotlin/ktor' }
+  }
+  dependencies {
+    compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+    compile "org.jetbrains.kotlin:kotlin-test:$kotlin_version"
+    compile "org.jetbrains.ktor:ktor-websockets:$ktor_version"
+    compile "org.jetbrains.ktor:ktor-netty:$ktor_version"
+    compile "org.jetbrains.ktor:ktor-jetty:$ktor_version"
+    compile "org.jetbrains.ktor:ktor-freemarker:$ktor_version"
+    compile "org.jetbrains.kotlinx:kotlinx-html-jvm:0.6.3"
+  }
 }
-if (false)/*kotlin server*/ {//kotlin eats + 5 MB RAM
-	apply plugin: 'kotlin'
-	if (true) {//may be false and compiles success
-		compileKotlin {
-			kotlinOptions {
-				jvmTarget = "1.8"
-				apiVersion = "1.1"
-				languageVersion = "1.1"
-			}
-		}
-	}
-	sourceSets {
-		main.kotlin.srcDirs += 'src/main/kotlin'
-	}
-	repositories {
-		maven { url 'http://dl.bintray.com/kotlin/kotlinx.support' }
-		maven { url 'http://dl.bintray.com/kotlin/ktor' }
-	}
-	dependencies {
-		compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-		compile "org.jetbrains.kotlin:kotlin-test:$kotlin_version"
-		compile "org.jetbrains.ktor:ktor-websockets:$ktor_version"
-		compile "org.jetbrains.ktor:ktor-netty:$ktor_version"
-		compile "org.jetbrains.ktor:ktor-jetty:$ktor_version"
-		compile "org.jetbrains.ktor:ktor-freemarker:$ktor_version"
-		compile "org.jetbrains.kotlinx:kotlinx-html-jvm:0.6.3"
-	}
-}
-if (false)/*old*/ {
-	version '1.0'
-	plugins {
-		id "io.ratpack.ratpack-groovy" version "1.4.5"
-		id "org.jetbrains.kotlin.jvm" version "1.1.1"
-	}
-	subprojects {
-		version = '0.0.1-SNAPSHOT'
-		ext.appName = 'libgdxwebsocket'
-	}
+if(false) { //old
+  version '1.0'
+  plugins {
+    id "io.ratpack.ratpack-groovy" version "1.4.5"
+    id "org.jetbrains.kotlin.jvm" version "1.1.1"
+  }
+  subprojects {
+    version = '0.0.1-SNAPSHOT'
+    ext.appName = 'libgdxwebsocket'
+  }
 }
