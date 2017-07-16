@@ -2,6 +2,7 @@ package com.riseofcat;
 
 import com.badlogic.gdx.utils.Json;
 import com.n8cats.share.ClientSay;
+import com.n8cats.share.ServerPayload;
 import com.n8cats.share.ServerSay;
 
 import org.eclipse.jetty.websocket.api.BatchMode;
@@ -35,14 +36,16 @@ public void connected(Session session) {
 	Params params = new Params(currentTime);
 	params.id = ++lastId;
 	sessions.put(session, params);
-	ServerSay json = new ServerSay();
+	ServerSay<ServerPayload> json = new ServerSay<>();
 //	json.latency = LibAllGwt.getRand(50,100);
-	json.message = "message from server";
+	json.payload = new ServerPayload();
+	json.payload.message = "message from server";
 	json.ping = true;
 	json.id = params.id;
 	try {
 		session.getRemote().sendString(new Json().toJson(json));
 		params.lastPingTime = currentTime;
+		App.log.info("send string " + new Json().toJson(json));
 	} catch(IOException e) {
 		e.printStackTrace();
 	}
@@ -57,33 +60,31 @@ public void closed(Session session, int statusCode, String reason) {
 @OnWebSocketMessage
 public void message(Session session, String message) throws IOException {
 //	System.out.println("Got: " + message);   // Print message
-	if(false) {
-		session.getRemote().sendString(message); // and send it back
-	}
 	if(!session.isOpen()) {
 		App.log.error("session not open");
 		throw new RuntimeException("handle session not open");
 	}
 	ClientSay clientSay = new Json().fromJson(ClientSay.class, message);
 	Params params = sessions.get(session);
-	if(clientSay.pingDelay != null) {
-		long l = System.currentTimeMillis() - params.lastPingTime - clientSay.pingDelay;
-		l = l / 2;
-		params.latency = (int) l;
+	if(clientSay.pong) {
+		long l = (System.currentTimeMillis() - params.lastPingTime + 1)/2;
+		params.latency = (int)l;
 		if(false) {
 			params.lastPingTime = null;
 		}
 	}
 	params.calls++;
-	ServerSay json = new ServerSay();
+	ServerSay<ServerPayload> json = new ServerSay<>();
 //	json.latency = LibAllGwt.getRand(50,100);
-	json.message = "message from server";
+	json.payload = new ServerPayload();
+	json.payload.message = "message from server";
 	json.latency = params.latency;
 	json.ping = true;
 	json.id = params.id;
 	try {
 		session.getRemote().sendString(new Json().toJson(json));
 		params.lastPingTime = System.currentTimeMillis();
+		App.log.info("send string " + new Json().toJson(json));
 	} catch(IOException e) {
 		e.printStackTrace();
 	}

@@ -1,8 +1,8 @@
 package com.n8cats.share;
 
-public class ServerSay {
+public class ServerSay<T> {
 public int id;
 public boolean ping;
 public Integer latency;
-public String message;
+public T payload;
 }
