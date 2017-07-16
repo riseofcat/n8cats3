@@ -28,7 +28,7 @@ public void create() {
 	batch = new SpriteBatch();
 	font = new BitmapFont();
 	for(int i=0;i < 100; i++) {
-		boolean local = true;
+		boolean local = false;
 		if(local) {
 			client = new RealTimeClient("localhost", 5000, "socket", ServerSayS.class);
 		} else {

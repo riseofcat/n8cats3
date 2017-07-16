@@ -39,10 +39,12 @@ public float getUsedMemoty() {
 	return (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) / Const.MEGA;
 }
 public int getCurrentThreads() {
-	return Thread.activeCount();
+	return 0;
+//	return Thread.activeCount();
 }
 public int getAvailableProcessors() {
-	return Runtime.getRuntime().availableProcessors();
+	return 0;
+//	return Runtime.getRuntime().availableProcessors();
 }
 public int getMaxThreads() {
 	Todo.threads();
