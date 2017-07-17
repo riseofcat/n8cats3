@@ -1,19 +1,18 @@
 package com.riseofcat;
 
 import com.badlogic.gdx.utils.Json;
-import com.n8cats.share.ClientSay;
 import com.n8cats.share.ServerPayload;
 import com.n8cats.share.ServerSay;
 
-import org.eclipse.jetty.websocket.api.BatchMode;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketClose;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketConnect;
+import org.eclipse.jetty.websocket.api.annotations.OnWebSocketError;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
 import org.eclipse.jetty.websocket.api.annotations.WebSocket;
 
 import java.io.IOException;
-import java.net.InetSocketAddress;
+import java.io.Reader;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -22,15 +21,11 @@ public class EchoWebSocket {
 //http://sparkjava.com/tutorials/websocket-chat
 //http://sparkjava.com/documentation#embedded-web-server
 
-// Store sessions if you want to, for example, broadcast a message to all users
 private static final Map<Session, Params> sessions = new ConcurrentHashMap<>();
 private static int lastId = 0;
 
 @OnWebSocketConnect
 public void connected(Session session) {
-	InetSocketAddress localAddress = session.getLocalAddress();//server
-	InetSocketAddress remoteAddress = session.getRemoteAddress();//client
-	BatchMode batchMode = session.getRemote().getBatchMode();//AUTO by default
 	Params params = new Params(System.currentTimeMillis());
 	params.id = ++lastId;
 	sessions.put(session, params);
@@ -51,17 +46,17 @@ public void connected(Session session) {
 @OnWebSocketClose
 public void closed(Session session, int statusCode, String reason) {
 	sessions.remove(session);
-	System.out.println("closed");
 }
 
 @OnWebSocketMessage
-public void message(Session session, String message) throws IOException {
-//	System.out.println("Got: " + message);   // Print message
+//public void byteMessage(Session session, byte buf[], int offset, int length)
+//public void message(Session session, String message) {//todo test ram usage
+public void message(Session session, Reader reader) {
 	if(!session.isOpen()) {
 		App.log.error("session not open");
 		return;
 	}
-	ClientSayC clientSay = new Json().fromJson(ClientSayC.class, message);
+	ClientSayC clientSay = new Json().fromJson(ClientSayC.class, reader);
 	Params params = sessions.get(session);
 	if(clientSay.pong) {
 		long l = (System.currentTimeMillis() - params.lastPingTime + 1)/2;
@@ -83,6 +78,17 @@ public void message(Session session, String message) throws IOException {
 	} catch(IOException e) {
 		e.printStackTrace();
 	}
+}
+
+@OnWebSocketError
+public void error(Session session, Throwable error) {
+	App.log.error("OnWebSocketError " + error);
+}
+
+public void todo(Session session) {
+	session.suspend().resume();
+	session.getRemoteAddress();//client
+	session.getRemote().getBatchMode();//AUTO by default
 }
 
 private static class Params {

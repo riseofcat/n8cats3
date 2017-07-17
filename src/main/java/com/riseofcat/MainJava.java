@@ -15,7 +15,7 @@ public static void main(String[] args) {
 	} else {
 		Spark.port(5000);
 	}
-	if(false) {//todo
+	if(true) {//todo test
 		Spark.threadPool(10, 2, 30 * 1000);
 	}
 	Spark.staticFiles.location("/public");
