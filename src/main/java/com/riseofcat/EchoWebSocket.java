@@ -18,6 +18,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @WebSocket
 public class EchoWebSocket {
+//https://github.com/tipsy/spark-websocket
 //http://sparkjava.com/tutorials/websocket-chat
 //http://sparkjava.com/documentation#embedded-web-server
 
@@ -37,7 +38,6 @@ public void connected(Session session) {
 	try {
 		session.getRemote().sendString(new Json().toJson(json));
 		params.lastPingTime = System.currentTimeMillis();
-		App.log.info("send string " + new Json().toJson(json));
 	} catch(IOException e) {
 		e.printStackTrace();
 	}
@@ -50,8 +50,8 @@ public void closed(Session session, int statusCode, String reason) {
 
 @OnWebSocketMessage
 //public void byteMessage(Session session, byte buf[], int offset, int length)
-//public void message(Session session, String message) {//todo test ram usage
-public void message(Session session, Reader reader) {
+//public void message(Session session, String message) {
+public void message(Session session, Reader reader) {//Reader have low ram usage
 	if(!session.isOpen()) {
 		App.log.error("session not open");
 		return;
@@ -83,6 +83,7 @@ public void message(Session session, Reader reader) {
 @OnWebSocketError
 public void error(Session session, Throwable error) {
 	App.log.error("OnWebSocketError " + error);
+	error.printStackTrace();
 }
 
 public void todo(Session session) {

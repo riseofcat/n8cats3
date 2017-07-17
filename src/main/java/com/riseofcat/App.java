@@ -52,6 +52,9 @@ public int getMaxThreads() {
 public float averagePing() {
 	return 0;//todo
 }
+public int activeClients() {
+	return 0;//todo
+}
 public float getStackSizeMB() {
 	//-Xss set java thread stack size//todo test
 	return 0;//todo
