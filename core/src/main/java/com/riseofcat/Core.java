@@ -15,7 +15,6 @@ import java.util.List;
 
 public class Core extends ApplicationAdapter {
 public static final int WIDTH = 640, HEIGHT = 640;
-public static final String SERVER = "n8cats3.herokuapp.com";
 private SpriteBatch batch;
 private BitmapFont font;
 private RealTimeClient<ServerPayload, ClientPayload> client;
@@ -27,12 +26,12 @@ public void create() {
 	Gdx.app.setLogLevel(Application.LOG_DEBUG);
 	batch = new SpriteBatch();
 	font = new BitmapFont();
-	for(int i=0;i < 10; i++) {
+	for(int i=0;i < 1; i++) {
 		boolean local = true;
 		if(local) {
-			client = new RealTimeClient("localhost", 5000, "socket", ServerSayS.class);
+			client =  new RealTimeClient("localhost", 5000, "socket", ServerSayS.class);
 		} else {
-			client = new RealTimeClient(SERVER, 80, "socket", ServerSayS.class);
+			client = new RealTimeClient("n8cats3.herokuapp.com", 80, "socket", ServerSayS.class);
 		}
 		clients.add(client);
 	}
