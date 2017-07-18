@@ -18,7 +18,7 @@ public static void main(String[] args) {
 	}
 	Spark.staticFiles.location("/public");
 	Spark.staticFiles.expireTime(600);
-	Spark.webSocket("/socket", new SparkWebSocket(new JsonRealtimeServer(ClientSayC.class, 1000, new GameRealtimeServer())));
+	Spark.webSocket("/socket", new SparkWebSocket(new JsonRealTimeServer(ClientSayC.class, 1000, new GameRealtimeServer())));
 	Spark.get("/", new Route() {
 		@Override
 		public Object handle(Request request, Response response) {
