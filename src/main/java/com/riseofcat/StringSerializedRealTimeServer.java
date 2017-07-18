@@ -2,6 +2,7 @@ package com.riseofcat;
 
 import com.n8cats.share.ClientSay;
 import com.n8cats.share.ServerSay;
+import com.sun.istack.internal.Nullable;
 
 import java.io.Reader;
 import java.util.Map;
@@ -47,7 +48,9 @@ private void message(AbstractStringRealTimeServer.Session sess, ClientSay<C> say
 }
 private class Session extends AbstractPayloadServer.Session<C, S> {
 	private final AbstractStringRealTimeServer.Session sess;
+	@Nullable
 	private Long lastPingTime;
+	@Nullable
 	private Integer latency;
 	private Session(AbstractStringRealTimeServer.Session sess) {
 		super(sess.id);
@@ -75,7 +78,7 @@ private class Session extends AbstractPayloadServer.Session<C, S> {
 		return latency;
 	}
 }
-public interface IStringSerializer<C, S> {
+public interface IStringSerializer<C, S> {//todo change to StringSerializer from share
 	ClientSay<C> fromStringC(String str);
 	ServerSay<S> fromStringS(String str);
 	ClientSay<C> fromStringC(Reader reader);
