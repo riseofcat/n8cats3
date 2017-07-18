@@ -1,6 +1,6 @@
 package com.riseofcat;
 import java.io.Reader;
-abstract public class AbstractRealTimeServer {
+abstract public class AbstractStringRealTimeServer {
 private int sessionsCount = 0;
 final public void message(Session ses, Reader reader) {
 	ses.incomeCalls++;

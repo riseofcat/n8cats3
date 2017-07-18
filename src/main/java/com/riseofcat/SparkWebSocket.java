@@ -13,14 +13,14 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 @WebSocket
-public class SparkWebSocket{
+public class SparkWebSocket {
 //https://github.com/tipsy/spark-websocket
 //http://sparkjava.com/tutorials/websocket-chat
 //http://sparkjava.com/documentation#embedded-web-server
 private static final Map<Session, SparkSession> sessions = new ConcurrentHashMap<>();
 private static int lastId = 0;
-private final AbstractRealTimeServer server;
-public SparkWebSocket(AbstractRealTimeServer server) {
+private final AbstractStringRealTimeServer server;
+public SparkWebSocket(AbstractStringRealTimeServer server) {
 	this.server = server;
 }
 @OnWebSocketConnect
@@ -54,8 +54,7 @@ private void todo(Session session) {//todo
 	session.getRemoteAddress();//client
 	session.getRemote().getBatchMode();//AUTO by default
 }
-
-private static class SparkSession extends AbstractRealTimeServer.Session {
+private static class SparkSession extends AbstractStringRealTimeServer.Session {
 	public final Session session;
 	public SparkSession(Session session, int id) {
 		super(id);
