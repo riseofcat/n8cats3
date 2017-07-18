@@ -1,13 +1,12 @@
 package com.riseofcat;
 
 import com.n8cats.lib.LibAll;
-import com.n8cats.share.ClientPayload;
-import com.n8cats.share.ServerPayload;
 
 import spark.Request;
 import spark.Response;
 import spark.Route;
-import spark.Spark;//import static spark.Spark.*;//http://sparkjava.com/documentation
+import spark.Spark;
+//import static spark.Spark.*;//http://sparkjava.com/documentation
 
 public class MainJava {
 public static void main(String[] args) {

@@ -17,53 +17,47 @@ public class SparkWebSocket{
 //https://github.com/tipsy/spark-websocket
 //http://sparkjava.com/tutorials/websocket-chat
 //http://sparkjava.com/documentation#embedded-web-server
-
-private static final Map<Session, SparkSess> sessions = new ConcurrentHashMap<>();
+private static final Map<Session, SparkSession> sessions = new ConcurrentHashMap<>();
 private static int lastId = 0;
-private final IRealTimeServer server;
-public SparkWebSocket(IRealTimeServer server) {
+private final AbstractRealTimeServer server;
+public SparkWebSocket(AbstractRealTimeServer server) {
 	this.server = server;
 }
 @OnWebSocketConnect
 public void connected(Session session) {
-	SparkSess params = new SparkSess(session, ++lastId);
-	sessions.put(session, params);
-	server.starts(params);
+	SparkSession s = new SparkSession(session, ++lastId);
+	sessions.put(session, s);
+	server.start(s);
 }
-
 @OnWebSocketClose
 public void closed(Session session, int statusCode, String reason) {
-	server.closed(sessions.get(session));
+	server.close(sessions.get(session));
 	sessions.remove(session);
 }
-
 @OnWebSocketMessage
 //public void byteMessage(Session session, byte buf[], int offset, int length)
 //public void message(Session session, String message) {
 public void message(Session session, Reader reader) {//Reader have low ram usage
 	if(!session.isOpen()) {
-		App.log.error("session not open");
+		App.log.error("SparkWebSocket session not open");
 		return;
 	}
-	SparkSess sparkSess = sessions.get(session);
-	server.message(sparkSess, reader);
+	SparkSession s = sessions.get(session);
+	server.message(s, reader);
 }
-
 @OnWebSocketError
 public void error(Session session, Throwable error) {
 	App.log.error("OnWebSocketError " + error);
-	error.printStackTrace();
 }
-
-public void todo(Session session) {//todo
+private void todo(Session session) {//todo
 	session.suspend().resume();
 	session.getRemoteAddress();//client
 	session.getRemote().getBatchMode();//AUTO by default
 }
 
-private static class SparkSess extends IRealTimeServer.Sess {
+private static class SparkSession extends AbstractRealTimeServer.Session {
 	public final Session session;
-	public SparkSess(Session session, int id) {
+	public SparkSession(Session session, int id) {
 		super(id);
 		this.session = session;
 	}
@@ -72,7 +66,7 @@ private static class SparkSess extends IRealTimeServer.Sess {
 		session.getRemote().sendString(message, new WriteCallback() {
 			@Override
 			public void writeFailed(Throwable x) {
-				App.log.error("SparkSess.send.writeFailed " + x);
+				App.log.error("SparkSession.send.writeFailed " + x);
 			}
 			@Override
 			public void writeSuccess() {
@@ -84,6 +78,5 @@ private static class SparkSess extends IRealTimeServer.Sess {
 	public void stop() {
 		session.close();
 	}
-
 }
 }

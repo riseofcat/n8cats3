@@ -5,7 +5,7 @@ import com.n8cats.share.ServerPayload;
 public class GameRealtimeServer extends AbstractGameRealtimeServer<ClientPayload, ServerPayload> {
 @Override
 public void starts(JsonRealtimeServer<ClientPayload, ServerPayload>.Sess2 sess2) {
-	App.log.info("starts");
+	App.log.info("start");
 	ServerPayload payload = new ServerPayload();
 	payload.message = "from server";
 	sess2.send(payload);
@@ -15,7 +15,7 @@ public void payloadMessage(JsonRealtimeServer<ClientPayload, ServerPayload>.Sess
 	App.log.info(payload.message);
 }
 @Override
-public void closed(IRealTimeServer.Sess sess) {
-	App.log.info("closed");
+public void closed(AbstractRealTimeServer.Session sess) {
+	App.log.info("close");
 }
 }

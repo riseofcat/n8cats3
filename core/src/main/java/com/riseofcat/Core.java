@@ -26,10 +26,10 @@ public void create() {
 	Gdx.app.setLogLevel(Application.LOG_DEBUG);
 	batch = new SpriteBatch();
 	font = new BitmapFont();
-	for(int i=0;i < 1; i++) {
+	for(int i = 0; i < 1; i++) {
 		boolean local = true;
 		if(local) {
-			client =  new RealTimeClient("localhost", 5000, "socket", ServerSayS.class);
+			client = new RealTimeClient("localhost", 5000, "socket", ServerSayS.class);
 		} else {
 			client = new RealTimeClient("n8cats3.herokuapp.com", 80, "socket", ServerSayS.class);
 		}
@@ -52,11 +52,11 @@ public void render() {
 	batch.begin();
 	int y = 20;
 	for(RealTimeClient<ServerPayload, ClientPayload> client : clients) {
-		font.draw(batch, client.id +  ": latency = " + client.latency, 10f, y);
-		y+=20;
+		font.draw(batch, client.id + ": latency = " + client.latency, 10f, y);
+		y += 20;
 	}
 	if(answer != null) {
-		font.draw(batch, answer.message, Gdx.graphics.getWidth()/2, Gdx.graphics.getHeight()/2);
+		font.draw(batch, answer.message, Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2);
 	}
 	batch.end();
 }
