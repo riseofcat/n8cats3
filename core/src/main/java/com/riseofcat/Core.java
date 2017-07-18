@@ -56,7 +56,7 @@ public void render() {
 		y+=20;
 	}
 	if(answer != null) {
-
+		font.draw(batch, answer.message, Gdx.graphics.getWidth()/2, Gdx.graphics.getHeight()/2);
 	}
 	batch.end();
 }

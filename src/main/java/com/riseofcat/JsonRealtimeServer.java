@@ -7,11 +7,11 @@ import com.n8cats.share.ServerSay;
 import java.io.Reader;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-public class JsonRealtimeServer<C, S> implements IRealTimeServer {
+public class JsonRealtimeServer<C, S> extends IRealTimeServer {
 private final Class<ClientSay<C>> typeC;
 private final int pingInerval;
-private final AbstractGameRealtimeServer server;
-public JsonRealtimeServer(Class<ClientSay<C>> typeC, int pingIntervalMs, AbstractGameRealtimeServer server) {
+private final AbstractGameRealtimeServer<C,S> server;
+public JsonRealtimeServer(Class<ClientSay<C>> typeC, int pingIntervalMs, AbstractGameRealtimeServer<C,S> server) {
 	this.typeC = typeC;
 	this.pingInerval = pingIntervalMs;
 	this.server = server;
@@ -22,17 +22,14 @@ public void starts(Sess sess) {
 	Sess2 sess2 = new Sess2(sess);
 	sessions.put(sess, sess2);
 	this.server.starts(sess2);
-	starts2(sess2);
 }
 @Override
-public void message(Sess sess, Reader reader) {
-	ClientSay<C> clientSay = new Json().fromJson(typeC, reader);
-	message2(sess, clientSay);
+public void message2(Sess sess, Reader reader) {
+	message2(sess, new Json().fromJson(typeC, reader));
 }
 @Override
-public void message(Sess sess, String message) {
-	ClientSay<C> clientSay = new Json().fromJson(typeC, message);
-	message2(sess, clientSay);
+public void message2(Sess sess, String message) {
+	message2(sess, new Json().fromJson(typeC, message));
 }
 private void message2(Sess sess, ClientSay<C> say) {
 	Sess2 sess2 = sessions.get(sess);
@@ -40,31 +37,16 @@ private void message2(Sess sess, ClientSay<C> say) {
 		long l = (System.currentTimeMillis() - sess2.lastPingTime + 1)/2;
 		sess2.latency = (int)l;
 	}
-	sess2.incomeCalls++;
 	if(say.payload != null) {
 		server.payloadMessage(sess2, say.payload);
-		payloadMessage2(sess2, say.payload);
 	}
 }
 @Override
 public void closed(Sess sess) {
-	closed2(sessions.remove(sess));
 	server.closed(sess);
 }
-/*abstract*/ protected void starts2(Sess2 ses) {
-
-}
-/*abstract*/ protected void payloadMessage2(Sess2 ses, C payload) {
-
-}
-/*abstract*/ protected void closed2(Sess2 ses) {
-
-}
-
 public class Sess2 {
 	public final Sess sess;
-	public int incomeCalls;
-	public int outCalls;
 	public Long lastPingTime;
 	public Integer latency;
 	private Sess2(Sess sess) {

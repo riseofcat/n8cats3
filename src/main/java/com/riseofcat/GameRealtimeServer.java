@@ -15,7 +15,7 @@ public void payloadMessage(JsonRealtimeServer<ClientPayload, ServerPayload>.Sess
 	App.log.info(payload.message);
 }
 @Override
-public void closed(Sess sess) {
+public void closed(IRealTimeServer.Sess sess) {
 	App.log.info("closed");
 }
 }

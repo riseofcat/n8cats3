@@ -46,7 +46,6 @@ public int getAvailableProcessors() {
 	return Runtime.getRuntime().availableProcessors();
 }
 public int getMaxThreads() {
-	Todo.threads();
 	return 0;//todo
 }
 public float averagePing() {

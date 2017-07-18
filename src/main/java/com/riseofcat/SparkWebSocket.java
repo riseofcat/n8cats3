@@ -61,7 +61,7 @@ public void todo(Session session) {//todo
 	session.getRemote().getBatchMode();//AUTO by default
 }
 
-private static class SparkSess extends Sess {
+private static class SparkSess extends IRealTimeServer.Sess {
 	public final Session session;
 	public SparkSess(Session session, int id) {
 		super(id);
