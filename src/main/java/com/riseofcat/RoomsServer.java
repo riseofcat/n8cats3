@@ -73,7 +73,7 @@ public class Room {
 		}
 	}
 	public class Player extends Logic.Player {
-		private final Session<ClientPayload, ServerPayload> session;
+		public final Session<ClientPayload, ServerPayload> session;
 		public Player(Session<ClientPayload, ServerPayload> session) {
 			this.session = session;
 		}

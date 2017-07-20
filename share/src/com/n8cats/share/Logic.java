@@ -1,9 +1,6 @@
 package com.n8cats.share;
 
-import com.n8cats.lib_gwt.Signal;
-
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -75,11 +72,4 @@ public static class State {
 	public Set<Car> cars = new HashSet<>();
 }
 
-//todo move out
-public final int reconcilationTicks = 10;
-public final int oldTicks = 20;
-private int tick;
-public static abstract class Reconciliation {
-
-}
 }
