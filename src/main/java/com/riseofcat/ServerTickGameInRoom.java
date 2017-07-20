@@ -1,23 +1,46 @@
 package com.riseofcat;
 import com.n8cats.share.Logic;
+import com.n8cats.share.ServerPayload;
 
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.ConcurrentHashMap;
 public class ServerTickGameInRoom {
 private final RoomsServer.Room room;
 private final Logic logic;
 public final int reconcilationTicks = 10;
 public final int oldTicks = 20;
 private int tick = 0;
+private Logic.State state = new Logic.State();
+private ConcurrentHashMap<Logic.Player.Id, Logic.Action> actions = new ConcurrentHashMap<>();
 
 public ServerTickGameInRoom(RoomsServer.Room room, Logic logic) {
 	this.room = room;
 	this.logic = logic;
+	room.onPlayerAdded.add(player -> {
+		Logic.Car car = new Logic.Car();
+		car.playerId = player.getId();
+		car.x = (float) (Math.random()*Logic.width);
+		car.y = (float) (Math.random()*Logic.height);
+		state.cars.add(car);
+	});
+	room.onMessage.add(message -> {
+		actions.put(message.player.getId(), message.payload.action);
+	});
 	Timer timer = new Timer();
 	timer.schedule(new TimerTask() {
 		@Override
 		public void run() {
-			App.log.info("timer tick");
+			tick++;
+			logic.update(state, actions);
+			actions = new ConcurrentHashMap<>();
+			if(tick%5 == 0) {
+				for(RoomsServer.Room.Player player : room.getPlayers()) {
+					ServerPayload payload = new ServerPayload();
+					payload.state = state;
+					player.session.send(payload);
+				}
+			}
 		}
 	}, 0, Logic.UPDATE_MS);
 }

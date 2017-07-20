@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 public class RoomsServer extends AbstractPayloadServer<ClientPayload, ServerPayload> {
-public final static int MAXIMUM_ROOM_PLAYERS = 5;
+public final static int MAXIMUM_ROOM_PLAYERS = 50;//todo test
 public final Signal<Room> onRoomCreated = new Signal<>();
 //todo onRoomDestroyed
 private final List<Room> rooms = new ArrayList<>();
@@ -27,12 +27,13 @@ public void start(Session<ClientPayload, ServerPayload> session) {
 			}
 		}
 		if(room == null) {
+			App.log.info("new room created");
 			room = new Room();
-			onRoomCreated.dispatch(room);
 			rooms.add(room);
+			onRoomCreated.dispatch(room);
 		}
+		room.add(session);
 	}
-	room.add(session);
 	sessions.put(session, room);
 }
 @Override

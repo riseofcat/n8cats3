@@ -56,12 +56,12 @@ abstract public static class Player {
 		}
 	}
 }
-static class Car {
-	Player.Id playerId;
-	float x = 0;
-	float y = 0;
-	float speedX = 0;
-	float speedY = 0;
+public static class Car {
+	public Player.Id playerId;
+	public float x = 0;
+	public float y = 0;
+	public float speedX = 0;
+	public float speedY = 0;
 	public Player.Id destroyedBy;
 }
 public static class Action {
