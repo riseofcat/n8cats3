@@ -27,7 +27,7 @@ public void create() {
 	Gdx.app.setLogLevel(Application.LOG_DEBUG);
 	batch = new SpriteBatch();
 	font = new BitmapFont();
-	for(int i = 0; i < 1; i++) {
+	for(int i = 0; i < 4; i++) {
 		boolean local = true;
 		if(local) {
 			client = new RealTimeClient("localhost", 5000, "socket", ServerSayS.class);

@@ -2,7 +2,7 @@ package com.riseofcat;
 
 import com.n8cats.share.ClientSay;
 import com.n8cats.share.ServerSay;
-import com.sun.istack.internal.Nullable;
+//import com.sun.istack.internal.Nullable;
 
 import java.io.Reader;
 import java.util.Map;
@@ -11,17 +11,17 @@ public class StringSerializedRealTimeServer<C, S> extends AbstractStringRealTime
 private final AbstractPayloadServer<C, S> server;
 private final int pingIntervalMs;
 private final IStringSerializer<C, S> serializer;
+private final Map<AbstractStringRealTimeServer.Session, Session> sessions = new ConcurrentHashMap<>();
 public StringSerializedRealTimeServer(AbstractPayloadServer<C, S> server, int pingIntervalMs, IStringSerializer<C, S> serializer) {
 	this.server = server;
 	this.pingIntervalMs = pingIntervalMs;
 	this.serializer = serializer;
 }
-private final Map<AbstractStringRealTimeServer.Session, Session> sessions = new ConcurrentHashMap<>();
 @Override
 public void abstractStart(AbstractStringRealTimeServer.Session sess) {
 	Session s = new Session(sess);
 	sessions.put(sess, s);
-	server.starts(s);
+	server.start(s);
 }
 @Override
 public void abstractMessage(AbstractStringRealTimeServer.Session sess, Reader reader) {
@@ -33,7 +33,7 @@ public void abstractMessage(AbstractStringRealTimeServer.Session sess, String me
 }
 @Override
 public void abstractClose(AbstractStringRealTimeServer.Session sess) {
-	server.closed(sessions.get(sess));
+	server.close(sessions.get(sess));
 	sessions.remove(sess);
 }
 private void message(AbstractStringRealTimeServer.Session sess, ClientSay<C> say) {
@@ -48,9 +48,9 @@ private void message(AbstractStringRealTimeServer.Session sess, ClientSay<C> say
 }
 private class Session extends AbstractPayloadServer.Session<C, S> {
 	private final AbstractStringRealTimeServer.Session sess;
-	@Nullable
+//	@Nullable
 	private Long lastPingTime;
-	@Nullable
+//	@Nullable
 	private Integer latency;
 	private Session(AbstractStringRealTimeServer.Session sess) {
 		super(sess.id);
