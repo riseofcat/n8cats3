@@ -1,4 +1,5 @@
 <module>
     <inherits name='com.n8cats.LibAll'/>
     <source path="share"/>
+    <extend-configuration-property name="gdx.reflect.include" value="com.n8cats.share" />
 </module>

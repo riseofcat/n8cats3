@@ -8,16 +8,17 @@ import com.github.czyzby.websocket.WebSockets;
 import com.github.czyzby.websocket.data.WebSocketCloseCode;
 import com.github.czyzby.websocket.data.WebSocketState;
 import com.github.czyzby.websocket.net.ExtendedNet;
-import com.n8cats.lib.LibAll;
+//import com.n8cats.lib.LibAll;
 import com.n8cats.lib_gwt.Signal;
 import com.n8cats.share.ClientSay;
+import com.n8cats.share.ClientSayC;
 import com.n8cats.share.ServerSay;
 public class RealTimeClient<S, C> {
 public final Signal<S> incoming = new Signal<>();
 private WebSocket socket;
 public Integer latency;
 public Integer id;
-private Queue<ClientSayC> queue = new Queue<>();
+private Queue<ClientSay<C>> queue = new Queue<>();
 public RealTimeClient(String host, int port, String path, Class<ServerSay<S>> typeS) {
 	if(true) {
 		socket = ExtendedNet.getNet().newWebSocket(host, port, path);
@@ -46,9 +47,9 @@ public RealTimeClient(String host, int port, String path, Class<ServerSay<S>> ty
 				RealTimeClient.this.id = serverSay.id;
 			}
 			if(serverSay.ping) {
-				ClientSayC answer = new ClientSayC();
+				ClientSay<C> answer = new ClientSay<>();
 				answer.pong = true;
-				LibAll.sleep(20);
+//				LibAll.sleep(20);
 				say(answer);
 			}
 			if(serverSay.payload != null) {
@@ -71,12 +72,12 @@ public RealTimeClient(String host, int port, String path, Class<ServerSay<S>> ty
 }
 
 public void say(C payload) {
-	ClientSayC answer = new ClientSayC();
+	ClientSay<C> answer = new ClientSay<C>();
 	answer.payload = payload;
 	say(answer);
 }
 
-private void say(ClientSayC say) {
+private void say(ClientSay<C> say) {
 	if(socket.getState() == WebSocketState.OPEN) {
 		sayNow(say);
 	} else {
@@ -84,7 +85,7 @@ private void say(ClientSayC say) {
 	}
 }
 
-private void sayNow(ClientSayC say) {
+private void sayNow(ClientSay<C> say) {
 	socket.send(new Json().toJson(say));
 }
 
@@ -94,10 +95,6 @@ public WebSocketState getState() {
 
 public void close() {
 	WebSockets.closeGracefully(socket); // Null-safe closing method that catches and logs any exceptions.
-}
-
-private class ClientSayC extends ClientSay<C> {
-
 }
 
 }

@@ -38,7 +38,6 @@ public void start(Session<ClientPayload, ServerPayload> session) {
 }
 @Override
 public void payloadMessage(Session<ClientPayload, ServerPayload> session, ClientPayload payload) {
-	App.log.info(payload.message);
 	sessions.get(session).message(session, payload);
 }
 @Override

@@ -46,6 +46,7 @@ public static class JSON {
 	}
 	public static String toPrettyStr(Object value) {
 		//todo
+//		new Json().prettyPrint() for LibGDX
 		return toStr(value);
 	}
 }

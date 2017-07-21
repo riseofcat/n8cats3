@@ -34,10 +34,11 @@ public ServerTickGameInRoom(RoomsServer.Room room, Logic logic) {
 			tick++;
 			logic.update(state, actions);
 			actions = new ConcurrentHashMap<>();
-			if(tick%5 == 0) {
+			if(tick % 5 == 0) {
 				for(RoomsServer.Room.Player player : room.getPlayers()) {
 					ServerPayload payload = new ServerPayload();
-					payload.state = state;
+					payload.state = new ServerPayload.State();
+					payload.state.cars = state.cars.toArray(new Logic.Car[]{});
 					player.session.send(payload);
 				}
 			}
