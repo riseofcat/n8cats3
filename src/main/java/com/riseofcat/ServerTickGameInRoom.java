@@ -25,7 +25,9 @@ public ServerTickGameInRoom(RoomsServer.Room room, Logic logic) {
 		state.cars.add(car);
 	});
 	room.onMessage.add(message -> {
-		actions.put(message.player.getId(), message.payload.action);
+		if(message.payload.action != null) {
+			actions.put(message.player.getId(), message.payload.action);
+		}
 	});
 	Timer timer = new Timer();
 	timer.schedule(new TimerTask() {

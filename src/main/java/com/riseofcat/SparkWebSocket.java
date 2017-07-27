@@ -48,6 +48,7 @@ public void message(Session session, Reader reader) {//Reader have low ram usage
 @OnWebSocketError
 public void error(Session session, Throwable error) {
 	App.log.error("OnWebSocketError " + error);
+	error.printStackTrace();
 }
 private void todo(Session session) {//todo
 	session.suspend().resume();
