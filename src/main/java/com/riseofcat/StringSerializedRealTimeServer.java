@@ -1,6 +1,7 @@
 package com.riseofcat;
 
 import com.n8cats.share.ClientSay;
+import com.n8cats.share.IStringSerializer;
 import com.n8cats.share.ServerSay;
 //import com.sun.istack.internal.Nullable;
 
@@ -10,12 +11,14 @@ import java.util.concurrent.ConcurrentHashMap;
 public class StringSerializedRealTimeServer<C, S> extends AbstractStringRealTimeServer {
 private final AbstractPayloadServer<C, S> server;
 private final int pingIntervalMs;
-private final IStringSerializer<C, S> serializer;
+private final IStringSerializer<ClientSay<C>> cSerializer;
 private final Map<AbstractStringRealTimeServer.Session, Session> sessions = new ConcurrentHashMap<>();
-public StringSerializedRealTimeServer(AbstractPayloadServer<C, S> server, int pingIntervalMs, IStringSerializer<C, S> serializer) {
+private final IStringSerializer<ServerSay<S>> sSerializer;
+public StringSerializedRealTimeServer(AbstractPayloadServer<C, S> server, int pingIntervalMs, IStringSerializer<ClientSay<C>> cSerializer, IStringSerializer<ServerSay<S>> sSerializer) {
 	this.server = server;
 	this.pingIntervalMs = pingIntervalMs;
-	this.serializer = serializer;
+	this.cSerializer = cSerializer;
+	this.sSerializer = sSerializer;
 }
 @Override
 public void abstractStart(AbstractStringRealTimeServer.Session sess) {
@@ -25,11 +28,11 @@ public void abstractStart(AbstractStringRealTimeServer.Session sess) {
 }
 @Override
 public void abstractMessage(AbstractStringRealTimeServer.Session sess, Reader reader) {
-	message(sess, serializer.fromStringC(reader));
+	message(sess, cSerializer.fromStr(reader));
 }
 @Override
 public void abstractMessage(AbstractStringRealTimeServer.Session sess, String message) {
-	message(sess, serializer.fromStringC(message));
+	message(sess, cSerializer.fromStr(message));
 }
 @Override
 public void abstractClose(AbstractStringRealTimeServer.Session sess) {
@@ -66,7 +69,7 @@ private class Session extends AbstractPayloadServer.Session<C, S> {
 			lastPingTime = System.currentTimeMillis();
 		}
 		say.payload = payload;
-		String message = serializer.toStringS(say);
+		String message = sSerializer.toStr(say);
 		sess.send(message);
 	}
 	@Override
@@ -77,13 +80,5 @@ private class Session extends AbstractPayloadServer.Session<C, S> {
 	public Integer getLatency() {
 		return latency;
 	}
-}
-public interface IStringSerializer<C, S> {//todo change to StringSerializer from share
-	ClientSay<C> fromStringC(String str);
-	ServerSay<S> fromStringS(String str);
-	ClientSay<C> fromStringC(Reader reader);
-	ServerSay<S> fromStringS(Reader reader);
-	String toStringC(ClientSay<C> c);
-	String toStringS(ServerSay<S> s);
 }
 }

@@ -1,7 +1,6 @@
 package com.riseofcat;
 
 import com.n8cats.lib.LibAll;
-import com.n8cats.lib_gwt.SignalListener;
 import com.n8cats.share.ClientSayC;
 import com.n8cats.share.Logic;
 import com.n8cats.share.ServerSayS;
@@ -23,16 +22,9 @@ public static void main(String[] args) {
 	}
 	Spark.staticFiles.location("/public");
 	Spark.staticFiles.expireTime(600);
-	JsonSerializer serializer = new JsonSerializer(ClientSayC.class, ServerSayS.class);
 	RoomsServer roomsServer = new RoomsServer();
-	roomsServer.onRoomCreated.add(new SignalListener<RoomsServer.Room>() {
-		@Override
-		public void onSignal(RoomsServer.Room room) {
-			App.log.info("room created");
-			new ServerTickGameInRoom(room, new Logic());
-		}
-	});
-	StringSerializedRealTimeServer stringSerialized = new StringSerializedRealTimeServer(roomsServer, 1000, serializer);
+	roomsServer.onRoomCreated.add(room -> new TickGame(room, new Logic()));
+	StringSerializedRealTimeServer stringSerialized = new StringSerializedRealTimeServer(roomsServer, 1000, new JsonSerializer(ClientSayC.class), new JsonSerializer(ServerSayS.class));
 	Spark.webSocket("/socket", new SparkWebSocket(stringSerialized));
 	Spark.get("/", new Route() {
 		@Override
