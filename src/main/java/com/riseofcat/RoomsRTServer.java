@@ -10,14 +10,14 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-public class RoomsRTServer extends PayloadRTServer<ClientPayload, ServerPayload> {
+public class RoomsRTServer extends AbstractPayloadRTServer<ClientPayload, ServerPayload> {
 public final static int MAXIMUM_ROOM_PLAYERS = 5;
 public final Signal<Room> onRoomCreated = new Signal<>();
 //todo onRoomDestroyed
 private final List<Room> rooms = new ArrayList<>();
-private final Map<Session<ClientPayload, ServerPayload>, Room> sessions = new ConcurrentHashMap<>();
+private final Map<Session<ServerPayload>, Room> sessions = new ConcurrentHashMap<>();
 @Override
-public void start(Session<ClientPayload, ServerPayload> session) {
+public void start(Session<ServerPayload> session) {
 	Room room = null;
 	synchronized(this) {
 		for(Room r : rooms) {
@@ -37,11 +37,11 @@ public void start(Session<ClientPayload, ServerPayload> session) {
 	sessions.put(session, room);
 }
 @Override
-public void payloadMessage(Session<ClientPayload, ServerPayload> session, ClientPayload payload) {
+public void payloadMessage(Session<ServerPayload> session, ClientPayload payload) {
 	sessions.get(session).message(session, payload);
 }
 @Override
-public void close(Session<ClientPayload, ServerPayload> session) {
+public void close(Session<ServerPayload> session) {
 	Room room = sessions.remove(session);
 	room.remove(session);
 }
@@ -49,32 +49,32 @@ public class Room {
 	final public Signal<Player> onPlayerAdded = new Signal<>();
 	final public Signal<Player> onPlayerRemoved = new Signal<>();
 	final public Signal<PlayerMessage> onMessage = new Signal<>();
-	private final Map<Session<ClientPayload, ServerPayload>, Player> sessions = new ConcurrentHashMap<>();
+	private final Map<Session<ServerPayload>, Player> sessions = new ConcurrentHashMap<>();
 	public int getPlayersCount() {
 		return sessions.size();
 	}
 	public Collection<Player> getPlayers() {
 		return sessions.values();//todo optimize
 	}
-	private void add(Session<ClientPayload, ServerPayload> session) {
+	private void add(Session<ServerPayload> session) {
 		Player player = new Player(session);
 		sessions.put(session, player);
 		synchronized(this) {
 			onPlayerAdded.dispatch(player);
 		}
 	}
-	private void message(Session<ClientPayload, ServerPayload> session, ClientPayload payload) {
+	private void message(Session<ServerPayload> session, ClientPayload payload) {
 		onMessage.dispatch(new PlayerMessage(sessions.get(session), payload));
 	}
-	private void remove(Session<ClientPayload, ServerPayload> session) {
+	private void remove(Session<ServerPayload> session) {
 		Player remove = sessions.remove(session);
 		synchronized(this) {
 			onPlayerRemoved.dispatch(remove);
 		}
 	}
 	public class Player extends Logic.Player {
-		public final Session<ClientPayload, ServerPayload> session;
-		public Player(Session<ClientPayload, ServerPayload> session) {
+		public final Session<ServerPayload> session;
+		public Player(Session<ServerPayload> session) {
 			this.session = session;
 		}
 		@Override

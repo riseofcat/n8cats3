@@ -19,8 +19,8 @@ public class SparkWebSocket {
 //http://sparkjava.com/documentation#embedded-web-server
 private static final Map<Session, SparkSession> sessions = new ConcurrentHashMap<>();
 private static int lastId = 0;
-private final StringRTServer server;
-public SparkWebSocket(StringRTServer server) {
+private final AbstractStringRTServer server;
+public SparkWebSocket(AbstractStringRTServer server) {
 	this.server = server;
 }
 @OnWebSocketConnect
@@ -50,7 +50,7 @@ public void error(Session session, Throwable error) {
 	App.log.error("OnWebSocketError " + error);
 	error.printStackTrace();
 }
-private static class SparkSession extends StringRTServer.Session {
+private static class SparkSession extends AbstractStringRTServer.Session {
 	public final Session session;
 	public SparkSession(Session session, int id) {
 		super(id);
