@@ -9,40 +9,40 @@ import org.jetbrains.annotations.Nullable;
 import java.io.Reader;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-public class StringSerializedRealTimeServer<C, S> extends AbstractStringRealTimeServer {
-private final AbstractPayloadServer<C, S> server;
+public class StringSerialezedRTServer<C, S> extends StringRTServer {
+private final PayloadRTServer<C, S> server;
 private final int pingIntervalMs;
 private final IStringSerializer<ClientSay<C>> cSerializer;
-private final Map<AbstractStringRealTimeServer.Session, Session> sessions = new ConcurrentHashMap<>();
+private final Map<StringRTServer.Session, Session> sessions = new ConcurrentHashMap<>();
 private final IStringSerializer<ServerSay<S>> sSerializer;
-public StringSerializedRealTimeServer(AbstractPayloadServer<C, S> server, int pingIntervalMs, IStringSerializer<ClientSay<C>> cSerializer, IStringSerializer<ServerSay<S>> sSerializer) {
+public StringSerialezedRTServer(PayloadRTServer<C, S> server, int pingIntervalMs, IStringSerializer<ClientSay<C>> cSerializer, IStringSerializer<ServerSay<S>> sSerializer) {
 	this.server = server;
 	this.pingIntervalMs = pingIntervalMs;
 	this.cSerializer = cSerializer;
 	this.sSerializer = sSerializer;
 }
 @Override
-public void abstractStart(AbstractStringRealTimeServer.Session sess) {
+public void abstractStart(StringRTServer.Session sess) {
 	Session s = new Session(sess);
 	sessions.put(sess, s);
 	server.start(s);
 }
 @Override
-public void abstractMessage(AbstractStringRealTimeServer.Session sess, Reader reader) {
+public void abstractMessage(StringRTServer.Session sess, Reader reader) {
 	message(sess, cSerializer.fromStr(reader));
 }
 @Override
-public void abstractMessage(AbstractStringRealTimeServer.Session sess, String message) {
+public void abstractMessage(StringRTServer.Session sess, String message) {
 	message(sess, cSerializer.fromStr(message));
 }
 @Override
-public void abstractClose(AbstractStringRealTimeServer.Session sess) {
+public void abstractClose(StringRTServer.Session sess) {
 	server.close(sessions.get(sess));
 	sessions.remove(sess);
 }
-private void message(AbstractStringRealTimeServer.Session sess, ClientSay<C> say) {
+private void message(StringRTServer.Session sess, ClientSay<C> say) {
 	Session s = sessions.get(sess);
-	if(say.pong) {
+	if(say.pong && s.lastPingTime != null) {
 		long l = (System.currentTimeMillis() - s.lastPingTime + 1) / 2;
 		s.latency = (int) l;
 	}
@@ -50,13 +50,13 @@ private void message(AbstractStringRealTimeServer.Session sess, ClientSay<C> say
 		server.payloadMessage(s, say.payload);
 	}
 }
-private class Session extends AbstractPayloadServer.Session<C, S> {
-	private final AbstractStringRealTimeServer.Session sess;
+private class Session extends PayloadRTServer.Session<C, S> {
+	private final StringRTServer.Session sess;
 	@Nullable
 	private Long lastPingTime;
-//	@Nullable
+	@Nullable
 	private Integer latency;
-	private Session(AbstractStringRealTimeServer.Session sess) {
+	private Session(StringRTServer.Session sess) {
 		super(sess.id);
 		this.sess = sess;
 	}
@@ -77,6 +77,7 @@ private class Session extends AbstractPayloadServer.Session<C, S> {
 	public void stop() {
 		sess.stop();
 	}
+	@Nullable
 	@Override
 	public Integer getLatency() {
 		return latency;

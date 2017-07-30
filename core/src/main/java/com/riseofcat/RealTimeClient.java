@@ -69,7 +69,7 @@ public RealTimeClient(String host, int port, String path, Class<ServerSay<S>> ty
 }
 
 public void say(C payload) {
-	ClientSay<C> answer = new ClientSay<C>();
+	ClientSay<C> answer = new ClientSay<>();
 	answer.payload = payload;
 	say(answer);
 }

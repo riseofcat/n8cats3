@@ -6,7 +6,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
 public class TickGame {
-private final RoomsServer.Room room;
+private final RoomsRTServer.Room room;
 private final Logic logic;
 public final int reconcilationTicks = 10;
 public final int oldTicks = 20;
@@ -14,7 +14,7 @@ private int tick = 0;
 private Logic.State state = new Logic.State();
 private ConcurrentHashMap<Logic.Player.Id, Logic.Action> actions = new ConcurrentHashMap<>();
 
-public TickGame(RoomsServer.Room room, Logic logic) {
+public TickGame(RoomsRTServer.Room room, Logic logic) {
 	this.room = room;
 	this.logic = logic;
 	room.onPlayerAdded.add(player -> {
@@ -37,7 +37,7 @@ public TickGame(RoomsServer.Room room, Logic logic) {
 			logic.update(state, actions);
 			actions = new ConcurrentHashMap<>();
 			if(tick % 5 == 0) {
-				for(RoomsServer.Room.Player player : room.getPlayers()) {
+				for(RoomsRTServer.Room.Player player : room.getPlayers()) {
 					ServerPayload payload = new ServerPayload();
 					payload.state = new ServerPayload.State();
 					payload.state.cars = state.cars.toArray(new Logic.Car[]{});
