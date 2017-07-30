@@ -5,5 +5,5 @@ compileJava.options.encoding = 'UTF-8'
 sourceSets.main.java.srcDirs = ["src/"]
 dependencies {
     compile project(":lib")
-    compile 'org.jetbrains:annotations:15.0'
+    compile 'org.jetbrains:annotations:15.0'//todo move out
 }

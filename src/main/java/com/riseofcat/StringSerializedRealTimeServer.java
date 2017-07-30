@@ -3,7 +3,8 @@ package com.riseofcat;
 import com.n8cats.share.ClientSay;
 import com.n8cats.lib_gwt.IStringSerializer;
 import com.n8cats.share.ServerSay;
-//import com.sun.istack.internal.Nullable;
+
+import org.jetbrains.annotations.Nullable;
 
 import java.io.Reader;
 import java.util.Map;
@@ -51,7 +52,7 @@ private void message(AbstractStringRealTimeServer.Session sess, ClientSay<C> say
 }
 private class Session extends AbstractPayloadServer.Session<C, S> {
 	private final AbstractStringRealTimeServer.Session sess;
-//	@Nullable
+	@Nullable
 	private Long lastPingTime;
 //	@Nullable
 	private Integer latency;
