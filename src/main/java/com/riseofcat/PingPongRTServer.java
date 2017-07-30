@@ -1,7 +1,7 @@
 package com.riseofcat;
 
 import com.n8cats.share.ClientSay;
-import com.n8cats.lib_gwt.IStringSerializer;
+import com.n8cats.lib_gwt.IStrSerialize;
 import com.n8cats.share.ServerSay;
 
 import org.jetbrains.annotations.Nullable;
@@ -9,13 +9,13 @@ import org.jetbrains.annotations.Nullable;
 import java.io.Reader;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-public class StringSerialezedRTServer<C, S> extends AbstractStringRTServer {
+public class PingPongRTServer<C, S> extends AbstractStringRTServer {
 private final AbstractPayloadRTServer<C, S> server;
 private final int pingIntervalMs;
-private final IStringSerializer<ClientSay<C>> cSerializer;
+private final IStrSerialize<ClientSay<C>> cSerializer;
 private final Map<AbstractStringRTServer.Session, Session> sessions = new ConcurrentHashMap<>();
-private final IStringSerializer<ServerSay<S>> sSerializer;
-public StringSerialezedRTServer(AbstractPayloadRTServer<C, S> server, int pingIntervalMs, IStringSerializer<ClientSay<C>> cSerializer, IStringSerializer<ServerSay<S>> sSerializer) {
+private final IStrSerialize<ServerSay<S>> sSerializer;
+public PingPongRTServer(AbstractPayloadRTServer<C, S> server, int pingIntervalMs, IStrSerialize<ClientSay<C>> cSerializer, IStrSerialize<ServerSay<S>> sSerializer) {
 	this.server = server;
 	this.pingIntervalMs = pingIntervalMs;
 	this.cSerializer = cSerializer;
