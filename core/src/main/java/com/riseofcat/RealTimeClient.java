@@ -8,10 +8,8 @@ import com.github.czyzby.websocket.WebSockets;
 import com.github.czyzby.websocket.data.WebSocketCloseCode;
 import com.github.czyzby.websocket.data.WebSocketState;
 import com.github.czyzby.websocket.net.ExtendedNet;
-//import com.n8cats.lib.LibAll;
 import com.n8cats.lib_gwt.Signal;
 import com.n8cats.share.ClientSay;
-import com.n8cats.share.ClientSayC;
 import com.n8cats.share.ServerSay;
 public class RealTimeClient<S, C> {
 public final Signal<S> incoming = new Signal<>();
@@ -49,7 +47,6 @@ public RealTimeClient(String host, int port, String path, Class<ServerSay<S>> ty
 			if(serverSay.ping) {
 				ClientSay<C> answer = new ClientSay<>();
 				answer.pong = true;
-//				LibAll.sleep(20);
 				say(answer);
 			}
 			if(serverSay.payload != null) {

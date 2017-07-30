@@ -1,7 +1,7 @@
 package com.riseofcat;
 
 import com.badlogic.gdx.utils.Json;
-import com.n8cats.share.IStringSerializer;
+import com.n8cats.lib_gwt.IStringSerializer;
 
 import java.io.Reader;
 public class JsonSerializer<T> implements IStringSerializer<T> {

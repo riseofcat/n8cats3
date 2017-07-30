@@ -1,9 +1,9 @@
 package com.riseofcat;
 
 import com.n8cats.lib.LibAll;
-import com.n8cats.share.ClientSayC;
+import com.n8cats.share.redundant.ClientSayC;
 import com.n8cats.share.Logic;
-import com.n8cats.share.ServerSayS;
+import com.n8cats.share.redundant.ServerSayS;
 
 import spark.Request;
 import spark.Response;

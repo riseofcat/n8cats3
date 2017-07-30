@@ -1,12 +1,12 @@
 package com.n8cats.share;
 
-//import com.sun.istack.internal.Nullable;//todo
+import org.jetbrains.annotations.Nullable;
 public class ServerSay<T> {
 public boolean ping;
-//@Nullable
+@Nullable
 public Integer id;
-//@Nullable
+@Nullable
 public Integer latency;
-//@Nullable
+@Nullable
 public T payload;
 }

@@ -1,7 +1,7 @@
 package com.riseofcat;
 
 import com.n8cats.share.ClientSay;
-import com.n8cats.share.IStringSerializer;
+import com.n8cats.lib_gwt.IStringSerializer;
 import com.n8cats.share.ServerSay;
 //import com.sun.istack.internal.Nullable;
 

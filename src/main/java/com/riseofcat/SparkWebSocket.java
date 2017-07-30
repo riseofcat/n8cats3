@@ -63,6 +63,10 @@ private static class SparkSession extends AbstractStringRealTimeServer.Session {
 	}
 	@Override
 	public void send(String message) {
+		if(!session.isOpen()) {
+			App.log.error("SparkWebSocket !session.isOpen()");
+			return;
+		}
 		session.getRemote().sendString(message, new WriteCallback() {
 			@Override
 			public void writeFailed(Throwable x) {

@@ -1,4 +1,4 @@
-package com.n8cats.share;
+package com.n8cats.lib_gwt;
 
 import java.io.Reader;
 public interface IStringSerializer<T> {
