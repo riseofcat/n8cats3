@@ -24,7 +24,7 @@ public static void main(String[] args) {
 	Spark.staticFiles.expireTime(600);
 	RoomsRTServer roomsServer = new RoomsRTServer();
 	roomsServer.onRoomCreated.add(room -> new TickGame(room, new Logic()));
-	PingPongRTServer stringSerialized = new PingPongRTServer(roomsServer, 1000, new JsonSerializer(ClientSayC.class), new JsonSerializer(ServerSayS.class));
+	PingPongRTServer stringSerialized = new PingPongRTServer(roomsServer, 1000, new JsonSerialize(ClientSayC.class), new JsonSerialize(ServerSayS.class));
 	Spark.webSocket("/socket", new SparkWebSocket(stringSerialized));
 	Spark.get("/", new Route() {
 		@Override

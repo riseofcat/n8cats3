@@ -4,10 +4,10 @@ import com.badlogic.gdx.utils.Json;
 import com.n8cats.lib_gwt.IStrSerialize;
 
 import java.io.Reader;
-public class JsonSerializer<T> implements IStrSerialize<T> {
+public class JsonSerialize<T> implements IStrSerialize<T> {
 public static final Json JSON = new Json();
 private final Class<T> clazz;
-public JsonSerializer(Class<T> clazz) {
+public JsonSerialize(Class<T> clazz) {
 	this.clazz = clazz;
 }
 @Override
