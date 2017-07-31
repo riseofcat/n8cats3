@@ -4,6 +4,7 @@ import com.n8cats.lib.LibAll;
 import com.n8cats.share.redundant.ClientSayC;
 import com.n8cats.share.Logic;
 import com.n8cats.share.redundant.ServerSayS;
+import com.riseofcat.session.StrSerializedSesServ;
 
 import spark.Request;
 import spark.Response;
@@ -24,7 +25,7 @@ public static void main(String[] args) {
 	Spark.staticFiles.expireTime(600);
 	RoomsRTServer roomsServer = new RoomsRTServer();
 	roomsServer.onRoomCreated.add(room -> new TickGame(room, new Logic()));
-	PingPongRTServer stringSerialized = new PingPongRTServer(roomsServer, 1000, new JsonSerialize(ClientSayC.class), new JsonSerialize(ServerSayS.class));
+	StrSerializedSesServ stringSerialized = new StrSerializedSesServ(roomsServer, 1000, new JsonSerialize(ClientSayC.class), new JsonSerialize(ServerSayS.class));
 	Spark.webSocket("/socket", new SparkWebSocket(stringSerialized));
 	Spark.get("/", new Route() {
 		@Override

@@ -10,7 +10,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-public class RoomsRTServer extends AbstractPayloadRTServer<ClientPayload, ServerPayload> {
+public class RoomsRTServer extends AbstractTypedServer<ClientPayload, ServerPayload> {
 public final static int MAXIMUM_ROOM_PLAYERS = 5;
 public final Signal<Room> onRoomCreated = new Signal<>();
 //todo onRoomDestroyed

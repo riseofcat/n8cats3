@@ -1,6 +1,6 @@
 package com.riseofcat;
-abstract public class AbstractPayloadRTServer<C, S> {
-public AbstractPayloadRTServer() {
+abstract public class AbstractTypedServer<C, S> {
+public AbstractTypedServer() {
 }
 abstract public void start(Session<S> session);
 abstract public void payloadMessage(Session<S> session, C payload);

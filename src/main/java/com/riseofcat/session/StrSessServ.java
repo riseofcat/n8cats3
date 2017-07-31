@@ -1,6 +1,6 @@
-package com.riseofcat;
+package com.riseofcat.session;
 import java.io.Reader;
-abstract public class AbstractStringRTServer extends AbstractRTServer {
+abstract public class StrSessServ extends SesServ {
 final public void message(Session ses, Reader reader) {
 	ses.incomeCalls++;
 	abstractMessage(ses, reader);
@@ -12,7 +12,7 @@ final public void message(Session ses, String message) {
 abstract protected void abstractMessage(Session ses, Reader reader);
 abstract protected void abstractMessage(Session ses, String message);
 
-public static abstract class Session extends AbstractRTServer.Session{
+public static abstract class Session extends Ses {
 	private int incomeCalls;
 	private int outCalls;
 	public Session(int id) {
