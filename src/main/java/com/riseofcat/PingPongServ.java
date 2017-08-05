@@ -10,14 +10,14 @@ import java.util.concurrent.ConcurrentHashMap;
 public class PingPongServ<C, S> extends AbstractTypedServ<ClientSay<C>, ServerSay<S>> {
 private final int pingIntervalMs;
 private final AbstractTypedServ<C, S> server;
-private final Map<Ses<ServerSay<S>>, PSes> sessions = new ConcurrentHashMap<>();
+private final Map<Ses<ServerSay<S>>, PingSes> sessions = new ConcurrentHashMap<>();
 public PingPongServ(AbstractTypedServ<C, S> server, int pingIntervalMs) {
 	this.pingIntervalMs = pingIntervalMs;
 	this.server = server;
 }
 @Override
 public void start(Ses<ServerSay<S>> session) {
-	PSes s = new PSes(session);
+	PingSes s = new PingSes(session);
 	sessions.put(session, s);
 	server.start(s);
 }
@@ -28,7 +28,7 @@ public void close(Ses<ServerSay<S>> session) {
 }
 @Override
 public void message(Ses<ServerSay<S>> session, ClientSay<C> say) {
-	PSes s = sessions.get(session);
+	PingSes s = sessions.get(session);
 	if(say.pong && s.lastPingTime != null) {
 		long l = (System.currentTimeMillis() - s.lastPingTime + 1) / 2;
 		s.latency = (int) l;
@@ -38,13 +38,13 @@ public void message(Ses<ServerSay<S>> session, ClientSay<C> say) {
 	}
 }
 
-private class PSes extends AbstractTypedServ.Ses<S> {
+private class PingSes extends AbstractTypedServ.Ses<S> {
 	private final Ses<ServerSay<S>> sess;
 	@Nullable
 	private Long lastPingTime;
 	@Nullable
 	private Integer latency;
-	private PSes(Ses<ServerSay<S>> sess) {
+	private PingSes(Ses<ServerSay<S>> sess) {
 		super(sess.id);
 		this.sess = sess;
 	}

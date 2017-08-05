@@ -6,12 +6,12 @@ import com.riseofcat.AbstractTypedServ;
 import java.io.Reader;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-public class StrSerializedSesServ<C, S> extends StrSesServ {
+public class TextSerializedSesServ<C, S, Text> extends StrSesServ {
 private final AbstractTypedServ<C, S> server;
 private final IStrSerialize<C> cSerializer;
 private final IStrSerialize<S> sSerializer;
 private final Map<Ses, Session> sessions = new ConcurrentHashMap<>();
-public StrSerializedSesServ(AbstractTypedServ<C, S> server, IStrSerialize<C> cSerializer, IStrSerialize<S> sSerializer) {
+public TextSerializedSesServ(AbstractTypedServ<C, S> server, IStrSerialize<C> cSerializer, IStrSerialize<S> sSerializer) {
 	this.server = server;
 	this.cSerializer = cSerializer;
 	this.sSerializer = sSerializer;
@@ -24,18 +24,18 @@ public void abstractStart(Ses sess) {
 }
 @Override
 public void abstractMessage(Ses sess, Reader reader) {
-	message(sess, cSerializer.fromStr(reader));
+	handleMessage(sess, cSerializer.fromStr(reader));
 }
 @Override
 public void abstractMessage(Ses sess, String message) {
-	message(sess, cSerializer.fromStr(message));
+	handleMessage(sess, cSerializer.fromStr(message));
 }
 @Override
 public void abstractClose(Ses sess) {
 	server.close(sessions.get(sess));
 	sessions.remove(sess);
 }
-private void message(Ses sess, C say) {
+protected final void handleMessage(Ses sess, C say) {
 	Session s = sessions.get(sess);
 	server.message(s, say);
 }
