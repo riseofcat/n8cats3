@@ -1,10 +1,17 @@
 package com.riseofcat;
 
+import com.badlogic.gdx.utils.Json;
 import com.n8cats.lib.LibAll;
-import com.n8cats.share.redundant.ClientSayC;
+import com.n8cats.lib_gwt.IConverter;
+import com.n8cats.share.ClientPayload;
+import com.n8cats.share.ClientSay;
 import com.n8cats.share.Logic;
-import com.n8cats.share.redundant.ServerSayS;
-import com.riseofcat.session.TextSerializedSesServ;
+import com.n8cats.share.ServerPayload;
+import com.n8cats.share.ServerSay;
+import com.n8cats.share.redundant.ClientSayC;
+import com.riseofcat.session.CodeSerializeSesServ;
+
+import java.io.Reader;
 
 import spark.Request;
 import spark.Response;
@@ -25,7 +32,11 @@ public static void main(String[] args) {
 	Spark.staticFiles.expireTime(600);
 	RoomsRTServer roomsServer = new RoomsRTServer();
 	roomsServer.onRoomCreated.add(room -> new TickGame(room, new Logic()));
-	TextSerializedSesServ stringSerialized = new TextSerializedSesServ(new PingPongServ(roomsServer, 1000), new JsonSerialize(ClientSayC.class), new JsonSerialize(ServerSayS.class));
+
+	final Json JSON = new Json();
+	IConverter<Reader, ClientSay<ClientPayload>> c = obj -> JSON.fromJson(ClientSayC.class, obj);
+	IConverter<ServerSay<ServerPayload>, String> s = JSON::toJson;
+	CodeSerializeSesServ stringSerialized = new CodeSerializeSesServ(new PingPongServ(roomsServer, 1000), c, s);
 	Spark.webSocket("/socket", new SparkWebSocket(stringSerialized));
 	Spark.get("/", new Route() {
 		@Override
