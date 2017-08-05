@@ -2,19 +2,19 @@ package com.riseofcat.session;
 
 abstract public class SesServ {
 private int sessionsCount = 0;
-final public void start(StrSessServ.Session session) {
+final public void start(StrSesServ.Ses session) {
 	abstractStart(session);
 	sessionsCount++;
 }
-final public void close(StrSessServ.Session session) {
+final public void close(StrSesServ.Ses session) {
 	abstractClose(session);
 	sessionsCount--;
 }
 public final int getSessionsCount() {
 	return sessionsCount;
 }
-abstract protected void abstractStart(StrSessServ.Session session);
-abstract protected void abstractClose(StrSessServ.Session session);
+abstract protected void abstractStart(StrSesServ.Ses session);
+abstract protected void abstractClose(StrSesServ.Ses session);
 
 public static abstract class Ses {
 	public final long startTimeMs;

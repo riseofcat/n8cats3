@@ -1,6 +1,6 @@
 package com.riseofcat;
 
-import com.riseofcat.session.StrSessServ;
+import com.riseofcat.session.StrSesServ;
 
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.WriteCallback;
@@ -19,15 +19,15 @@ public class SparkWebSocket {
 //https://github.com/tipsy/spark-websocket
 //http://sparkjava.com/tutorials/websocket-chat
 //http://sparkjava.com/documentation#embedded-web-server
-private static final Map<Session, SparkSession> sessions = new ConcurrentHashMap<>();
+private static final Map<Session, SparkSes> sessions = new ConcurrentHashMap<>();
 private static int lastId = 0;
-private final StrSessServ server;
-public SparkWebSocket(StrSessServ server) {
+private final StrSesServ server;
+public SparkWebSocket(StrSesServ server) {
 	this.server = server;
 }
 @OnWebSocketConnect
 public void connected(Session session) {
-	SparkSession s = new SparkSession(session, ++lastId);
+	SparkSes s = new SparkSes(session, ++lastId);
 	sessions.put(session, s);
 	server.start(s);
 }
@@ -44,7 +44,7 @@ public void message(Session session, Reader reader) {//Reader have low ram usage
 		App.log.error("SparkWebSocket session not open");
 		return;
 	}
-	SparkSession s = sessions.get(session);
+	SparkSes s = sessions.get(session);
 	server.message(s, reader);
 }
 @OnWebSocketError
@@ -52,9 +52,9 @@ public void error(Session session, Throwable error) {
 	App.log.error("OnWebSocketError " + error);
 	error.printStackTrace();
 }
-private static class SparkSession extends StrSessServ.Session {
+private static class SparkSes extends StrSesServ.Ses {
 	public final Session session;
-	public SparkSession(Session session, int id) {
+	public SparkSes(Session session, int id) {
 		super(id);
 		this.session = session;
 	}
