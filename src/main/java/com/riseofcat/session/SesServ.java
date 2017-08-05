@@ -2,30 +2,44 @@ package com.riseofcat.session;
 
 abstract public class SesServ<CCoded, SCoded> {
 private int sessionsCount = 0;
-final public void start(CodeSesServ.Ses<SCoded> session) {
+final public void start(Ses<SCoded> session) {
 	abstractStart(session);
 	sessionsCount++;
 }
-final public void close(CodeSesServ.Ses<SCoded> session) {
+final public void close(Ses<SCoded> session) {
 	abstractClose(session);
 	sessionsCount--;
+}
+final public void message(Ses ses, CCoded code) {
+	ses.incomeCalls++;
+	abstractMessage(ses, code);
 }
 public final int getSessionsCount() {
 	return sessionsCount;
 }
-abstract protected void abstractStart(CodeSesServ.Ses<SCoded> session);//todo CodeSesServ.Ses to Ses
-abstract protected void abstractClose(CodeSesServ.Ses<SCoded> session);
+abstract protected void abstractMessage(Ses ses, CCoded code);
+abstract protected void abstractStart(Ses<SCoded> session);
+abstract protected void abstractClose(Ses<SCoded> session);
 
-public static abstract class Ses {
+public static abstract class Ses<SCoded> {
 	public final long startTimeMs;
 	public final int id;
+	private int incomeCalls;
+	private int outCalls;
 	public Ses(int id) {
 		startTimeMs = System.currentTimeMillis();
 		this.id = id;
 	}
 	public abstract void stop();
-	public abstract int getIncomeCalls();
-	public abstract int getOutCalls();
+	public void send(SCoded message) {
+		outCalls++;
+	}
+	public int getIncomeCalls() {
+		return incomeCalls;
+	}
+	public int getOutCalls() {
+		return outCalls;
+	}
 }
 
 }
