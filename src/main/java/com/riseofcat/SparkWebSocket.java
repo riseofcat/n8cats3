@@ -19,8 +19,8 @@ public class SparkWebSocket {
 //https://github.com/tipsy/spark-websocket
 //http://sparkjava.com/tutorials/websocket-chat
 //http://sparkjava.com/documentation#embedded-web-server
-private static final Map<Session, SparkSes> sessions = new ConcurrentHashMap<>();
-private static int lastId = 0;
+private final Map<Session, SparkSes> sessions = new ConcurrentHashMap<>();
+private int lastId = 0;
 private final StrSesServ server;
 public SparkWebSocket(StrSesServ server) {
 	this.server = server;
