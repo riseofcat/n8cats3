@@ -17,15 +17,16 @@ final public void message(Ses ses, CCoded code) {
 public final int getSessionsCount() {
 	return sessionsCount;
 }
-abstract protected void abstractMessage(Ses ses, CCoded code);
 abstract protected void abstractStart(Ses<SCoded> session);
 abstract protected void abstractClose(Ses<SCoded> session);
+abstract protected void abstractMessage(Ses<SCoded> ses, CCoded code);
 
 public static abstract class Ses<SCoded> {
 	public final long startTimeMs;
 	public final int id;
 	private int incomeCalls;
 	private int outCalls;
+
 	public Ses(int id) {
 		startTimeMs = System.currentTimeMillis();
 		this.id = id;

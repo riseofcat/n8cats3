@@ -1,9 +1,9 @@
 package com.riseofcat;
 
 abstract public class AbstractTypedServ<C, S> {
-abstract public void start(Ses<S> s);
-abstract public void close(Ses<S> session);
-abstract public void message(Ses<S> session, C data);
+abstract public void abstractStart(Ses<S> s);
+abstract public void abstractClose(Ses<S> session);
+abstract public void abstractMessage(Ses<S> session, C data);
 
 public static abstract class Ses<S> {
 	public final int id;

@@ -2,32 +2,33 @@ package com.riseofcat;
 
 import com.n8cats.share.ClientSay;
 import com.n8cats.share.ServerSay;
+import com.riseofcat.session.SesServ;
 
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-public class PingPongServ<C, S> extends AbstractTypedServ<ClientSay<C>, ServerSay<S>> {
+public class PingPongServ<C, S> extends SesServ<ClientSay<C>, ServerSay<S>> {
 private final int pingIntervalMs;
-private final AbstractTypedServ<C, S> server;
+private final SesServ<C, S> server;
 private final Map<Ses<ServerSay<S>>, PingSes> sessions = new ConcurrentHashMap<>();
-public PingPongServ(AbstractTypedServ<C, S> server, int pingIntervalMs) {
+public PingPongServ(SesServ<C, S> server, int pingIntervalMs) {
 	this.pingIntervalMs = pingIntervalMs;
 	this.server = server;
 }
 @Override
-public void start(Ses<ServerSay<S>> session) {
+public void abstractStart(Ses<ServerSay<S>> session) {
 	PingSes s = new PingSes(session);
 	sessions.put(session, s);
 	server.start(s);
 }
 @Override
-public void close(Ses<ServerSay<S>> session) {
+public void abstractClose(Ses<ServerSay<S>> session) {
 	server.close(sessions.get(session));
 	sessions.remove(session);
 }
 @Override
-public void message(Ses<ServerSay<S>> session, ClientSay<C> say) {
+public void abstractMessage(Ses<ServerSay<S>> session, ClientSay<C> say) {
 	PingSes s = sessions.get(session);
 	if(say.pong && s.lastPingTime != null) {
 		long l = (System.currentTimeMillis() - s.lastPingTime + 1) / 2;
@@ -38,7 +39,7 @@ public void message(Ses<ServerSay<S>> session, ClientSay<C> say) {
 	}
 }
 
-private class PingSes extends AbstractTypedServ.Ses<S> {
+private class PingSes extends SesServ.Ses<S> {
 	private final Ses<ServerSay<S>> sess;
 	@Nullable
 	private Long lastPingTime;
