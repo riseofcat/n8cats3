@@ -4,19 +4,19 @@ import com.n8cats.lib_gwt.IConverter;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-public class CodeSerializeSesServ<TClientSay, TServerSay, TClientCodeReader, TServCodeString> extends AbstSesServ<TClientCodeReader, TServCodeString> {
+public class SerializeSesServ<TClientSay, TServerSay, TClientCodeReader, TServCodeString> extends AbstSesServ<TClientCodeReader, TServCodeString> {
 private final AbstSesServ<TClientSay, TServerSay> server;
 private final IConverter<TClientCodeReader, TClientSay> cConv;
-private final Map<AbstSesServ.Ses, Ses> sessions = new ConcurrentHashMap<>();
+private final Map<AbstSesServ.Ses, SerializeSes> sessions = new ConcurrentHashMap<>();
 private final IConverter<TServerSay, TServCodeString> sConv;
-public CodeSerializeSesServ(AbstSesServ<TClientSay, TServerSay> server, IConverter<TClientCodeReader, TClientSay> cConv, IConverter<TServerSay, TServCodeString> sConv) {
+public SerializeSesServ(AbstSesServ<TClientSay, TServerSay> server, IConverter<TClientCodeReader, TClientSay> cConv, IConverter<TServerSay, TServCodeString> sConv) {
 	this.server = server;
 	this.cConv = cConv;
 	this.sConv = sConv;
 }
 @Override
 protected void abstractStart(AbstSesServ.Ses<TServCodeString> session) {
-		Ses s = new Ses(session);
+		SerializeSes s = new SerializeSes(session);
 		sessions.put(session, s);
 		server.abstractStart(s);
 }
@@ -30,12 +30,12 @@ protected void abstractMessage(AbstSesServ.Ses<TServCodeString> ses, TClientCode
 	handleMessage(ses, cConv.convert(code));
 }
 protected final void handleMessage(AbstSesServ.Ses<TServCodeString> sess, TClientSay say) {
-	Ses s = sessions.get(sess);
+	SerializeSes s = sessions.get(sess);
 	server.abstractMessage(s, say);
 }
-private class Ses extends AbstSesServ.Ses<TServerSay> {
+private class SerializeSes extends AbstSesServ.Ses<TServerSay> {
 	private final AbstSesServ.Ses<TServCodeString> sess;
-	private Ses(AbstSesServ.Ses<TServCodeString> sess) {
+	private SerializeSes(AbstSesServ.Ses<TServCodeString> sess) {
 		super(sess.id);
 		this.sess = sess;
 	}
