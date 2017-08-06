@@ -2,17 +2,17 @@ package com.riseofcat;
 
 import com.n8cats.share.ClientSay;
 import com.n8cats.share.ServerSay;
-import com.riseofcat.session.SesServ;
+import com.riseofcat.session.AbstSesServ;
 
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-public class PingPongServ<C, S> extends SesServ<ClientSay<C>, ServerSay<S>> {
+public class PingPongServ<C, S> extends AbstSesServ<ClientSay<C>, ServerSay<S>> {
 private final int pingIntervalMs;
-private final SesServ<C, S> server;
+private final AbstSesServ<C, S> server;
 private final Map<Ses<ServerSay<S>>, PingSes> sessions = new ConcurrentHashMap<>();
-public PingPongServ(SesServ<C, S> server, int pingIntervalMs) {
+public PingPongServ(AbstSesServ<C, S> server, int pingIntervalMs) {
 	this.pingIntervalMs = pingIntervalMs;
 	this.server = server;
 }
@@ -39,7 +39,7 @@ public void abstractMessage(Ses<ServerSay<S>> session, ClientSay<C> say) {
 	}
 }
 
-private class PingSes extends SesServ.Ses<S> {
+private class PingSes extends AbstSesServ.Ses<S> {
 	private final Ses<ServerSay<S>> sess;
 	@Nullable
 	private Long lastPingTime;

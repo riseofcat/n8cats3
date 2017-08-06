@@ -4,14 +4,14 @@ import com.n8cats.lib_gwt.Signal;
 import com.n8cats.share.ClientPayload;
 import com.n8cats.share.Logic;
 import com.n8cats.share.ServerPayload;
-import com.riseofcat.session.SesServ;
+import com.riseofcat.session.AbstSesServ;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-public class RoomsRTServer extends SesServ<ClientPayload, ServerPayload> {
+public class RoomsRTServer extends AbstSesServ<ClientPayload, ServerPayload> {
 public final static int MAXIMUM_ROOM_PLAYERS = 5;
 public final Signal<Room> onRoomCreated = new Signal<>();
 //todo onRoomDestroyed

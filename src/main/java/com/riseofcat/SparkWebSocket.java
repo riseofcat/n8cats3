@@ -1,6 +1,6 @@
 package com.riseofcat;
 
-import com.riseofcat.session.SesServ;
+import com.riseofcat.session.AbstSesServ;
 
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.WriteCallback;
@@ -21,8 +21,8 @@ public class SparkWebSocket {
 //http://sparkjava.com/documentation#embedded-web-server
 private final Map<Session, SparkSes> sessions = new ConcurrentHashMap<>();
 private int lastId = 0;
-private final SesServ<Reader, String> server;
-public SparkWebSocket(SesServ<Reader, String> server) {
+private final AbstSesServ<Reader, String> server;
+public SparkWebSocket(AbstSesServ<Reader, String> server) {
 	this.server = server;
 }
 @OnWebSocketConnect
@@ -52,7 +52,7 @@ public void error(Session session, Throwable error) {
 	App.log.error("OnWebSocketError " + error);
 	error.printStackTrace();
 }
-private static class SparkSes extends SesServ.Ses<String> {
+private static class SparkSes extends AbstSesServ.Ses<String> {
 	public final Session session;
 	public SparkSes(Session session, int id) {
 		super(id);

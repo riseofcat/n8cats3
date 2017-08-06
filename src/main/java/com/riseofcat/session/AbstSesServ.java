@@ -1,6 +1,6 @@
 package com.riseofcat.session;
 
-abstract public class SesServ<CCoded, SCoded> {
+abstract public class AbstSesServ<CCoded, SCoded> {
 private int sessionsCount = 0;
 final public void start(Ses<SCoded> session) {
 	abstractStart(session);
