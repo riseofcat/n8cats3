@@ -8,27 +8,27 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-public class PingPongServ<C, S> extends AbstSesServ<ClientSay<C>, ServerSay<S>> {
+public class PingPongServ<TClientPayload, TServerPayload> extends AbstSesServ<ClientSay<TClientPayload>, ServerSay<TServerPayload>> {
 private final int pingIntervalMs;
-private final AbstSesServ<C, S> server;
-private final Map<Ses<ServerSay<S>>, PingSes> sessions = new ConcurrentHashMap<>();
-public PingPongServ(AbstSesServ<C, S> server, int pingIntervalMs) {
+private final AbstSesServ<TClientPayload, TServerPayload> server;
+private final Map<Ses<ServerSay<TServerPayload>>, PingSes> sessions = new ConcurrentHashMap<>();
+public PingPongServ(AbstSesServ<TClientPayload, TServerPayload> server, int pingIntervalMs) {
 	this.pingIntervalMs = pingIntervalMs;
 	this.server = server;
 }
 @Override
-public void abstractStart(Ses<ServerSay<S>> session) {
+public void abstractStart(Ses<ServerSay<TServerPayload>> session) {
 	PingSes s = new PingSes(session);
 	sessions.put(session, s);
 	server.start(s);
 }
 @Override
-public void abstractClose(Ses<ServerSay<S>> session) {
+public void abstractClose(Ses<ServerSay<TServerPayload>> session) {
 	server.close(sessions.get(session));
 	sessions.remove(session);
 }
 @Override
-public void abstractMessage(Ses<ServerSay<S>> session, ClientSay<C> say) {
+public void abstractMessage(Ses<ServerSay<TServerPayload>> session, ClientSay<TClientPayload> say) {
 	PingSes s = sessions.get(session);
 	if(say.pong && s.lastPingTime != null) {
 		long l = (System.currentTimeMillis() - s.lastPingTime + 1) / 2;
@@ -39,19 +39,19 @@ public void abstractMessage(Ses<ServerSay<S>> session, ClientSay<C> say) {
 	}
 }
 
-private class PingSes extends AbstSesServ.Ses<S> {
-	private final Ses<ServerSay<S>> sess;
+private class PingSes extends AbstSesServ.Ses<TServerPayload> {
+	private final Ses<ServerSay<TServerPayload>> sess;
 	@Nullable
 	private Long lastPingTime;
 	@Nullable
 	private Integer latency;
-	private PingSes(Ses<ServerSay<S>> sess) {
+	private PingSes(Ses<ServerSay<TServerPayload>> sess) {
 		super(sess.id);
 		this.sess = sess;
 	}
 	@Override
-	public void send(S payload) {
-		ServerSay<S> say = new ServerSay<>();
+	public void send(TServerPayload payload) {
+		ServerSay<TServerPayload> say = new ServerSay<>();
 		say.id = sess.id;
 		say.latency = latency;
 		if(lastPingTime == null || System.currentTimeMillis() > lastPingTime + pingIntervalMs) {
