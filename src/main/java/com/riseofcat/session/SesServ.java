@@ -10,7 +10,7 @@ final public void close(Ses<SCoded> session) {
 	abstractClose(session);
 	sessionsCount--;
 }
-final public void message(Ses ses, CCoded code) {
+final public void message(Ses<SCoded> ses, CCoded code) {
 	ses.incomeCalls++;
 	abstractMessage(ses, code);
 }
