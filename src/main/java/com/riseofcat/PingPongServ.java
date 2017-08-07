@@ -1,34 +1,37 @@
 package com.riseofcat;
 
+import com.n8cats.lib_gwt.IConverter;
 import com.n8cats.share.ClientSay;
 import com.n8cats.share.ServerSay;
 import com.riseofcat.session.AbstSesServ;
+import com.riseofcat.session.SerializeSesServ;
 
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-public class PingPongServ<TClientPayload, TServerPayload> extends AbstSesServ<ClientSay<TClientPayload>, ServerSay<TServerPayload>> {
+public class PingPongServ<TClientPayload, TServerPayload, TClientCodeReader, TServCodeReader> extends SerializeSesServ<ClientSay<TClientPayload>, ServerSay<TServerPayload>, TClientCodeReader, TServCodeReader> {
 private final int pingIntervalMs;
 private final AbstSesServ<TClientPayload, TServerPayload> server;
 private final Map<Ses<ServerSay<TServerPayload>>, PingSes> sessions = new ConcurrentHashMap<>();
-public PingPongServ(AbstSesServ<TClientPayload, TServerPayload> server, int pingIntervalMs) {
+public PingPongServ(AbstSesServ<TClientPayload, TServerPayload> server, int pingIntervalMs, IConverter<TClientCodeReader, ClientSay<TClientPayload>> c, IConverter<ServerSay<TServerPayload>, TServCodeReader> s) {
+	super(c, s);
 	this.pingIntervalMs = pingIntervalMs;
 	this.server = server;
 }
 @Override
-public void abstractStart(Ses<ServerSay<TServerPayload>> session) {
+public void abstractStart2(Ses<ServerSay<TServerPayload>> session) {
 	PingSes s = new PingSes(session);
 	sessions.put(session, s);
 	server.start(s);
 }
 @Override
-public void abstractClose(Ses<ServerSay<TServerPayload>> session) {
+public void abstractClose2(Ses<ServerSay<TServerPayload>> session) {
 	server.close(sessions.get(session));
 	sessions.remove(session);
 }
 @Override
-public void abstractMessage(Ses<ServerSay<TServerPayload>> session, ClientSay<TClientPayload> say) {
+public void abstractMessage2(Ses<ServerSay<TServerPayload>> session, ClientSay<TClientPayload> say) {
 	PingSes s = sessions.get(session);
 	if(say.pong && s.lastPingTime != null) {
 		long l = (System.currentTimeMillis() - s.lastPingTime + 1) / 2;
