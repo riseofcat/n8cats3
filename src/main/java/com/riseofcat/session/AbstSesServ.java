@@ -1,27 +1,27 @@
 package com.riseofcat.session;
 
-abstract public class AbstSesServ<TClientData, TServerData> {
+abstract public class AbstSesServ<C, S, E> {
 private int sessionsCount = 0;
-final public void start(Ses<TServerData> session) {
+final public void start(Ses<S, E> session) {
 	abstractStart(session);
 	sessionsCount++;
 }
-final public void close(Ses<TServerData> session) {
+final public void close(Ses<S, E> session) {
 	abstractClose(session);
 	sessionsCount--;
 }
-final public void message(Ses<TServerData> ses, TClientData code) {
+final public void message(Ses<S, E> ses, C code) {
 	ses.incomeCalls++;
 	abstractMessage(ses, code);
 }
 public final int getSessionsCount() {
 	return sessionsCount;
 }
-abstract protected void abstractStart(Ses<TServerData> session);
-abstract protected void abstractClose(Ses<TServerData> session);
-abstract protected void abstractMessage(Ses<TServerData> ses, TClientData code);
+abstract protected void abstractStart(Ses<S, E> session);
+abstract protected void abstractClose(Ses<S, E> session);
+abstract protected void abstractMessage(Ses<S, E> ses, C code);
 
-public static abstract class Ses<SCoded> {
+public static abstract class Ses<SCoded, Extra> {
 	public final long startTimeMs;
 	public final int id;
 	private int incomeCalls;
@@ -32,15 +32,19 @@ public static abstract class Ses<SCoded> {
 		this.id = id;
 	}
 	public abstract void stop();
-	public void send(SCoded message) {
+	final public void send(SCoded message) {
 		outCalls++;
+		abstractSend(message);
 	}
+	protected abstract void abstractSend(SCoded message);
+
 	public int getIncomeCalls() {
 		return incomeCalls;
 	}
 	public int getOutCalls() {
 		return outCalls;
 	}
+	abstract public Extra getExtra();
 }
 
 }

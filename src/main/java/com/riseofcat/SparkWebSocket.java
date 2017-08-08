@@ -21,8 +21,8 @@ public class SparkWebSocket {
 //http://sparkjava.com/documentation#embedded-web-server
 private final Map<Session, SparkSes> sessions = new ConcurrentHashMap<>();
 private int lastId = 0;
-private final AbstSesServ<Reader, String> server;
-public SparkWebSocket(AbstSesServ<Reader, String> server) {
+private final AbstSesServ<Reader, String, Void> server;
+public SparkWebSocket(AbstSesServ<Reader, String, Void> server) {
 	this.server = server;
 }
 @OnWebSocketConnect
@@ -52,14 +52,14 @@ public void error(Session session, Throwable error) {
 	App.log.error("OnWebSocketError " + error);
 	error.printStackTrace();
 }
-private static class SparkSes extends AbstSesServ.Ses<String> {
+private static class SparkSes extends AbstSesServ.Ses<String, Void> {
 	public final Session session;
 	public SparkSes(Session session, int id) {
 		super(id);
 		this.session = session;
 	}
 	@Override
-	public void send(String message) {
+	public void abstractSend(String message) {
 		if(!session.isOpen()) {
 			App.log.error("SparkWebSocket !session.isOpen()");
 			return;
@@ -78,6 +78,10 @@ private static class SparkSes extends AbstSesServ.Ses<String> {
 	@Override
 	public void stop() {
 		session.close();
+	}
+	@Override
+	public Void getExtra() {
+		return null;
 	}
 }
 
