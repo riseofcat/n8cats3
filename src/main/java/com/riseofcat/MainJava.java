@@ -38,7 +38,7 @@ public static void main(String[] args) {
 	IConverter<Reader, ClientSay<ClientPayload>> c = obj -> JSON.fromJson(ClientSayC.class, obj);
 	IConverter<ServerSay<ServerPayload>, String> s = JSON::toJson;
 	PingPongServ<ClientPayload, ServerPayload> ping = new PingPongServ<>(roomsServer, 1000);
-	AbstSesServ<Reader, String, Void> serialize = new SerializeSesServ<ClientSay<ClientPayload>, ServerSay<ServerPayload>, Reader, String, Void>(ping, c, s) {};
+	AbstSesServ<Reader, String, Void> serialize = new SerializeSesServ<>(ping, c, s);
 	Spark.webSocket("/socket", new SparkWebSocket(serialize));
 	Spark.get("/", new Route() {
 		@Override

@@ -19,7 +19,7 @@ public class SparkWebSocket {
 //https://github.com/tipsy/spark-websocket
 //http://sparkjava.com/tutorials/websocket-chat
 //http://sparkjava.com/documentation#embedded-web-server
-private final Map<Session, SparkSes> sessions = new ConcurrentHashMap<>();
+private final Map<Session, AbstSesServ<Reader, String, Void>.Ses> sessions = new ConcurrentHashMap<>();
 private int lastId = 0;
 private final AbstSesServ<Reader, String, Void> server;
 public SparkWebSocket(AbstSesServ<Reader, String, Void> server) {
@@ -27,7 +27,33 @@ public SparkWebSocket(AbstSesServ<Reader, String, Void> server) {
 }
 @OnWebSocketConnect
 public void connected(Session session) {
-	SparkSes s = new SparkSes(session, ++lastId);
+	AbstSesServ<Reader, String, Void>.Ses s = server.new Ses(++lastId) {
+		@Override
+		public void stop() {
+			session.close();
+		}
+		@Override
+		protected void abstractSend(String message) {
+			if(!session.isOpen()) {
+				App.log.error("SparkWebSocket !session.isOpen()");
+				return;
+			}
+			session.getRemote().sendString(message, new WriteCallback() {
+				@Override
+				public void writeFailed(Throwable x) {
+					App.log.error("SparkSession.send.writeFailed " + x);
+				}
+				@Override
+				public void writeSuccess() {
+
+				}
+			});
+		}
+		@Override
+		public Void getExtra() {
+			return null;
+		}
+	};
 	sessions.put(session, s);
 	server.start(s);
 }
@@ -44,45 +70,12 @@ public void message(Session session, Reader reader) {//Reader have low ram usage
 		App.log.error("SparkWebSocket session not open");
 		return;
 	}
-	SparkSes s = sessions.get(session);
-	server.message(s, reader);
+	server.message(sessions.get(session), reader);
 }
 @OnWebSocketError
 public void error(Session session, Throwable error) {
 	App.log.error("OnWebSocketError " + error);
 	error.printStackTrace();
-}
-private static class SparkSes extends AbstSesServ.Ses<String, Void> {
-	public final Session session;
-	public SparkSes(Session session, int id) {
-		super(id);
-		this.session = session;
-	}
-	@Override
-	public void abstractSend(String message) {
-		if(!session.isOpen()) {
-			App.log.error("SparkWebSocket !session.isOpen()");
-			return;
-		}
-		session.getRemote().sendString(message, new WriteCallback() {
-			@Override
-			public void writeFailed(Throwable x) {
-				App.log.error("SparkSession.send.writeFailed " + x);
-			}
-			@Override
-			public void writeSuccess() {
-
-			}
-		});
-	}
-	@Override
-	public void stop() {
-		session.close();
-	}
-	@Override
-	public Void getExtra() {
-		return null;
-	}
 }
 
 private void todo(Session session) {//todo

@@ -16,9 +16,9 @@ public final static int MAXIMUM_ROOM_PLAYERS = 5;
 public final Signal<Room> onRoomCreated = new Signal<>();
 //todo onRoomDestroyed
 private final Set<Room> rooms = new HashSet<>();
-private final Map<Ses<ServerPayload, PingPongServ.ExtraLatency>, Room> sessions = new ConcurrentHashMap<>();
+private final Map<Ses, Room> sessions = new ConcurrentHashMap<>();
 @Override
-public void abstractStart(Ses<ServerPayload, PingPongServ.ExtraLatency> session) {
+public void abstractStart(Ses session) {
 	Room room = null;
 	synchronized(this) {
 		for(Room r : rooms) {
@@ -38,12 +38,12 @@ public void abstractStart(Ses<ServerPayload, PingPongServ.ExtraLatency> session)
 	sessions.put(session, room);
 }
 @Override
-public void abstractClose(Ses<ServerPayload, PingPongServ.ExtraLatency> session) {
+public void abstractClose(Ses session) {
 	Room room = sessions.remove(session);
 	room.remove(session);
 }
 @Override
-public void abstractMessage(Ses<ServerPayload, PingPongServ.ExtraLatency> session, ClientPayload payload) {
+public void abstractMessage(Ses session, ClientPayload payload) {
 	Room room = sessions.get(session);
 	room.message(session, payload);
 }
@@ -51,32 +51,32 @@ public class Room {
 	final public Signal<Player> onPlayerAdded = new Signal<>();
 	final public Signal<Player> onPlayerRemoved = new Signal<>();
 	final public Signal<PlayerMessage> onMessage = new Signal<>();
-	private final Map<Ses<ServerPayload, PingPongServ.ExtraLatency>, Player> players = new ConcurrentHashMap<>();
+	private final Map<Ses, Player> players = new ConcurrentHashMap<>();
 	public int getPlayersCount() {
 		return players.size();
 	}
 	public Collection<Player> getPlayers() {
 		return players.values();
 	}
-	private void add(Ses<ServerPayload, PingPongServ.ExtraLatency> session) {
+	private void add(Ses session) {
 		Player player = new Player(session);
 		players.put(session, player);
 		synchronized(this) {
 			onPlayerAdded.dispatch(player);
 		}
 	}
-	private void message(Ses<ServerPayload, PingPongServ.ExtraLatency> session, ClientPayload payload) {
+	private void message(Ses session, ClientPayload payload) {
 		onMessage.dispatch(new PlayerMessage(players.get(session), payload));
 	}
-	private void remove(Ses<ServerPayload, PingPongServ.ExtraLatency> session) {
+	private void remove(Ses session) {
 		Player remove = players.remove(session);
 		synchronized(this) {
 			onPlayerRemoved.dispatch(remove);
 		}
 	}
 	public class Player extends Logic.Player {
-		public final Ses<ServerPayload, PingPongServ.ExtraLatency> session;
-		public Player(Ses<ServerPayload, PingPongServ.ExtraLatency> session) {
+		public final Ses session;
+		public Player(Ses session) {
 			this.session = session;
 		}
 		@Override

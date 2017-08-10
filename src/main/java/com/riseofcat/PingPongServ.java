@@ -11,24 +11,24 @@ import java.util.concurrent.ConcurrentHashMap;
 public class PingPongServ<TClientPayload, TServerPayload> extends AbstSesServ<ClientSay<TClientPayload>, ServerSay<TServerPayload>, Void> {
 private final int pingIntervalMs;
 private final AbstSesServ<TClientPayload, TServerPayload, ExtraLatency> server;
-private final Map<Ses<ServerSay<TServerPayload>, Void>, PingSes> sessions = new ConcurrentHashMap<>();
+private final Map<Ses, PingSes> sessions = new ConcurrentHashMap<>();
 public PingPongServ(AbstSesServ<TClientPayload, TServerPayload, ExtraLatency> server, int pingIntervalMs) {
 	this.pingIntervalMs = pingIntervalMs;
 	this.server = server;
 }
 @Override
-protected void abstractClose(Ses<ServerSay<TServerPayload>, Void> session) {
+protected void abstractClose(Ses session) {
 	server.close(sessions.get(session));
 	sessions.remove(session);
 }
 @Override
-protected void abstractStart(Ses<ServerSay<TServerPayload>, Void> session) {
+protected void abstractStart(Ses session) {
 	PingSes s = new PingSes(session);
 	sessions.put(session, s);
 	server.start(s);
 }
 @Override
-protected void abstractMessage(Ses<ServerSay<TServerPayload>, Void> session, ClientSay<TClientPayload> say) {
+protected void abstractMessage(Ses session, ClientSay<TClientPayload> say) {
 	PingSes s = sessions.get(session);
 	if(say.pong && s.lastPingTime != null) {
 		long l = (System.currentTimeMillis() - s.lastPingTime + 1) / 2;
@@ -39,14 +39,14 @@ protected void abstractMessage(Ses<ServerSay<TServerPayload>, Void> session, Cli
 	}
 }
 
-public class PingSes extends AbstSesServ.Ses<TServerPayload, ExtraLatency> {
-	private final Ses<ServerSay<TServerPayload>, Void> sess;
+public class PingSes extends AbstSesServ<TClientPayload, TServerPayload, ExtraLatency>.Ses {
+	private final Ses sess;
 	@Nullable
 	private Long lastPingTime;
 	@Nullable
 	private Integer latency;
 	private ExtraLatency extra;
-	private PingSes(Ses<ServerSay<TServerPayload>, Void> sess) {
+	private PingSes(Ses sess) {
 		super(sess.id);
 		this.sess = sess;
 	}
