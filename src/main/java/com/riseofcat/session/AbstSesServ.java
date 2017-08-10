@@ -14,7 +14,7 @@ final public void message(Ses<S, E> ses, C code) {
 	ses.incomeCalls++;
 	abstractMessage(ses, code);
 }
-public final int getSessionsCount() {
+public final int getSessionsCount() {//todo redundant
 	return sessionsCount;
 }
 abstract protected void abstractStart(Ses<S, E> session);
@@ -38,7 +38,7 @@ public static abstract class Ses<SCoded, Extra> {
 	}
 	protected abstract void abstractSend(SCoded message);
 
-	public int getIncomeCalls() {
+	public int getIncomeCalls() {//todo redundant
 		return incomeCalls;
 	}
 	public int getOutCalls() {

@@ -10,6 +10,7 @@ import com.n8cats.share.ServerPayload;
 import com.n8cats.share.ServerSay;
 import com.n8cats.share.redundant.ClientSayC;
 import com.riseofcat.session.AbstSesServ;
+import com.riseofcat.session.SerializeSesServ;
 
 import java.io.Reader;
 
@@ -36,7 +37,9 @@ public static void main(String[] args) {
 	final Json JSON = new Json();
 	IConverter<Reader, ClientSay<ClientPayload>> c = obj -> JSON.fromJson(ClientSayC.class, obj);
 	IConverter<ServerSay<ServerPayload>, String> s = JSON::toJson;
-	Spark.webSocket("/socket", new SparkWebSocket(new PingPongServ<>(roomsServer, 1000, c, s)));
+	PingPongServ<ClientPayload, ServerPayload> ping = new PingPongServ<>(roomsServer, 1000);
+	AbstSesServ<Reader, String, Void> serialize = new SerializeSesServ<ClientSay<ClientPayload>, ServerSay<ServerPayload>, Reader, String, Void>(ping, c, s) {};
+	Spark.webSocket("/socket", new SparkWebSocket(serialize));
 	Spark.get("/", new Route() {
 		@Override
 		public Object handle(Request request, Response response) {
