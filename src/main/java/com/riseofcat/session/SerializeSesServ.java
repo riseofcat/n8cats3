@@ -15,14 +15,14 @@ public SerializeSesServ(AbstSesServ<TClientSay, TServerSay, Extra> child, IConve
 	this.child = child;
 }
 @Override
-protected void abstractStart(Ses session) {
+public void start(Ses session) {
 	AbstSesServ<TClientSay, TServerSay, Extra>.Ses s = child.new Ses(session.id) {
 		@Override
 		public void stop() {
 			session.stop();
 		}
 		@Override
-		protected void abstractSend(TServerSay data) {
+		public void send(TServerSay data) {
 			session.send(sConv.convert(data));
 		}
 		@Override
@@ -34,12 +34,12 @@ protected void abstractStart(Ses session) {
 	child.start(s);
 }
 @Override
-public void abstractClose(Ses sess) {
+public void close(Ses sess) {
 	child.close(sessions.get(sess));
 	sessions.remove(sess);
 }
 @Override
-protected void abstractMessage(Ses ses, TClientCodeReader code) {
+public void message(Ses ses, TClientCodeReader code) {
 	child.message(sessions.get(ses), cConv.convert(code));
 }
 

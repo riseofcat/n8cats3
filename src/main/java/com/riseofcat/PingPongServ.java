@@ -17,18 +17,18 @@ public PingPongServ(AbstSesServ<TClientPayload, TServerPayload, ExtraLatency> se
 	this.server = server;
 }
 @Override
-protected void abstractClose(Ses session) {
+public void close(Ses session) {
 	server.close(sessions.get(session));
 	sessions.remove(session);
 }
 @Override
-protected void abstractStart(Ses session) {
+public void start(Ses session) {
 	PingSes s = new PingSes(session);
 	sessions.put(session, s);
 	server.start(s);
 }
 @Override
-protected void abstractMessage(Ses session, ClientSay<TClientPayload> say) {
+public void message(Ses session, ClientSay<TClientPayload> say) {
 	PingSes s = sessions.get(session);
 	if(say.pong && s.lastPingTime != null) {
 		long l = (System.currentTimeMillis() - s.lastPingTime + 1) / 2;
@@ -51,7 +51,7 @@ public class PingSes extends AbstSesServ<TClientPayload, TServerPayload, ExtraLa
 		this.sess = sess;
 	}
 	@Override
-	public void abstractSend(TServerPayload payload) {
+	public void send(TServerPayload payload) {
 		ServerSay<TServerPayload> say = new ServerSay<>();
 		say.id = sess.id;
 		say.latency = latency;

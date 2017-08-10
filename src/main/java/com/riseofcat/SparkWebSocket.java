@@ -33,7 +33,7 @@ public void connected(Session session) {
 			session.close();
 		}
 		@Override
-		protected void abstractSend(String message) {
+		public void send(String message) {
 			if(!session.isOpen()) {
 				App.log.error("SparkWebSocket !session.isOpen()");
 				return;

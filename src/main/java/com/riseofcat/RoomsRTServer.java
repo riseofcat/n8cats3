@@ -18,7 +18,7 @@ public final Signal<Room> onRoomCreated = new Signal<>();
 private final Set<Room> rooms = new HashSet<>();
 private final Map<Ses, Room> sessions = new ConcurrentHashMap<>();
 @Override
-public void abstractStart(Ses session) {
+public void start(Ses session) {
 	Room room = null;
 	synchronized(this) {
 		for(Room r : rooms) {
@@ -38,12 +38,12 @@ public void abstractStart(Ses session) {
 	sessions.put(session, room);
 }
 @Override
-public void abstractClose(Ses session) {
+public void close(Ses session) {
 	Room room = sessions.remove(session);
 	room.remove(session);
 }
 @Override
-public void abstractMessage(Ses session, ClientPayload payload) {
+public void message(Ses session, ClientPayload payload) {
 	Room room = sessions.get(session);
 	room.message(session, payload);
 }
