@@ -17,15 +17,15 @@ public PingPongServ(AbstSesServ<TClientPayload, TServerPayload, ExtraLatency> se
 	this.server = server;
 }
 @Override
-public void close(Ses session) {
-	server.close(sessions.get(session));
-	sessions.remove(session);
-}
-@Override
 public void start(Ses session) {
 	PingSes s = new PingSes(session);
 	sessions.put(session, s);
 	server.start(s);
+}
+@Override
+public void close(Ses session) {
+	server.close(sessions.get(session));
+	sessions.remove(session);
 }
 @Override
 public void message(Ses session, ClientSay<TClientPayload> say) {
@@ -39,7 +39,7 @@ public void message(Ses session, ClientSay<TClientPayload> say) {
 	}
 }
 
-public class PingSes extends AbstSesServ<TClientPayload, TServerPayload, ExtraLatency>.Ses {
+private class PingSes extends AbstSesServ<TClientPayload, TServerPayload, ExtraLatency>.Ses {
 	private final Ses sess;
 	@Nullable
 	private Long lastPingTime;
