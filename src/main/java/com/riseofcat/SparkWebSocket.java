@@ -28,7 +28,12 @@ public SparkWebSocket(AbstSesServ<Reader, String, Void> server) {
 }
 @OnWebSocketConnect
 public void connected(Session session) {
-	AbstSesServ<Reader, String, Void>.Ses s = server.new Ses(++lastId) {
+	int id = ++lastId;
+	AbstSesServ<Reader, String, Void>.Ses s = server.new Ses() {
+		@Override
+		public int getId() {
+			return id;
+		}
 		@Override
 		public void stop() {
 			session.close();

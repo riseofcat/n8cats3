@@ -16,7 +16,11 @@ public ConvertSesServ(AbstSesServ<TClientSay, TServerSay, Extra> child, IConvert
 }
 @Override
 public void start(Ses session) {
-	AbstSesServ<TClientSay, TServerSay, Extra>.Ses s = child.new Ses(session.id) {
+	AbstSesServ<TClientSay, TServerSay, Extra>.Ses s = child.new Ses() {
+		@Override
+		public int getId() {
+			return session.getId();
+		}
 		@Override
 		public void stop() {
 			session.stop();

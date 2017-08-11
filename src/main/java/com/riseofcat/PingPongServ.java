@@ -47,9 +47,12 @@ private class PingSes extends AbstSesServ<C, S, ExtraLatency<E>>.Ses {
 	private Integer latency;
 	private ExtraLatency<E> extra;
 	private PingSes(Ses sess) {
-		super(sess.id);
 		this.sess = sess;
 		this.extra = new ExtraLatencyImpl(this);
+	}
+	@Override
+	public int getId() {
+		return sess.getId();
 	}
 	@Override
 	public void stop() {
@@ -58,7 +61,6 @@ private class PingSes extends AbstSesServ<C, S, ExtraLatency<E>>.Ses {
 	@Override
 	public void send(S payload) {
 		ServerSay<S> say = new ServerSay<>();
-		say.id = sess.id;
 		say.latency = latency;
 		if(lastPingTime == null || System.currentTimeMillis() > lastPingTime + pingIntervalMs) {
 			say.ping = true;

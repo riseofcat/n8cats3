@@ -82,7 +82,7 @@ public class Room {
 		}
 		@Override
 		public Id getId() {
-			return new Id(session.id);
+			return new Id(session.getId());
 		}
 	}
 }
