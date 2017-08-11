@@ -33,11 +33,13 @@ public final int getSessionsCount() {//todo
 public class CountSes extends AbstSesServ<C, S, ExtraCount<E>>.Ses {
 	private int incomeCalls;
 	private int outCalls;
-	private Ses sess;
+	private final Ses sess;
 	private final ExtraCount<E> extra;
+	private final long startTimeMs;
 	public CountSes(Ses session) {
 		super(session.id);
 		this.sess = session;
+		startTimeMs = System.currentTimeMillis();
 		this.extra = new ExtraCountImpl(this);
 	}
 	@Override
@@ -72,11 +74,16 @@ private class ExtraCountImpl extends ExtraCount<E> {
 	public E getExtra() {
 		return countSes.sess.getExtra();
 	}
+	@Override
+	public long getStartTime() {
+		return countSes.startTimeMs;
+	}
 }
 public abstract static class ExtraCount<Extra> {
 	abstract public int getIncomeCalls();
 	abstract public int getOutCalls();
 	abstract public Extra getExtra();
+	abstract public long getStartTime();
 }
 
 }
