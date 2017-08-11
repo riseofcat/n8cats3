@@ -11,7 +11,7 @@ import com.n8cats.share.ServerSay;
 import com.n8cats.share.redundant.ClientSayC;
 import com.riseofcat.session.AbstSesServ;
 import com.riseofcat.session.CountSesServ;
-import com.riseofcat.session.SerializeSesServ;
+import com.riseofcat.session.ConvertSesServ;
 
 import java.io.Reader;
 
@@ -39,7 +39,7 @@ public static void main(String[] args) {
 	IConverter<Reader, ClientSay<ClientPayload>> c = obj -> JSON.fromJson(ClientSayC.class, obj);
 	IConverter<ServerSay<ServerPayload>, String> s = JSON::toJson;
 	PingPongServ<ClientPayload, ServerPayload> ping = new PingPongServ<>(roomsServer, 1000);
-	AbstSesServ<Reader, String, Void> serialize = new SerializeSesServ<>(ping, c, s);
+	AbstSesServ<Reader, String, Void> serialize = new ConvertSesServ<>(ping, c, s);
 	CountSesServ<Reader, String, Void> count = new CountSesServ<>(serialize);
 	Spark.webSocket("/socket", new SparkWebSocket(count));
 	Spark.get("/", new Route() {

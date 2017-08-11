@@ -4,12 +4,12 @@ import com.n8cats.lib_gwt.IConverter;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-public class SerializeSesServ<TClientSay, TServerSay, TClientCodeReader, TServCodeString, Extra> extends AbstSesServ<TClientCodeReader, TServCodeString, Extra> {
+public class ConvertSesServ<TClientSay, TServerSay, TClientCodeReader, TServCodeString, Extra> extends AbstSesServ<TClientCodeReader, TServCodeString, Extra> {
 private final IConverter<TClientCodeReader, TClientSay> cConv;
 private final IConverter<TServerSay, TServCodeString> sConv;
 private final Map<AbstSesServ.Ses, AbstSesServ<TClientSay, TServerSay, Extra>.Ses> sessions = new ConcurrentHashMap<>();
 private final AbstSesServ<TClientSay, TServerSay, Extra> child;
-public SerializeSesServ(AbstSesServ<TClientSay, TServerSay, Extra> child, IConverter<TClientCodeReader, TClientSay> cConv, IConverter<TServerSay, TServCodeString> sConv) {
+public ConvertSesServ(AbstSesServ<TClientSay, TServerSay, Extra> child, IConverter<TClientCodeReader, TClientSay> cConv, IConverter<TServerSay, TServCodeString> sConv) {
 	this.cConv = cConv;
 	this.sConv = sConv;
 	this.child = child;
