@@ -5,13 +5,14 @@ import com.n8cats.share.ClientPayload;
 import com.n8cats.share.Logic;
 import com.n8cats.share.ServerPayload;
 import com.riseofcat.session.AbstSesServ;
+import com.riseofcat.session.CountSesServ;
 
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-public class RoomsRTServer extends AbstSesServ<ClientPayload, ServerPayload, PingPongServ.ExtraLatency> {
+public class RoomsRTServer extends AbstSesServ<ClientPayload, ServerPayload, PingPongServ.ExtraLatency<CountSesServ.ExtraCount<Void>>> {
 public final static int MAXIMUM_ROOM_PLAYERS = 5;
 public final Signal<Room> onRoomCreated = new Signal<>();
 //todo onRoomDestroyed

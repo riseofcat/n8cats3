@@ -38,10 +38,7 @@ public static void main(String[] args) {
 	final Json JSON = new Json();
 	IConverter<Reader, ClientSay<ClientPayload>> c = obj -> JSON.fromJson(ClientSayC.class, obj);
 	IConverter<ServerSay<ServerPayload>, String> s = JSON::toJson;
-	PingPongServ<ClientPayload, ServerPayload> ping = new PingPongServ<>(roomsServer, 1000);
-	AbstSesServ<Reader, String, Void> serialize = new ConvertSesServ<>(ping, c, s);
-	CountSesServ<Reader, String, Void> count = new CountSesServ<>(serialize);
-	Spark.webSocket("/socket", new SparkWebSocket(count));
+	Spark.webSocket("/socket", new SparkWebSocket(new CountSesServ<>(new ConvertSesServ<>(new PingPongServ<>(roomsServer, 1000), c, s))));
 	Spark.get("/", new Route() {
 		@Override
 		public Object handle(Request request, Response response) {

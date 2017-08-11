@@ -2,6 +2,7 @@ package com.riseofcat;
 
 import com.riseofcat.session.AbstSesServ;
 
+import org.eclipse.jetty.websocket.api.RemoteEndpoint;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.WriteCallback;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketClose;
@@ -38,7 +39,8 @@ public void connected(Session session) {
 				App.log.error("SparkWebSocket !session.isOpen()");
 				return;
 			}
-			session.getRemote().sendString(message, new WriteCallback() {
+			RemoteEndpoint remote = session.getRemote();
+			remote.sendString(message, new WriteCallback() {
 				@Override
 				public void writeFailed(Throwable x) {
 					App.log.error("SparkSession.send.writeFailed " + x);

@@ -2,16 +2,16 @@ package com.riseofcat.session;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-public class CountSesServ<C, S, CE> extends AbstSesServ<C, S, CE> {
-private final AbstSesServ<C, S, CE> server;
+public class CountSesServ<C, S, E> extends AbstSesServ<C, S, E> {
+private final AbstSesServ<C, S, ExtraCount<E>> server;
 private Map<Ses, CountSes> sessions = new ConcurrentHashMap<>();
 private int sessionsCount = 0;
-public CountSesServ(AbstSesServ<C, S, CE> server) {
+public CountSesServ(AbstSesServ<C, S, ExtraCount<E>> server) {
 	this.server = server;
 }
 @Override
 public void start(Ses session) {
-	CountSes s = new CountSes(session.id, session);
+	CountSes s = new CountSes(session);
 	sessions.put(session, s);
 	server.start(s);
 	sessionsCount++;
@@ -26,37 +26,57 @@ final public void message(Ses session, C code) {
 	server.message(s, code);
 	s.incomeCalls++;
 }
-public final int getSessionsCount() {
+public final int getSessionsCount() {//todo
 	return sessionsCount;
 }
 
-public class CountSes extends Ses {
+public class CountSes extends AbstSesServ<C, S, ExtraCount<E>>.Ses {
 	private int incomeCalls;
 	private int outCalls;
-	private Ses session;
-	public CountSes(int id, Ses session) {
-		super(id);
-		this.session = session;
+	private Ses sess;
+	private final ExtraCount<E> extra;
+	public CountSes(Ses session) {
+		super(session.id);
+		this.sess = session;
+		this.extra = new ExtraCountImpl(this);
 	}
 	@Override
 	public void stop() {
-		session.stop();
+		sess.stop();
 	}
 	@Override
 	public void send(S message) {
-		session.send(message);
+		sess.send(message);
 		outCalls++;
 	}
-	public int getIncomeCalls() {
-		return incomeCalls;
+	@Override
+	public ExtraCount<E> getExtra() {
+		return extra;
 	}
-	public int getOutCalls() {
-		return outCalls;
+}
+
+private class ExtraCountImpl extends ExtraCount<E> {
+	private final CountSes countSes;
+	public ExtraCountImpl(CountSes countSes) {
+		this.countSes = countSes;
 	}
 	@Override
-	public CE getExtra() {
-		return session.getExtra();
+	public int getIncomeCalls() {
+		return 0;
 	}
+	@Override
+	public int getOutCalls() {
+		return 0;
+	}
+	@Override
+	public E getExtra() {
+		return countSes.sess.getExtra();
+	}
+}
+public abstract static class ExtraCount<Extra> {
+	abstract public int getIncomeCalls();
+	abstract public int getOutCalls();
+	abstract public Extra getExtra();
 }
 
 }

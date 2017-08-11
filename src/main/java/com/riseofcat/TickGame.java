@@ -43,6 +43,7 @@ public TickGame(RoomsRTServer.Room room, Logic logic) {
 					payload.state.cars = state.cars.toArray(new Logic.Car[]{});
 					player.session.send(payload);
 					player.session.getExtra().getLatency();
+					player.session.getExtra().getExtra().getIncomeCalls();
 				}
 			}
 		}
