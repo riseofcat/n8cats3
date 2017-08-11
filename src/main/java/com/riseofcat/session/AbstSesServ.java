@@ -6,10 +6,10 @@ abstract public void close(Ses session);
 abstract public void message(Ses ses, C code);
 
 public abstract class Ses {
+	abstract public int getId();
 	abstract public void stop();
 	abstract public void send(S message);
 	abstract public Extra getExtra();
-	abstract public int getId();
 }
 
 }

@@ -17,7 +17,7 @@ public final static int MAXIMUM_ROOM_PLAYERS = 5;
 public final Signal<Room> onRoomCreated = new Signal<>();
 //todo onRoomDestroyed
 private final Set<Room> rooms = new HashSet<>();
-private final Map<Ses, Room> sessions = new ConcurrentHashMap<>();
+private final Map<Ses, Room> map = new ConcurrentHashMap<>();
 @Override
 public void start(Ses session) {
 	Room room = null;
@@ -36,16 +36,16 @@ public void start(Ses session) {
 		}
 		room.add(session);
 	}
-	sessions.put(session, room);
+	map.put(session, room);
 }
 @Override
 public void close(Ses session) {
-	Room room = sessions.remove(session);
+	Room room = map.remove(session);
 	room.remove(session);
 }
 @Override
 public void message(Ses session, ClientPayload payload) {
-	Room room = sessions.get(session);
+	Room room = map.get(session);
 	room.message(session, payload);
 }
 public class Room {

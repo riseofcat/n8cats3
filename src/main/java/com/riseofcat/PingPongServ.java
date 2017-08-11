@@ -11,7 +11,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class PingPongServ<C, S, E> extends AbstSesServ<ClientSay<C>, ServerSay<S>, E> {
 private final int pingIntervalMs;
 private final AbstSesServ<C, S, ExtraLatency<E>> server;
-private final Map<Ses, PingSes> sessions = new ConcurrentHashMap<>();
+private final Map<Ses, PingSes> map = new ConcurrentHashMap<>();
 public PingPongServ(AbstSesServ<C, S, ExtraLatency<E>> server, int pingIntervalMs) {
 	this.pingIntervalMs = pingIntervalMs;
 	this.server = server;
@@ -19,17 +19,17 @@ public PingPongServ(AbstSesServ<C, S, ExtraLatency<E>> server, int pingIntervalM
 @Override
 public void start(Ses session) {
 	PingSes s = new PingSes(session);
-	sessions.put(session, s);
+	map.put(session, s);
 	server.start(s);
 }
 @Override
 public void close(Ses session) {
-	server.close(sessions.get(session));
-	sessions.remove(session);
+	server.close(map.get(session));
+	map.remove(session);
 }
 @Override
 public void message(Ses session, ClientSay<C> say) {
-	PingSes s = sessions.get(session);
+	PingSes s = map.get(session);
 	if(say.pong && s.lastPingTime != null) {
 		long l = (System.currentTimeMillis() - s.lastPingTime + 1) / 2;
 		s.latency = (int) l;

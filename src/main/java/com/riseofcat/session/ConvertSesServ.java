@@ -7,16 +7,16 @@ import java.util.concurrent.ConcurrentHashMap;
 public class ConvertSesServ<TClientSay, TServerSay, TClientCodeReader, TServCodeString, Extra> extends AbstSesServ<TClientCodeReader, TServCodeString, Extra> {
 private final IConverter<TClientCodeReader, TClientSay> cConv;
 private final IConverter<TServerSay, TServCodeString> sConv;
-private final Map<AbstSesServ.Ses, AbstSesServ<TClientSay, TServerSay, Extra>.Ses> sessions = new ConcurrentHashMap<>();
-private final AbstSesServ<TClientSay, TServerSay, Extra> child;
+private final Map<AbstSesServ.Ses, AbstSesServ<TClientSay, TServerSay, Extra>.Ses> map = new ConcurrentHashMap<>();
+private final AbstSesServ<TClientSay, TServerSay, Extra> server;
 public ConvertSesServ(AbstSesServ<TClientSay, TServerSay, Extra> child, IConverter<TClientCodeReader, TClientSay> cConv, IConverter<TServerSay, TServCodeString> sConv) {
 	this.cConv = cConv;
 	this.sConv = sConv;
-	this.child = child;
+	this.server = child;
 }
 @Override
 public void start(Ses session) {
-	AbstSesServ<TClientSay, TServerSay, Extra>.Ses s = child.new Ses() {
+	AbstSesServ<TClientSay, TServerSay, Extra>.Ses s = server.new Ses() {
 		@Override
 		public int getId() {
 			return session.getId();
@@ -34,17 +34,17 @@ public void start(Ses session) {
 			return session.getExtra();
 		}
 	};
-	sessions.put(session, s);
-	child.start(s);
+	map.put(session, s);
+	server.start(s);
 }
 @Override
 public void close(Ses sess) {
-	child.close(sessions.get(sess));
-	sessions.remove(sess);
+	server.close(map.get(sess));
+	map.remove(sess);
 }
 @Override
 public void message(Ses ses, TClientCodeReader code) {
-	child.message(sessions.get(ses), cConv.convert(code));
+	server.message(map.get(ses), cConv.convert(code));
 }
 
 }

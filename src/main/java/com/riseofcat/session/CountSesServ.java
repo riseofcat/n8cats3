@@ -4,7 +4,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 public class CountSesServ<C, S, E> extends AbstSesServ<C, S, E> {
 private final AbstSesServ<C, S, ExtraCount<E>> server;
-private Map<Ses, CountSes> sessions = new ConcurrentHashMap<>();
+private Map<Ses, CountSes> map = new ConcurrentHashMap<>();
 private int sessionsCount = 0;
 public CountSesServ(AbstSesServ<C, S, ExtraCount<E>> server) {
 	this.server = server;
@@ -12,17 +12,17 @@ public CountSesServ(AbstSesServ<C, S, ExtraCount<E>> server) {
 @Override
 public void start(Ses session) {
 	CountSes s = new CountSes(session);
-	sessions.put(session, s);
+	map.put(session, s);
 	server.start(s);
 	sessionsCount++;
 }
 final public void close(Ses session) {
-	server.close(sessions.get(session));
-	sessions.remove(session);
+	server.close(map.get(session));
+	map.remove(session);
 	sessionsCount--;
 }
 final public void message(Ses session, C code) {
-	CountSes s = sessions.get(session);
+	CountSes s = map.get(session);
 	server.message(s, code);
 	s.incomeCalls++;
 }

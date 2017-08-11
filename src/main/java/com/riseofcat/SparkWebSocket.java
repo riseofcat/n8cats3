@@ -20,7 +20,7 @@ public class SparkWebSocket {
 //https://github.com/tipsy/spark-websocket
 //http://sparkjava.com/tutorials/websocket-chat
 //http://sparkjava.com/documentation#embedded-web-server
-private final Map<Session, AbstSesServ<Reader, String, Void>.Ses> sessions = new ConcurrentHashMap<>();
+private final Map<Session, AbstSesServ<Reader, String, Void>.Ses> map = new ConcurrentHashMap<>();
 private int lastId = 0;
 private final AbstSesServ<Reader, String, Void> server;
 public SparkWebSocket(AbstSesServ<Reader, String, Void> server) {
@@ -61,13 +61,13 @@ public void connected(Session session) {
 			return null;
 		}
 	};
-	sessions.put(session, s);
+	map.put(session, s);
 	server.start(s);
 }
 @OnWebSocketClose
 public void closed(Session session, int statusCode, String reason) {
-	server.close(sessions.get(session));
-	sessions.remove(session);
+	server.close(map.get(session));
+	map.remove(session);
 }
 @OnWebSocketMessage
 //public void byteMessage(Session session, byte buf[], int offset, int length)
@@ -77,7 +77,7 @@ public void message(Session session, Reader reader) {//Reader have low ram usage
 		App.log.error("SparkWebSocket session not open");
 		return;
 	}
-	server.message(sessions.get(session), reader);
+	server.message(map.get(session), reader);
 }
 @OnWebSocketError
 public void error(Session session, Throwable error) {
