@@ -2,15 +2,10 @@ package com.riseofcat;
 
 import com.badlogic.gdx.utils.Json;
 import com.n8cats.lib.LibAll;
-import com.n8cats.lib_gwt.IConverter;
 import com.n8cats.share.ClientPayload;
-import com.n8cats.share.ClientSay;
 import com.n8cats.share.Logic;
 import com.n8cats.share.ServerPayload;
-import com.n8cats.share.ServerSay;
 import com.n8cats.share.redundant.ClientSayC;
-
-import java.io.Reader;
 
 import spark.Request;
 import spark.Response;
@@ -29,13 +24,13 @@ public static void main(String[] args) {
 	}
 	Spark.staticFiles.location("/public");
 	Spark.staticFiles.expireTime(600);
-	RoomsRTServer roomsServer = new RoomsRTServer();
+	ConcreteRoomsServer roomsServer = new ConcreteRoomsServer();
 	roomsServer.onRoomCreated.add(room -> new TickGame(room, new Logic()));
 
 	final Json JSON = new Json();
-	IConverter<Reader, ClientSay<ClientPayload>> c = obj -> JSON.fromJson(ClientSayC.class, obj);
-	IConverter<ServerSay<ServerPayload>, String> s = JSON::toJson;
-	Spark.webSocket("/socket", new SparkWebSocket(new CountSesServ<>(new ConvertSesServ<>(new PingPongServ<>(roomsServer, 1000), c, s))));
+	Spark.webSocket("/socket", new SparkWebSocket(new CountSesServ<>(new ConvertSesServ<>(new PingPongServ<>(roomsServer, 1000),
+			obj -> JSON.fromJson(ClientSayC.class, obj),
+			JSON::toJson))));
 	Spark.get("/", new Route() {
 		@Override
 		public Object handle(Request request, Response response) {
