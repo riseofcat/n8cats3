@@ -24,13 +24,10 @@ public static void main(String[] args) {
 	}
 	Spark.staticFiles.location("/public");
 	Spark.staticFiles.expireTime(600);
-	ConcreteRoomsServer roomsServer = new ConcreteRoomsServer();
-	roomsServer.onRoomCreated.add(room -> new TickGame(room, new Logic()));
-
-	final Json JSON = new Json();
-	Spark.webSocket("/socket", new SparkWebSocket(new CountSesServ<>(new ConvertSesServ<>(new PingPongServ<>(roomsServer, 1000),
-			obj -> JSON.fromJson(ClientSayC.class, obj),
-			JSON::toJson))));
+	final Json json = new Json();
+	Spark.webSocket("/socket", new SparkWebSocket(new CountSesServ<>(new ConvertSesServ<>(new PingPongServ<>(new ConcreteRoomsServer(room -> new TickGame(room, new Logic())), 1000),
+			obj -> json.fromJson(ClientSayC.class, obj),
+			json::toJson))));
 	Spark.get("/", new Route() {
 		@Override
 		public Object handle(Request request, Response response) {

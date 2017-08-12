@@ -1,6 +1,7 @@
 package com.riseofcat;
 
 import com.n8cats.lib_gwt.Signal;
+import com.n8cats.lib_gwt.SignalListener;
 import com.n8cats.share.Logic;
 
 import java.util.Collection;
@@ -15,6 +16,11 @@ public final Signal<Room> onRoomCreated = new Signal<>();
 //todo onRoomDestroyed
 private final Set<Room> rooms = new HashSet<>();
 private final Map<Ses, Room> map = new ConcurrentHashMap<>();
+public RoomsServer(SignalListener<Room> onRoomAdded) {
+	onRoomCreated.add(onRoomAdded);
+}
+public RoomsServer() {
+}
 public void start(Ses session) {
 	Room room = null;
 	synchronized(this) {
