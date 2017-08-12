@@ -1,13 +1,12 @@
 package com.riseofcat;
-
 import com.n8cats.share.ClientSay;
 import com.n8cats.share.ServerSay;
-import com.riseofcat.session.AbstSesServ;
 
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+
 public class PingPongServ<C, S, E> extends AbstSesServ<ClientSay<C>, ServerSay<S>, E> {
 private final int pingIntervalMs;
 private final AbstSesServ<C, S, ExtraLatency<E>> server;
@@ -16,18 +15,15 @@ public PingPongServ(AbstSesServ<C, S, ExtraLatency<E>> server, int pingIntervalM
 	this.pingIntervalMs = pingIntervalMs;
 	this.server = server;
 }
-@Override
 public void start(Ses session) {
 	PingSes s = new PingSes(session);
 	map.put(session, s);
 	server.start(s);
 }
-@Override
 public void close(Ses session) {
 	server.close(map.get(session));
 	map.remove(session);
 }
-@Override
 public void message(Ses session, ClientSay<C> say) {
 	PingSes s = map.get(session);
 	if(say.pong && s.lastPingTime != null) {
@@ -38,27 +34,26 @@ public void message(Ses session, ClientSay<C> say) {
 		server.message(s, say.payload);
 	}
 }
+public abstract static class ExtraLatency<Extra> {
+	@Nullable abstract public Integer getLatency();
+	abstract public Extra getExtra();
+}
 
 private class PingSes extends AbstSesServ<C, S, ExtraLatency<E>>.Ses {
 	private final Ses sess;
-	@Nullable
-	private Long lastPingTime;
-	@Nullable
-	private Integer latency;
+	@Nullable private Long lastPingTime;
+	@Nullable private Integer latency;
 	private ExtraLatency<E> extra;
 	private PingSes(Ses sess) {
 		this.sess = sess;
 		this.extra = new ExtraLatencyImpl(this);
 	}
-	@Override
 	public int getId() {
 		return sess.getId();
 	}
-	@Override
 	public void stop() {
 		sess.stop();
 	}
-	@Override
 	public void send(S payload) {
 		ServerSay<S> say = new ServerSay<>();
 		say.latency = latency;
@@ -69,30 +64,22 @@ private class PingSes extends AbstSesServ<C, S, ExtraLatency<E>>.Ses {
 		say.payload = payload;
 		sess.send(say);
 	}
-	@Override
 	public ExtraLatency<E> getExtra() {
 		return extra;
 	}
 }
+
 private class ExtraLatencyImpl extends ExtraLatency<E> {
 	private final PingSes pingSes;
 	public ExtraLatencyImpl(PingSes pingSes) {
 		this.pingSes = pingSes;
 	}
-	@Nullable
-	@Override
-	public Integer getLatency() {
+	@Nullable public Integer getLatency() {
 		return pingSes.latency;
 	}
-	@Override
 	public E getExtra() {
 		return pingSes.sess.getExtra();
 	}
-}
-public abstract static class ExtraLatency<Extra> {
-	@Nullable
-	abstract public Integer getLatency();
-	abstract public Extra getExtra();
 }
 
 }

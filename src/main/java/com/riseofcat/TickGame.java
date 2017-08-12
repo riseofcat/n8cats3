@@ -5,6 +5,7 @@ import com.n8cats.share.ServerPayload;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
+
 public class TickGame {
 private final RoomsRTServer.Room room;
 private final Logic logic;
@@ -20,8 +21,8 @@ public TickGame(RoomsRTServer.Room room, Logic logic) {
 	room.onPlayerAdded.add(player -> {
 		Logic.Car car = new Logic.Car();
 		car.playerId = player.getId();
-		car.x = (float) (Math.random()*Logic.width);
-		car.y = (float) (Math.random()*Logic.height);
+		car.x = (float) (Math.random() * Logic.width);
+		car.y = (float) (Math.random() * Logic.height);
 		state.cars.add(car);
 	});
 	room.onMessage.add(message -> {

@@ -4,21 +4,19 @@ import com.n8cats.lib_gwt.Signal;
 import com.n8cats.share.ClientPayload;
 import com.n8cats.share.Logic;
 import com.n8cats.share.ServerPayload;
-import com.riseofcat.session.AbstSesServ;
-import com.riseofcat.session.CountSesServ;
 
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+
 public class RoomsRTServer extends AbstSesServ<ClientPayload, ServerPayload, PingPongServ.ExtraLatency<CountSesServ.ExtraCount<Void>>> {
 public final static int MAXIMUM_ROOM_PLAYERS = 5;
 public final Signal<Room> onRoomCreated = new Signal<>();
 //todo onRoomDestroyed
 private final Set<Room> rooms = new HashSet<>();
 private final Map<Ses, Room> map = new ConcurrentHashMap<>();
-@Override
 public void start(Ses session) {
 	Room room = null;
 	synchronized(this) {
@@ -38,12 +36,10 @@ public void start(Ses session) {
 	}
 	map.put(session, room);
 }
-@Override
 public void close(Ses session) {
 	Room room = map.remove(session);
 	room.remove(session);
 }
-@Override
 public void message(Ses session, ClientPayload payload) {
 	Room room = map.get(session);
 	room.message(session, payload);
@@ -80,7 +76,6 @@ public class Room {
 		public Player(Ses session) {
 			this.session = session;
 		}
-		@Override
 		public Id getId() {
 			return new Id(session.getId());
 		}
