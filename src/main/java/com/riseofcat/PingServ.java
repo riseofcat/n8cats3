@@ -7,11 +7,11 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class PingPongServ<C, S, E> extends AbstSesServ<ClientSay<C>, ServerSay<S>, E> {
+public class PingServ<C, S, E> extends AbstSesServ<ClientSay<C>, ServerSay<S>, E> {
 private final int pingIntervalMs;
-private final AbstSesServ<C, S, ExtraLatency<E>> server;
+private final AbstSesServ<C, S, Extra<E>> server;
 private final Map<Ses, PingSes> map = new ConcurrentHashMap<>();
-public PingPongServ(AbstSesServ<C, S, ExtraLatency<E>> server, int pingIntervalMs) {
+public PingServ(AbstSesServ<C, S, Extra<E>> server, int pingIntervalMs) {
 	this.pingIntervalMs = pingIntervalMs;
 	this.server = server;
 }
@@ -34,16 +34,16 @@ public void message(Ses session, ClientSay<C> say) {
 		server.message(s, say.payload);
 	}
 }
-public abstract static class ExtraLatency<Extra> {
+public abstract static class Extra<Extra> {
 	@Nullable abstract public Integer getLatency();
 	abstract public Extra getExtra();
 }
 
-private class PingSes extends AbstSesServ<C, S, ExtraLatency<E>>.Ses {
+private class PingSes extends AbstSesServ<C, S, Extra<E>>.Ses {
 	private final Ses sess;
 	@Nullable private Long lastPingTime;
 	@Nullable private Integer latency;
-	private ExtraLatency<E> extra;
+	private Extra<E> extra;
 	private PingSes(Ses sess) {
 		this.sess = sess;
 		this.extra = new ExtraLatencyImpl(this);
@@ -64,12 +64,12 @@ private class PingSes extends AbstSesServ<C, S, ExtraLatency<E>>.Ses {
 		say.payload = payload;
 		sess.send(say);
 	}
-	public ExtraLatency<E> getExtra() {
+	public Extra<E> getExtra() {
 		return extra;
 	}
 }
 
-private class ExtraLatencyImpl extends ExtraLatency<E> {
+private class ExtraLatencyImpl extends Extra<E> {
 	private final PingSes pingSes;
 	public ExtraLatencyImpl(PingSes pingSes) {
 		this.pingSes = pingSes;

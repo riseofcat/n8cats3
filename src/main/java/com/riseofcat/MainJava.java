@@ -4,7 +4,6 @@ import com.badlogic.gdx.utils.Json;
 import com.n8cats.lib.LibAll;
 import com.n8cats.share.ClientPayload;
 import com.n8cats.share.Logic;
-import com.n8cats.share.ServerPayload;
 import com.n8cats.share.redundant.ClientSayC;
 
 import spark.Request;
@@ -25,7 +24,10 @@ public static void main(String[] args) {
 	Spark.staticFiles.location("/public");
 	Spark.staticFiles.expireTime(600);
 	final Json json = new Json();
-	Spark.webSocket("/socket", new SparkWebSocket(new CountSesServ<>(new ConvertSesServ<>(new PingPongServ<>(new ConcreteRoomsServer(room -> new TickGame(room, new Logic())), 1000),
+
+	ConcreteRoomsServer concreteRoomsServer = new ConcreteRoomsServer();
+	concreteRoomsServer.onRoomCreated.add(room -> new TickGame(room, new Logic()));
+	Spark.webSocket("/socket", new SparkWebSocket(new CountServ<>(new ConvertSesServ<>(new PingServ<>(concreteRoomsServer, 1000),
 			obj -> json.fromJson(ClientSayC.class, obj),
 			json::toJson))));
 	Spark.get("/", new Route() {

@@ -3,11 +3,11 @@ package com.riseofcat;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class CountSesServ<C, S, E> extends AbstSesServ<C, S, E> {
-private final AbstSesServ<C, S, ExtraCount<E>> server;
+public class CountServ<C, S, E> extends AbstSesServ<C, S, E> {
+private final AbstSesServ<C, S, Extra<E>> server;
 private Map<Ses, CountSes> map = new ConcurrentHashMap<>();
 private int sessionsCount = 0;
-public CountSesServ(AbstSesServ<C, S, ExtraCount<E>> server) {
+public CountServ(AbstSesServ<C, S, Extra<E>> server) {
 	this.server = server;
 }
 public void start(Ses session) {
@@ -30,11 +30,11 @@ public final int getSessionsCount() {
 	return sessionsCount;
 }
 
-public class CountSes extends AbstSesServ<C, S, ExtraCount<E>>.Ses {
+public class CountSes extends AbstSesServ<C, S, Extra<E>>.Ses {
 	private int incomeCalls;
 	private int outCalls;
 	private final Ses sess;
-	private final ExtraCount<E> extra;
+	private final Extra<E> extra;
 	private final long startTimeMs;
 	public CountSes(Ses session) {
 		this.sess = session;
@@ -51,12 +51,12 @@ public class CountSes extends AbstSesServ<C, S, ExtraCount<E>>.Ses {
 		sess.send(message);
 		outCalls++;
 	}
-	public ExtraCount<E> getExtra() {
+	public Extra<E> getExtra() {
 		return extra;
 	}
 }
 
-private class ExtraCountImpl extends ExtraCount<E> {
+private class ExtraCountImpl extends Extra<E> {
 	private final CountSes countSes;
 	public ExtraCountImpl(CountSes countSes) {
 		this.countSes = countSes;
@@ -75,7 +75,7 @@ private class ExtraCountImpl extends ExtraCount<E> {
 	}
 }
 
-public abstract static class ExtraCount<Extra> {
+public abstract static class Extra<Extra> {
 	abstract public int getIncomeCalls();
 	abstract public int getOutCalls();
 	abstract public Extra getExtra();

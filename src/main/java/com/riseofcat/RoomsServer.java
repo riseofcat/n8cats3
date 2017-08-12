@@ -16,9 +16,10 @@ public final Signal<Room> onRoomCreated = new Signal<>();
 //todo onRoomDestroyed
 private final Set<Room> rooms = new HashSet<>();
 private final Map<Ses, Room> map = new ConcurrentHashMap<>();
-public RoomsServer(SignalListener<Room> onRoomAdded) {
-	onRoomCreated.add(onRoomAdded);
+public RoomsServer(RoomHandler handler) {
+
 }
+
 public RoomsServer() {
 }
 public void start(Ses session) {
@@ -91,6 +92,12 @@ public class PlayerMessage {
 	public PlayerMessage(Room.Player player, TClientPayload payload) {
 		this.player = player;
 		this.payload = payload;
+	}
+}
+
+public static class RoomHandler<TClientPayload, TServerPayload, E> {
+	public void handleRoomCreated(RoomsServer<TClientPayload, TServerPayload, E>.Room room) {
+
 	}
 }
 }
