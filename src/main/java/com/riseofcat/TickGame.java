@@ -1,4 +1,5 @@
 package com.riseofcat;
+import com.n8cats.share.ClientPayload;
 import com.n8cats.share.Logic;
 import com.n8cats.share.ServerPayload;
 
@@ -7,7 +8,7 @@ import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class TickGame {
-private final RoomsServer.Room room;
+private final ConcreteRoomsServer.Room room;
 private final Logic logic;
 public final int reconcilationTicks = 10;
 public final int oldTicks = 20;
@@ -55,4 +56,9 @@ public TickGame(ConcreteRoomsServer.Room room, Logic logic) {
 public static class Reconciliation {
 
 }
+
+private static class ConcreteRoomsServer extends RoomsServer<ClientPayload, ServerPayload> {
+
+}
+
 }
