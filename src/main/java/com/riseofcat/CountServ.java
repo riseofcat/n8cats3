@@ -40,7 +40,7 @@ public class CountSes extends AbstSesServ<C, S, Extra<E>>.Ses {
 		this.sess = session;
 		startTimeMs = System.currentTimeMillis();
 		this.extra = new ExtraCountImpl(this);
-		put(Extra2.class, new Extra2(this));
+		put(new Extra2(this));
 	}
 	public int getId() {
 		return sess.getId();

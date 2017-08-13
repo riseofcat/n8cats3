@@ -47,7 +47,7 @@ private class PingSes extends AbstSesServ<C, S, Extra<E>>.Ses {
 	private PingSes(Ses sess) {
 		this.sess = sess;
 		this.extra = new ExtraLatencyImpl(this);
-		put(Extra2.class, new Extra2(this));
+		put(new Extra2(this));
 	}
 	public int getId() {
 		return sess.getId();

@@ -11,11 +11,11 @@ public abstract class Ses {
 	abstract public void send(S message);
 	abstract public E getExtra();
 	abstract protected TypeMap getTypeMap();
-	public <T> void put(Class<T> type, T value) {
+	public <T> void put(T value) {
 		if(typeMapCache == null) {
 			typeMapCache = getTypeMap();
 		}
-		typeMapCache.put(type, value);
+		typeMapCache.put(value);
 	}
 	public <T> T get(Class<T> type) {
 		return getTypeMap().get(type);
