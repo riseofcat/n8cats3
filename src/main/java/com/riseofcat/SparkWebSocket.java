@@ -19,10 +19,10 @@ import java.util.concurrent.ConcurrentHashMap;
 //https://github.com/tipsy/spark-websocket
 //http://sparkjava.com/tutorials/websocket-chat
 //http://sparkjava.com/documentation#embedded-web-server
-private final Map<Session, AbstSesServ<Reader, String>.Ses> map = new ConcurrentHashMap<>();
+private final Map<Session, SesServ<Reader, String>.Ses> map = new ConcurrentHashMap<>();
 private static int lastId = 0;
-private final AbstSesServ<Reader, String> server;
-public SparkWebSocket(AbstSesServ<Reader, String> server) {
+private final SesServ<Reader, String> server;
+public SparkWebSocket(SesServ<Reader, String> server) {
 	this.server = server;
 }
 private void todo(Session session) {//todo
@@ -31,7 +31,7 @@ private void todo(Session session) {//todo
 	session.getRemote().getBatchMode();//AUTO by default
 }
 @OnWebSocketConnect public void connected(Session session) {
-	AbstSesServ<Reader, String>.Ses s = server.new Ses() {
+	SesServ<Reader, String>.Ses s = server.new Ses() {
 		private int id = ++lastId;
 		private TypeMap typeMap;
 		public int getId() {

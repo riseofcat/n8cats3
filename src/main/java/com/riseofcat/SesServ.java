@@ -1,7 +1,7 @@
 package com.riseofcat;
 import com.n8cats.lib.TypeMap;
 
-abstract public class AbstSesServ<C, S> {
+abstract public class SesServ<C, S> {
 abstract public void start(Ses session);
 abstract public void close(Ses session);
 abstract public void message(Ses ses, C code);

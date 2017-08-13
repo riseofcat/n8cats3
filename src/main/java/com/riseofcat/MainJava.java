@@ -27,10 +27,10 @@ public static void main(String[] args) {
 	final Json json = new Json();
 
 	Spark.webSocket("/socket", new SparkWebSocket(
-			new CountServ<>(
-			new ConvertSesServ<>(
-			new PingServ<>(
-			new RoomsServer<ClientPayload, ServerPayload>(room -> new TickGame(room, new Logic())), 1000),
+			new UsageMonitorDecorator<>(
+			new ConvertDecorator<>(
+			new PingDecorator<>(
+			new RoomsDecorator<ClientPayload, ServerPayload>(room -> new TickGame(room, new Logic())), 1000),
 			obj -> json.fromJson(ClientSayC.class, obj),
 			json::toJson))));
 	Spark.get("/", new Route() {

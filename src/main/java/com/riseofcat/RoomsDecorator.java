@@ -10,15 +10,15 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class RoomsServer<TClientPayload, TServerPayload> extends AbstSesServ<TClientPayload, TServerPayload> {
+public class RoomsDecorator<TClientPayload, TServerPayload> extends SesServ<TClientPayload, TServerPayload> {
 public final static int MAXIMUM_ROOM_PLAYERS = 5;
 public final Signal<Room> onRoomCreated = new Signal<>();
 //todo onRoomDestroyed
 private final Set<Room> rooms = new HashSet<>();
 private final Map<Ses, Room> map = new ConcurrentHashMap<>();
-public RoomsServer() {
+public RoomsDecorator() {
 }
-public RoomsServer(SignalListener<Room> roomCreatedListener) {
+public RoomsDecorator(SignalListener<Room> roomCreatedListener) {
 	onRoomCreated.add(roomCreatedListener);
 }
 public void start(Ses session) {
@@ -95,7 +95,7 @@ public class PlayerMessage {
 }
 
 public static class RoomHandler<TClientPayload, TServerPayload, E> {
-	public void handleRoomCreated(RoomsServer<TClientPayload, TServerPayload>.Room room) {
+	public void handleRoomCreated(RoomsDecorator<TClientPayload, TServerPayload>.Room room) {
 
 	}
 }

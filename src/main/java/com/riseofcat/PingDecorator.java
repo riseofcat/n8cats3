@@ -8,11 +8,11 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class PingServ<C, S> extends AbstSesServ<ClientSay<C>, ServerSay<S>> {
+public class PingDecorator<C, S> extends SesServ<ClientSay<C>, ServerSay<S>> {
 private final int pingIntervalMs;
-private final AbstSesServ<C, S> server;
+private final SesServ<C, S> server;
 private final Map<Ses, PingSes> map = new ConcurrentHashMap<>();
-public PingServ(AbstSesServ<C, S> server, int pingIntervalMs) {
+public PingDecorator(SesServ<C, S> server, int pingIntervalMs) {
 	this.pingIntervalMs = pingIntervalMs;
 	this.server = server;
 }
@@ -36,7 +36,7 @@ public void message(Ses session, ClientSay<C> say) {
 	}
 }
 
-private class PingSes extends AbstSesServ<C, S>.Ses {
+private class PingSes extends SesServ<C, S>.Ses {
 	private final Ses sess;
 	@Nullable private Long lastPingTime;
 	@Nullable private Integer latency;
@@ -66,8 +66,8 @@ private class PingSes extends AbstSesServ<C, S>.Ses {
 }
 
 public static class Extra implements TypeMap.Marker{
-	private final PingServ.PingSes pingSes;
-	public Extra(PingServ.PingSes pingSes) {
+	private final PingDecorator.PingSes pingSes;
+	public Extra(PingDecorator.PingSes pingSes) {
 		this.pingSes = pingSes;
 	}
 	@Nullable public Integer getLatency() {

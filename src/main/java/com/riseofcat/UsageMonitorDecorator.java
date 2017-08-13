@@ -5,11 +5,11 @@ import com.n8cats.lib.TypeMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class CountServ<C, S> extends AbstSesServ<C, S> {
-private final AbstSesServ<C, S> server;
+public class UsageMonitorDecorator<C, S> extends SesServ<C, S> {
+private final SesServ<C, S> server;
 private Map<Ses, CountSes> map = new ConcurrentHashMap<>();
 private int sessionsCount = 0;
-public CountServ(AbstSesServ<C, S> server) {
+public UsageMonitorDecorator(SesServ<C, S> server) {
 	this.server = server;
 }
 public void start(Ses session) {
@@ -32,7 +32,7 @@ public final int getSessionsCount() {
 	return sessionsCount;
 }
 
-public class CountSes extends AbstSesServ<C, S>.Ses {
+public class CountSes extends SesServ<C, S>.Ses {
 	private int incomeCalls;
 	private int outCalls;
 	private final Ses sess;
@@ -58,9 +58,9 @@ public class CountSes extends AbstSesServ<C, S>.Ses {
 }
 
 public static class Extra implements TypeMap.Marker {
-	private final CountServ.CountSes countSes;
+	private final UsageMonitorDecorator.CountSes countSes;
 
-	public Extra(CountServ.CountSes countSes) {
+	public Extra(UsageMonitorDecorator.CountSes countSes) {
 		this.countSes = countSes;
 	}
 
