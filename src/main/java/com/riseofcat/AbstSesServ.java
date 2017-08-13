@@ -5,10 +5,21 @@ abstract public void close(Ses session);
 abstract public void message(Ses ses, C code);
 
 public abstract class Ses {
+	private TypeMap typeMapCache;
 	abstract public int getId();
 	abstract public void stop();
 	abstract public void send(S message);
 	abstract public E getExtra();
+	abstract protected TypeMap getTypeMap();
+	public <T> void put(Class<T> type, T value) {
+		if(typeMapCache == null) {
+			typeMapCache = getTypeMap();
+		}
+		typeMapCache.put(type, value);
+	}
+	public <T> T get(Class<T> type) {
+		return getTypeMap().get(type);
+	}
 }
 
 }

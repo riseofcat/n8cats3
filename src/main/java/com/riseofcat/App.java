@@ -24,6 +24,9 @@ public static ILog log = new ILog() {
 	}
 };
 public static final Info info = new Info();
+public static void breakpoint() {
+	int a = 1+1;
+}
 }
 final class Info {
 public float getMaxMemory() {

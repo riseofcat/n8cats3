@@ -47,6 +47,7 @@ private class PingSes extends AbstSesServ<C, S, Extra<E>>.Ses {
 	private PingSes(Ses sess) {
 		this.sess = sess;
 		this.extra = new ExtraLatencyImpl(this);
+		put(Extra2.class, new Extra2(this));
 	}
 	public int getId() {
 		return sess.getId();
@@ -67,6 +68,9 @@ private class PingSes extends AbstSesServ<C, S, Extra<E>>.Ses {
 	public Extra<E> getExtra() {
 		return extra;
 	}
+	protected TypeMap getTypeMap() {
+		return sess.getTypeMap();
+	}
 }
 
 private class ExtraLatencyImpl extends Extra<E> {
@@ -79,6 +83,17 @@ private class ExtraLatencyImpl extends Extra<E> {
 	}
 	public E getExtra() {
 		return pingSes.sess.getExtra();
+	}
+}
+
+public static class Extra2 {
+
+	private final PingServ.PingSes pingSes;
+	public Extra2(PingServ.PingSes pingSes) {
+		this.pingSes = pingSes;
+	}
+	@Nullable public Integer getLatency() {
+		return pingSes.latency;
 	}
 }
 

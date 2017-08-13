@@ -1,7 +1,6 @@
 package com.riseofcat;
 
 import com.n8cats.lib_gwt.Signal;
-import com.n8cats.lib_gwt.SignalListener;
 import com.n8cats.share.Logic;
 
 import java.util.Collection;

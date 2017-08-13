@@ -40,6 +40,7 @@ public class CountSes extends AbstSesServ<C, S, Extra<E>>.Ses {
 		this.sess = session;
 		startTimeMs = System.currentTimeMillis();
 		this.extra = new ExtraCountImpl(this);
+		put(Extra2.class, new Extra2(this));
 	}
 	public int getId() {
 		return sess.getId();
@@ -53,6 +54,9 @@ public class CountSes extends AbstSesServ<C, S, Extra<E>>.Ses {
 	}
 	public Extra<E> getExtra() {
 		return extra;
+	}
+	protected TypeMap getTypeMap() {
+		return sess.getTypeMap();
 	}
 }
 
@@ -80,6 +84,24 @@ public abstract static class Extra<Extra> {
 	abstract public int getOutCalls();
 	abstract public Extra getExtra();
 	abstract public long getStartTime();
+}
+
+public static class Extra2 {
+	private final CountServ.CountSes countSes;
+
+	public Extra2(CountServ.CountSes countSes) {
+		this.countSes = countSes;
+	}
+
+	public int getIncomeCalls() {
+		return countSes.incomeCalls;
+	}
+	public int getOutCalls() {
+		return countSes.outCalls;
+	}
+	public long getStartTime() {
+		return countSes.startTimeMs;
+	}
 }
 
 }

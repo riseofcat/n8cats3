@@ -31,6 +31,7 @@ private void todo(Session session) {//todo
 @OnWebSocketConnect public void connected(Session session) {
 	int id = ++lastId;
 	AbstSesServ<Reader, String, Void>.Ses s = server.new Ses() {
+		private TypeMap typeMap;
 		public int getId() {
 			return id;
 		}
@@ -54,6 +55,12 @@ private void todo(Session session) {//todo
 		}
 		public Void getExtra() {
 			return null;
+		}
+		protected TypeMap getTypeMap() {
+			if(typeMap == null) {
+				typeMap = new TypeMap();
+			}
+			return typeMap;
 		}
 	};
 	map.put(session, s);

@@ -28,6 +28,9 @@ public void start(Ses session) {
 		public E getExtra() {
 			return session.getExtra();
 		}
+		protected TypeMap getTypeMap() {
+			return session.getTypeMap();
+		}
 	};
 	map.put(session, s);
 	server.start(s);
