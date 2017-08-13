@@ -1,5 +1,7 @@
 package com.riseofcat;
 
+import com.n8cats.lib.TypeMap;
+
 import org.eclipse.jetty.websocket.api.RemoteEndpoint;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.WriteCallback;
@@ -18,7 +20,7 @@ import java.util.concurrent.ConcurrentHashMap;
 //http://sparkjava.com/tutorials/websocket-chat
 //http://sparkjava.com/documentation#embedded-web-server
 private final Map<Session, AbstSesServ<Reader, String>.Ses> map = new ConcurrentHashMap<>();
-private int lastId = 0;
+private static int lastId = 0;
 private final AbstSesServ<Reader, String> server;
 public SparkWebSocket(AbstSesServ<Reader, String> server) {
 	this.server = server;
@@ -29,8 +31,8 @@ private void todo(Session session) {//todo
 	session.getRemote().getBatchMode();//AUTO by default
 }
 @OnWebSocketConnect public void connected(Session session) {
-	int id = ++lastId;
 	AbstSesServ<Reader, String>.Ses s = server.new Ses() {
+		private int id = ++lastId;
 		private TypeMap typeMap;
 		public int getId() {
 			return id;
@@ -69,7 +71,7 @@ private void todo(Session session) {//todo
 }
 //@OnWebSocketMessage public void byteMessage(Session session, byte buf[], int offset, int length)
 //@OnWebSocketMessage public void message(Session session, String message) {
-@OnWebSocketMessage public void message(Session session, Reader reader) {//Reader have low ram usage
+@OnWebSocketMessage public void message(Session session, Reader reader) {
 	if(!session.isOpen()) {
 		App.log.error("SparkWebSocket session not open");
 		return;
@@ -79,6 +81,9 @@ private void todo(Session session) {//todo
 @OnWebSocketError public void error(Session session, Throwable error) {
 	App.log.error("OnWebSocketError " + error);
 	error.printStackTrace();
+	if(false) {//todo
+		map.get(session).stop();
+	}
 }
 
 }

@@ -1,4 +1,5 @@
 package com.riseofcat;
+import com.n8cats.lib.TypeMap;
 import com.n8cats.share.ClientSay;
 import com.n8cats.share.ServerSay;
 
@@ -34,10 +35,6 @@ public void message(Ses session, ClientSay<C> say) {
 		server.message(s, say.payload);
 	}
 }
-public abstract static class Extra<Extra> {
-	@Nullable abstract public Integer getLatency();
-	abstract public Extra getExtra();
-}
 
 private class PingSes extends AbstSesServ<C, S>.Ses {
 	private final Ses sess;
@@ -45,7 +42,7 @@ private class PingSes extends AbstSesServ<C, S>.Ses {
 	@Nullable private Integer latency;
 	private PingSes(Ses sess) {
 		this.sess = sess;
-		put(new Extra2(this));
+		put(new Extra(this));
 	}
 	public int getId() {
 		return sess.getId();
@@ -68,9 +65,9 @@ private class PingSes extends AbstSesServ<C, S>.Ses {
 	}
 }
 
-public static class Extra2 {
+public static class Extra implements TypeMap.Marker{
 	private final PingServ.PingSes pingSes;
-	public Extra2(PingServ.PingSes pingSes) {
+	public Extra(PingServ.PingSes pingSes) {
 		this.pingSes = pingSes;
 	}
 	@Nullable public Integer getLatency() {

@@ -1,4 +1,5 @@
 package com.riseofcat;
+import com.n8cats.lib.TypeMap;
 import com.n8cats.lib_gwt.IConverter;
 
 import java.util.Map;

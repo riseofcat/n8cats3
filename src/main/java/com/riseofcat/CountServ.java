@@ -1,5 +1,7 @@
 package com.riseofcat;
 
+import com.n8cats.lib.TypeMap;
+
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -55,7 +57,7 @@ public class CountSes extends AbstSesServ<C, S>.Ses {
 	}
 }
 
-public static class Extra {
+public static class Extra implements TypeMap.Marker {
 	private final CountServ.CountSes countSes;
 
 	public Extra(CountServ.CountSes countSes) {
