@@ -17,10 +17,10 @@ import java.util.concurrent.ConcurrentHashMap;
 //https://github.com/tipsy/spark-websocket
 //http://sparkjava.com/tutorials/websocket-chat
 //http://sparkjava.com/documentation#embedded-web-server
-private final Map<Session, AbstSesServ<Reader, String, Void>.Ses> map = new ConcurrentHashMap<>();
+private final Map<Session, AbstSesServ<Reader, String>.Ses> map = new ConcurrentHashMap<>();
 private int lastId = 0;
-private final AbstSesServ<Reader, String, Void> server;
-public SparkWebSocket(AbstSesServ<Reader, String, Void> server) {
+private final AbstSesServ<Reader, String> server;
+public SparkWebSocket(AbstSesServ<Reader, String> server) {
 	this.server = server;
 }
 private void todo(Session session) {//todo
@@ -30,7 +30,7 @@ private void todo(Session session) {//todo
 }
 @OnWebSocketConnect public void connected(Session session) {
 	int id = ++lastId;
-	AbstSesServ<Reader, String, Void>.Ses s = server.new Ses() {
+	AbstSesServ<Reader, String>.Ses s = server.new Ses() {
 		private TypeMap typeMap;
 		public int getId() {
 			return id;
@@ -52,9 +52,6 @@ private void todo(Session session) {//todo
 
 				}
 			});
-		}
-		public Void getExtra() {
-			return null;
 		}
 		protected TypeMap getTypeMap() {
 			if(typeMap == null) {

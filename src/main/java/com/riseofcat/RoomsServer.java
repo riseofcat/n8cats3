@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class RoomsServer<TClientPayload, TServerPayload, E> extends AbstSesServ<TClientPayload, TServerPayload, E> {
+public class RoomsServer<TClientPayload, TServerPayload> extends AbstSesServ<TClientPayload, TServerPayload> {
 public final static int MAXIMUM_ROOM_PLAYERS = 5;
 public final Signal<Room> onRoomCreated = new Signal<>();
 //todo onRoomDestroyed
@@ -95,7 +95,7 @@ public class PlayerMessage {
 }
 
 public static class RoomHandler<TClientPayload, TServerPayload, E> {
-	public void handleRoomCreated(RoomsServer<TClientPayload, TServerPayload, E>.Room room) {
+	public void handleRoomCreated(RoomsServer<TClientPayload, TServerPayload>.Room room) {
 
 	}
 }

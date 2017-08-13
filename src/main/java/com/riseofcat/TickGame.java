@@ -43,9 +43,7 @@ public TickGame(ConcreteRoomsServer.Room room, Logic logic) {
 					payload.state = new ServerPayload.State();
 					payload.state.cars = state.cars.toArray(new Logic.Car[]{});
 					player.session.send(payload);
-					player.session.getExtra().getLatency();
-					player.session.getExtra().getExtra().getIncomeCalls();
-					long startTime = player.session.get(CountServ.Extra2.class).getStartTime();
+					long startTime = player.session.get(CountServ.Extra.class).getStartTime();
 					Integer latency = player.session.get(PingServ.Extra2.class).getLatency();
 					App.breakpoint();
 				}

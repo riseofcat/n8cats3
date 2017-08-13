@@ -2,7 +2,6 @@ package com.riseofcat;
 
 import com.badlogic.gdx.utils.Json;
 import com.n8cats.lib.LibAll;
-import com.n8cats.share.ClientPayload;
 import com.n8cats.share.Logic;
 import com.n8cats.share.redundant.ClientSayC;
 
