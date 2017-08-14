@@ -46,11 +46,9 @@ abstract public static class Player {
 			this.id = id;
 		}
 		public int id;
-		@Override
 		public int hashCode() {
 			return id;
 		}
-		@Override
 		public boolean equals(Object o) {
 			return o == this || o != null && ((Id) o).id == id;
 		}

@@ -24,18 +24,15 @@ public RealTimeClient(String host, int port, String path, Class<ServerSay<S>> ty
 		socket = WebSockets.newSocket(WebSockets.toWebSocketUrl(host, port, path));
 	}
 	socket.addListener(new WebSocketAdapter() {
-		@Override
 		public boolean onOpen(final WebSocket webSocket) {
 			while(queue.first() != null) {
 				sayNow(queue.removeFirst());
 			}
 			return FULLY_HANDLED;
 		}
-		@Override
 		public boolean onClose(final WebSocket webSocket, final WebSocketCloseCode code, final String reason) {
 			return FULLY_HANDLED;
 		}
-		@Override
 		public boolean onMessage(final WebSocket webSocket, final String packet) {
 			ServerSay<S> serverSay = new Json().fromJson(typeS, packet);
 			if(serverSay.latency != null) {
@@ -54,15 +51,11 @@ public RealTimeClient(String host, int port, String path, Class<ServerSay<S>> ty
 			}
 			return FULLY_HANDLED;
 		}
-
-		@Override
 		public boolean onMessage(WebSocket webSocket, byte[] packet) {
 			return super.onMessage(webSocket, packet);
 		}
-
-		@Override
 		public boolean onError(WebSocket webSocket, Throwable error) {
-			return super.onError(webSocket, error);
+			return super.onError(webSocket, error);//todo
 		}
 	});
 	socket.connect();//socket.close();
