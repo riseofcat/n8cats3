@@ -11,12 +11,16 @@ import com.github.czyzby.websocket.net.ExtendedNet;
 import com.n8cats.lib_gwt.Signal;
 import com.n8cats.share.ClientSay;
 import com.n8cats.share.ServerSay;
+
+import org.jetbrains.annotations.Nullable;
+
 public class RealTimeClient<S, C> {
 public final Signal<S> incoming = new Signal<>();
 private WebSocket socket;
-public Integer latency;
+@Nullable public Integer latency;
 public Integer id;
 private Queue<ClientSay<C>> queue = new Queue<>();
+public static final Json json = new Json();
 public RealTimeClient(String host, int port, String path, Class<ServerSay<S>> typeS) {
 	if(true) {
 		socket = ExtendedNet.getNet().newWebSocket(host, port, path);
@@ -34,7 +38,7 @@ public RealTimeClient(String host, int port, String path, Class<ServerSay<S>> ty
 			return FULLY_HANDLED;
 		}
 		public boolean onMessage(final WebSocket webSocket, final String packet) {
-			ServerSay<S> serverSay = new Json().fromJson(typeS, packet);
+			ServerSay<S> serverSay = json.fromJson(typeS, packet);
 			if(serverSay.latency != null) {
 				latency = serverSay.latency;
 			}
@@ -76,7 +80,7 @@ private void say(ClientSay<C> say) {
 }
 
 private void sayNow(ClientSay<C> say) {
-	socket.send(new Json().toJson(say));
+	socket.send(json.toJson(say));
 }
 
 public WebSocketState getState() {

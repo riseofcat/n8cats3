@@ -9,18 +9,18 @@ import org.slf4j.LoggerFactory;
 public class App {
 private static Logger logger = LoggerFactory.getLogger("main");
 public static ILog log = new ILog() {
-	@Override
 	public String info(String s) {
 		logger.info(s);
 		return s;
 	}
-	@Override
 	public void error(String s) {
 		logger.error(s);
 	}
-	@Override
 	public void warning(String s) {
 		logger.warn(s);
+	}
+	public void debug(String s) {
+		logger.debug(s);
 	}
 };
 public static final Info info = new Info();

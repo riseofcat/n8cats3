@@ -1,6 +1,5 @@
 package com.riseofcat;
 
-import com.badlogic.gdx.Application;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputAdapter;
@@ -26,7 +25,6 @@ float scaleY = HEIGHT / Logic.height;
 final static boolean LOCAL = true;
 
 public void create() {
-	Gdx.app.setLogLevel(Application.LOG_DEBUG);
 	batch = new SpriteBatch();
 	font = new BitmapFont();
 	shapeRenderer = new ShapeRenderer(200);
@@ -37,16 +35,21 @@ public void create() {
 			return true;
 		}
 	});
-	if(LOCAL) {
-		client = new RealTimeClient("localhost", 5000, "socket", ServerSayS.class);
-	} else {
-		client = new RealTimeClient("n8cats3.herokuapp.com", 80, "socket", ServerSayS.class);
-	}
-	client.incoming.add(new SignalListener<ServerPayload>() {
-		public void onSignal(ServerPayload arg) {
+	if(false) {
+		if(LOCAL) {
+			client = new RealTimeClient("localhost", 5000, "socket", ServerSayS.class);
+		} else {
+			client = new RealTimeClient("n8cats3.herokuapp.com", 80, "socket", ServerSayS.class);
 		}
-	});
-	client.say(new ClientPayload());
+		client.incoming.add(new SignalListener<ServerPayload>() {
+			public void onSignal(ServerPayload arg) {
+			}
+		});
+		client.say(new ClientPayload());
+		Integer latency = client.latency;
+	}
+
+	JsonTest.test(App.log);
 }
 public void render() {
 	Gdx.gl.glClearColor(0, 0, 0, 1);
