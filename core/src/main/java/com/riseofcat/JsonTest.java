@@ -3,9 +3,11 @@ package com.riseofcat;
 import com.badlogic.gdx.utils.Json;
 import com.n8cats.lib_gwt.ILog;
 import com.n8cats.share.ForJsonTest;
+import com.n8cats.share.Logic;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.TreeMap;
 
 public class JsonTest {
@@ -28,9 +30,21 @@ public static void test(ILog log) {
 	test.list = new ArrayList<>();
 	test.list.add("One");
 	test.list.add("Two");
+	test.set = new HashSet<>();
+	test.set.add("One");
+	test.set.add("Two");
+	test.set.add("One");
+	test.mapIdStr = new HashMap<>();
+	test.mapIdStr.put(new Logic.Player.Id(1), "PlayerOne");
+	test.mapIdStr.put(new Logic.Player.Id(2), "PlayerTwo");
+	test.mapIdId = new HashMap<>();
+	Logic.Player.Id id1 = new Logic.Player.Id(1);
+	test.mapIdId.put(id1, id1);
 
 	String s = json.toJson(test);
 	ForJsonTest result = json.fromJson(ForJsonTest.class, s);
+	String s1 = result.mapIdStr.get(new Logic.Player.Id(1));
+	System.out.println(json.toJson(result));
 	if(!json.toJson(result).equals(s)) {
 		App.breakpoint();
 	}

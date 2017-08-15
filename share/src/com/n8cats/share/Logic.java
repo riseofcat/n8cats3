@@ -39,21 +39,20 @@ public void update(State state, Map<Player.Id, Action> actions) {
 }
 abstract public static class Player {
 	abstract public Id getId();
-	public static class Id {
+
+	public static class Id extends IntHashStrEquals {
 		public Id() {
 		}
 		public Id(int id) {
 			this.id = id;
 		}
 		public int id;
-		public int hashCode() {
+		protected int getInt() {
 			return id;
-		}
-		public boolean equals(Object o) {
-			return o == this || o != null && ((Id) o).id == id;
 		}
 	}
 }
+
 public static class Car {
 	public Player.Id playerId;
 	public float x = 0;
@@ -62,10 +61,12 @@ public static class Car {
 	public float speedY = 0;
 	public Player.Id destroyedBy;
 }
+
 public static class Action {
 	public float touchX;
 	public float touchY;
 }
+
 public static class State {
 	public Set<Car> cars = new HashSet<>();
 }

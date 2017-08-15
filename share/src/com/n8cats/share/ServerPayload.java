@@ -1,11 +1,15 @@
 package com.n8cats.share;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.TreeMap;
+
 public class ServerPayload {
-public String message;
-public Object welcome;//x,y surround[type,x,y,speed]
-public Object actions;//[time,action]
-public State state;
-public static class State {
-	public Logic.Car[] cars;
+public Tick tick;
+public Welcome welcome;
+public TreeMap<Tick.Add, HashMap<Logic.Player.Id, ArrayList<Logic.Action>>> tickActions;
+public Logic.State state;
+public static class Welcome {
+	public float x,y;
 }
 }

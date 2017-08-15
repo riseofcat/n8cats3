@@ -5,4 +5,5 @@
     <extend-configuration-property name="gdx.reflect.include" value="java.util.HashMap" />
     <extend-configuration-property name="gdx.reflect.include" value="java.util.TreeMap" />
     <extend-configuration-property name="gdx.reflect.include" value="java.util.ArrayList" />
+    <extend-configuration-property name="gdx.reflect.include" value="java.util.HashSet" />
 </module>
