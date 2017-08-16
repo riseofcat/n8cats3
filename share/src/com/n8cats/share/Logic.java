@@ -1,6 +1,7 @@
 package com.n8cats.share;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -8,13 +9,14 @@ public class Logic {
 public static final int UPDATE_MS = 20;
 public static float width = 1000;
 public static float height = 1000;
-public void update(State state, Map<Player.Id, Action> actions) {
+public void update(State state, Map<Player.Id, List<Action>> actions) {
 	for(Car car : state.cars) {
-		Action action = actions.get(car.playerId);
-		if(action != null) {
-			float secondsToMove = 2.0f;
-			car.speedX = (action.touchX - car.x) / secondsToMove;
-			car.speedY = (action.touchY - car.y) / secondsToMove;
+		for(Action action : actions.get(car.playerId)) {
+			if(action != null) {
+				float secondsToMove = 2.0f;
+				car.speedX = (action.touchX - car.x) / secondsToMove;
+				car.speedY = (action.touchY - car.y) / secondsToMove;
+			}
 		}
 	}
 	for(Car car : state.cars) {
@@ -40,15 +42,22 @@ public void update(State state, Map<Player.Id, Action> actions) {
 abstract public static class Player {
 	abstract public Id getId();
 
-	public static class Id extends IntHashStrEquals {
+	public static class Id {
+		@SuppressWarnings("unused")
 		public Id() {
 		}
 		public Id(int id) {
 			this.id = id;
 		}
 		public int id;
-		protected int getInt() {
+		public int hashCode() {
 			return id;
+		}
+		public boolean equals(Object o) {
+			return o != null && ( o == this || /*o instanceof Id &&*/ o.getClass() == Id.class && ((Id) o).id == id );
+		}
+		public String toString() {
+			return String.valueOf(id);
 		}
 	}
 }

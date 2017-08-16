@@ -8,6 +8,7 @@ import com.n8cats.share.Logic;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Set;
 import java.util.TreeMap;
 
 public class JsonTest {
@@ -43,13 +44,27 @@ public static void test(ILog log) {
 
 	String s = json.toJson(test);
 	ForJsonTest result = json.fromJson(ForJsonTest.class, s);
-	String s1 = result.mapIdStr.get(new Logic.Player.Id(1));
-	System.out.println(json.toJson(result));
+	Set<Integer> integers = result.mapIntStr.keySet();
+	try {
+		Integer next = integers.iterator().next();
+	} catch(Exception e) {
+
+	}
+
+	String s1 = result.mapIdStr.get("1");
+	String s2 = result.mapIdStr.get(new Logic.Player.Id(2));
+	if(log != null) {
+		log.info(s1);
+		log.info(s2);
+	}
 	if(!json.toJson(result).equals(s)) {
+		log.error("json not equals");
 		App.breakpoint();
 	}
 	if(log != null) {
 		log.info(json.toJson(result));
+	} else {
+		System.out.println(json.toJson(result));
 	}
 }
 

@@ -1,8 +1,8 @@
 package com.n8cats.share;
 
-//import com.sun.istack.internal.Nullable;
+import org.jetbrains.annotations.Nullable;
+
 public class ClientSay<T> {
 public boolean pong;
-//@Nullable
-public T payload;
+@Nullable public T payload;
 }

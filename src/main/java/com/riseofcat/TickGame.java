@@ -10,8 +10,6 @@ import java.util.concurrent.ConcurrentHashMap;
 public class TickGame {
 private final ConcreteRoomsServer.Room room;
 private final Logic logic;
-public final int reconcilationTicks = 10;
-public final int oldTicks = 20;
 private int tick = 0;
 private Logic.State state = new Logic.State();
 private ConcurrentHashMap<Logic.Player.Id, Logic.Action> actions = new ConcurrentHashMap<>();
