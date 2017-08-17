@@ -8,23 +8,19 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import com.n8cats.lib_gwt.SignalListener;
-import com.n8cats.share.ClientPayload;
 import com.n8cats.share.Logic;
-import com.n8cats.share.ServerPayload;
-import com.n8cats.share.redundant.ServerSayS;
 
 public class Core extends ApplicationAdapter {
 public static final int WIDTH = 640, HEIGHT = 640;
 private SpriteBatch batch;
 private BitmapFont font;
-private RealTimeClient<ServerPayload, ClientPayload> client;
 private ShapeRenderer shapeRenderer;
 float scaleX = WIDTH / Logic.width;
 float scaleY = HEIGHT / Logic.height;
-final static boolean LOCAL = true;
+private Model model;
 
 public void create() {
+	model = new Model();
 	batch = new SpriteBatch();
 	font = new BitmapFont();
 	shapeRenderer = new ShapeRenderer(200);
@@ -32,41 +28,28 @@ public void create() {
 		public boolean touchDown(int screenX, int screenY, int pointer, int button) {
 			float x = (screenX) / scaleX;
 			float y = (Gdx.graphics.getHeight() - screenY) / scaleY;
+			model.touch(x,y);
 			return true;
 		}
 	});
-	if(false) {
-		if(LOCAL) {
-			client = new RealTimeClient("localhost", 5000, "socket", ServerSayS.class);
-		} else {
-			client = new RealTimeClient("n8cats3.herokuapp.com", 80, "socket", ServerSayS.class);
-		}
-		client.incoming.add(new SignalListener<ServerPayload>() {
-			public void onSignal(ServerPayload arg) {
-			}
-		});
-		client.say(new ClientPayload());
-		Integer latency = client.latency;
-	}
-
 	JsonTest.test(App.log);
 }
 public void render() {
+	model.update(Gdx.graphics.getDeltaTime());
 	Gdx.gl.glClearColor(0, 0, 0, 1);
 	Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 	batch.begin();
 	font.draw(batch, "test", 0, 400);
 	batch.end();
-	if(false) {
-		shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+	shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+	for(Logic.Car car : model.getCurrentState().cars) {
 		shapeRenderer.setColor(Color.BLUE);
-		Logic.Car car = new Logic.Car();
 		shapeRenderer.circle(car.x * scaleX, car.y * scaleY, 10);
-		shapeRenderer.end();
 	}
+	shapeRenderer.end();
 }
 public void dispose() {
-	client.close();
+	model.dispose();
 	batch.dispose();
 	font.dispose();
 	shapeRenderer.dispose();

@@ -14,14 +14,14 @@ import com.n8cats.share.ServerSay;
 
 import org.jetbrains.annotations.Nullable;
 
-public class RealTimeClient<S, C> {
+public class PingClient<S, C> {
 public final Signal<S> incoming = new Signal<>();
 private WebSocket socket;
 @Nullable public Integer latency;
 public Integer id;
 private Queue<ClientSay<C>> queue = new Queue<>();
 public static final Json json = new Json();
-public RealTimeClient(String host, int port, String path, Class<ServerSay<S>> typeS) {
+public PingClient(String host, int port, String path, Class<ServerSay<S>> typeS) {
 	if(true) {
 		socket = ExtendedNet.getNet().newWebSocket(host, port, path);
 	} else {
@@ -43,7 +43,7 @@ public RealTimeClient(String host, int port, String path, Class<ServerSay<S>> ty
 				latency = serverSay.latency;
 			}
 			if(serverSay.id != null) {
-				RealTimeClient.this.id = serverSay.id;
+				PingClient.this.id = serverSay.id;
 			}
 			if(serverSay.ping) {
 				ClientSay<C> answer = new ClientSay<>();
