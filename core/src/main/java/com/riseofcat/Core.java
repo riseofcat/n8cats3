@@ -42,7 +42,7 @@ public void render() {
 	font.draw(batch, "test", 0, 400);
 	batch.end();
 	shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-	for(Logic.Car car : model.getCurrentState().cars) {
+	for(Logic.Car car : model.getDisplayState().cars) {
 		shapeRenderer.setColor(Color.BLUE);
 		shapeRenderer.circle(car.x * scaleX, car.y * scaleY, 10);
 	}

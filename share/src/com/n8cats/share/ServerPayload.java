@@ -1,34 +1,39 @@
 package com.n8cats.share;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 public class ServerPayload {
-public Welcome welcome;
 public int tick;
-public State state;
-public ArrayList<PlayerActions> actions;
-public HashSet<Integer> canceledActions;
-public ArrayList<DelayedActions> delayedActions;
-public ServerError error;
-
-public static class PlayerActions {
-	public Logic.Player.Id id;
-	public ArrayList<TickActions> ticks;
-}
+@Nullable public Welcome welcome;
+@Nullable public Stable stable;
+@Nullable public ArrayList<TickActions> actions;
+@Nullable public HashSet<Integer> canceled;
+@Nullable public ArrayList<ApplyedActions> apply;
+@Nullable public ServerError error;
 
 public static class TickActions {
-	public int wait;
-	public ArrayList<Logic.Action> actions;
+	public int tick;
+	public ArrayList<PlayerAction> list;//Порядок важен
+}
+
+public static class PlayerAction {//todo перенести в Logic и может extends от Action
+	public Logic.Player.Id id;
+	public Logic.Action action;
+	public int actionVersion;//todo redundant for client
 }
 
 public static class Welcome {
 	public Logic.Player.Id id;
 }
 
-public static class DelayedActions {
+public static class ApplyedActions {
 	public int delay;
-	HashSet<Integer> actions;
+	public int aid;
 }
 
 public static class ServerError {
@@ -37,8 +42,9 @@ public static class ServerError {
 
 }
 
-public static class State {
-	public int tick;
+public static class Stable {
+	public int tick;//все actions уже пришли и новых больше не будет. Если кто-то кого-то убил, то в этом кадре засчитывается фраг. Но само убийство и набор очков мог произойти в прошлом
 	public Logic.State state;
 }
+
 }

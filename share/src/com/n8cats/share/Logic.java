@@ -1,23 +1,33 @@
 package com.n8cats.share;
 
-import java.util.HashSet;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 public class Logic {
 public static final int UPDATE_MS = 20;
+public static final float UPDATE_S = UPDATE_MS * 0.001f;
 public static float width = 1000;
 public static float height = 1000;
-public void update(State state, Map<Player.Id, List<Action>> actions) {
-	for(Car car : state.cars) {
-		for(Action action : actions.get(car.playerId)) {
-			if(action != null) {
-				float secondsToMove = 2.0f;
-				car.speedX = (action.touchX - car.x) / secondsToMove;
-				car.speedY = (action.touchY - car.y) / secondsToMove;
+public void update(State state, List<ServerPayload.PlayerAction> actions) {
+	class Cache {
+		public Car getCar(Logic.Player.Id id) {
+			for(Car car : state.cars) {
+				if(id.equals(car.playerId)) {
+					return car;
+				}
 			}
+			return null;
 		}
+	}
+	Cache cache = new Cache();
+	for(ServerPayload.PlayerAction p : actions) {
+		Car car = cache.getCar(p.id);
+		if(car == null) {
+			continue;
+		}
+		float secondsToMove = 2.0f;
+		car.speedX = (p.action.touchX - car.x) / secondsToMove;
+		car.speedY = (p.action.touchY - car.y) / secondsToMove;
 	}
 	for(Car car : state.cars) {
 		if(car.destroyedBy == null) {
@@ -69,6 +79,16 @@ public static class Car {
 	public float speedX = 0;
 	public float speedY = 0;
 	public Player.Id destroyedBy;
+	public Car copy() {//todo simplify
+		Car result = new Car();
+		result.playerId = this.playerId;
+		result.x = this.x;
+		result.y = this.y;
+		result.speedX = this.speedX;
+		result.speedY = this.speedY;
+		result.destroyedBy = this.destroyedBy;
+		return result;
+	}
 }
 
 public static class Action {
@@ -77,7 +97,15 @@ public static class Action {
 }
 
 public static class State {
-	public Set<Car> cars = new HashSet<>();
+	public ArrayList<Car> cars = new ArrayList<>();
+	public State copy() {//todo simplify
+		State result = new State();
+		result.cars = new ArrayList<>();
+		for(Car c : this.cars) {
+			result.cars.add(c.copy());
+		}
+		return result;
+	}
 }
 
 }

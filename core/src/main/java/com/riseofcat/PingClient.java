@@ -42,9 +42,6 @@ public PingClient(String host, int port, String path, Class<ServerSay<S>> typeS)
 			if(serverSay.latency != null) {
 				latency = serverSay.latency;
 			}
-			if(serverSay.id != null) {
-				PingClient.this.id = serverSay.id;
-			}
 			if(serverSay.ping) {
 				ClientSay<C> answer = new ClientSay<>();
 				answer.pong = true;
