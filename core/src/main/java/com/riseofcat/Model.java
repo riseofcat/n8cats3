@@ -1,4 +1,5 @@
 package com.riseofcat;
+import com.n8cats.lib_gwt.DefaultValueMap;
 import com.n8cats.share.ClientPayload;
 import com.n8cats.share.Logic;
 import com.n8cats.share.ServerPayload;
@@ -18,7 +19,7 @@ private final Logic logic;
 private Logic.Player.Id playerId;
 private float clientTick;//Плавно меняется, подстраиваясь под сервер
 private float serverTick;//Задаётся моментально с сервера
-private Map<Integer, List<ServerPayload.PlayerAction>> actions = new ConcurrentHashMap<>();//todo Tick key
+private DefaultValueMap<Integer, List<ServerPayload.PlayerAction>> actions = new DefaultValueMap<>(new ConcurrentHashMap<>(), ArrayList::new);//todo Tick key
 private Map<Integer, List<ClientPayload.ClientAction>> clientActions = new HashMap<>();//todo redundant field "wait"
 private Logic.State state;
 private int stateTick;
@@ -46,12 +47,7 @@ public Model() {
 		}
 		if(s.actions != null) {
 			for(ServerPayload.TickActions t : s.actions) {
-				List<ServerPayload.PlayerAction> tckActs = actions.get(t.tick);
-				if(tckActs == null) {//todo duplicate
-					tckActs = new ArrayList<>();
-					actions.put(t.tick, tckActs);
-				}
-				tckActs.addAll(t.list);
+				actions.getExistsOrPutDefault(t.tick).addAll(t.list);
 			}
 		}
 
@@ -71,12 +67,7 @@ public Model() {
 							ServerPayload.PlayerAction pa = new ServerPayload.PlayerAction();
 							pa.action = next.action;
 							pa.id = playerId;
-							List<ServerPayload.PlayerAction> tckActs = actions.get(t + apply.delay);
-							if(tckActs == null) {//todo duplicate
-								tckActs = new ArrayList<>();
-								actions.put(t + apply.delay, tckActs);
-							}
-							tckActs.add(pa);
+							actions.getExistsOrPutDefault(t + apply.delay).add(pa);
 							iterator.remove();
 							continue whl;
 						}
@@ -121,18 +112,19 @@ private Logic.State getState(int tick) {
 	if(tick == stateTick) {
 		return state.copy();
 	}
-	List<ServerPayload.PlayerAction> a = actions.get(tick - 1);
-	if(a == null) {
-		a = new ArrayList<>();
+	List<ServerPayload.PlayerAction> as = new ArrayList<>();
+	List<ServerPayload.PlayerAction> others = actions.map.get(tick - 1);
+	if(others != null) {
+		as.addAll(others);
 	}
-	for(ClientPayload.ClientAction ca : this.clientActions.get(tick - 1)) {
+	for(ClientPayload.ClientAction my : this.clientActions.get(tick - 1)) {
 		ServerPayload.PlayerAction pa = new ServerPayload.PlayerAction();
 		pa.id = playerId;
-		pa.action = ca.action;
-		a.add(pa);
+		pa.action = my.action;
+		as.add(pa);
 	}
 	Logic.State s = getState(tick - 1);
-	logic.update(s, a);
+	logic.update(s, as);
 	return s;
 }
 public void dispose() {
