@@ -6,10 +6,8 @@ import com.n8cats.share.ServerPayload;
 import com.n8cats.share.redundant.ServerSayS;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class Model {
@@ -19,8 +17,8 @@ private final Logic logic;
 private Logic.Player.Id playerId;
 private float clientTick;//Плавно меняется, подстраиваясь под сервер
 private float serverTick;//Задаётся моментально с сервера
-private DefaultValueMap<Integer, List<ServerPayload.PlayerAction>> actions = new DefaultValueMap<>(new ConcurrentHashMap<>(), ArrayList::new);//todo Tick key
-private Map<Integer, List<ClientPayload.ClientAction>> clientActions = new HashMap<>();//todo redundant field "wait"
+private final DefaultValueMap<Integer, List<ServerPayload.PlayerAction>> actions;//todo Tick key
+private final DefaultValueMap<Integer, List<ClientPayload.ClientAction>> clientActions;//todo redundant field "wait"
 private Logic.State state;
 private int stateTick;
 private int stableTick;
@@ -28,6 +26,8 @@ private int previousActionId=0;
 public static final int DEFAULT_LATENCY_MS = 50;
 
 public Model() {
+	actions = new DefaultValueMap<>(new ConcurrentHashMap<>(), ArrayList::new);
+	clientActions = new DefaultValueMap<>(new ConcurrentHashMap<>(), ArrayList::new);
 	if(LOCAL) {
 		client = new PingClient("localhost", 5000, "socket", ServerSayS.class);
 	} else {
@@ -51,8 +51,8 @@ public Model() {
 			}
 		}
 
-		for(Integer t : clientActions.keySet()) {
-			Iterator<ClientPayload.ClientAction> iterator = clientActions.get(t).iterator();
+		for(Integer t : clientActions.map.keySet()) {
+			Iterator<ClientPayload.ClientAction> iterator = clientActions.map.get(t).iterator();
 			whl: while(iterator.hasNext()) {
 				ClientPayload.ClientAction next = iterator.next();
 				if(s.canceled != null) {
@@ -87,18 +87,13 @@ public void touch(float x, float y) {
 		return;
 	}
 	int w = (int) (getLatencySeconds() / Logic.UPDATE_S);
-	List<ClientPayload.ClientAction> ca = this.clientActions.get((int) clientTick + w);
-	if(ca == null) {//todo duplicate
-		ca = new ArrayList<>();
-		this.clientActions.put((int) clientTick + w, ca);
-	}
 	ClientPayload.ClientAction a = new ClientPayload.ClientAction();
 	a.aid = ++previousActionId;
 	a.wait = w;
 	a.action = new Logic.Action();
 	a.action.touchX = x;
 	a.action.touchY = y;
-	ca.add(a);
+	clientActions.getExistsOrPutDefault((int) clientTick + w).add(a);
 	client.say(new ClientPayload());
 }
 public void update(float deltaTime) {
@@ -117,7 +112,7 @@ private Logic.State getState(int tick) {
 	if(others != null) {
 		as.addAll(others);
 	}
-	for(ClientPayload.ClientAction my : this.clientActions.get(tick - 1)) {
+	for(ClientPayload.ClientAction my : clientActions.map.get(tick - 1)) {
 		ServerPayload.PlayerAction pa = new ServerPayload.PlayerAction();
 		pa.id = playerId;
 		pa.action = my.action;
