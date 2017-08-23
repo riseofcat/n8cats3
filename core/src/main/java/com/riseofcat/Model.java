@@ -94,11 +94,15 @@ public void touch(float x, float y) {
 	a.action.touchX = x;
 	a.action.touchY = y;
 	clientActions.getExistsOrPutDefault((int) clientTick + w).add(a);
-	client.say(new ClientPayload());
+	ClientPayload payload = new ClientPayload();
+	payload.tick = (int) clientTick;
+	payload.actions = new ArrayList<>();
+	payload.actions.add(a);
+	client.say(payload);
 }
 public void update(float deltaTime) {
-	serverTick+=deltaTime/Logic.UPDATE_MS;
-	clientTick +=deltaTime/Logic.UPDATE_MS;
+	serverTick+=deltaTime/Logic.UPDATE_S;
+	clientTick +=deltaTime/Logic.UPDATE_S;
 }
 public Logic.State getDisplayState() {
 	return getState((int)clientTick);//todo плавно
@@ -112,11 +116,14 @@ private Logic.State getState(int tick) {
 	if(others != null) {
 		as.addAll(others);
 	}
-	for(ClientPayload.ClientAction my : clientActions.map.get(tick - 1)) {
-		ServerPayload.PlayerAction pa = new ServerPayload.PlayerAction();
-		pa.id = playerId;
-		pa.action = my.action;
-		as.add(pa);
+	List<ClientPayload.ClientAction> clientTickActions = clientActions.map.get(tick - 1);
+	if(clientTickActions != null) {
+		for(ClientPayload.ClientAction my : clientTickActions) {
+			ServerPayload.PlayerAction pa = new ServerPayload.PlayerAction();
+			pa.id = playerId;
+			pa.action = my.action;
+			as.add(pa);
+		}
 	}
 	Logic.State s = getState(tick - 1);
 	logic.update(s, as);

@@ -1,5 +1,7 @@
 package com.n8cats.share;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -8,7 +10,7 @@ public static final int UPDATE_MS = 20;
 public static final float UPDATE_S = UPDATE_MS * 0.001f;
 public static float width = 1000;
 public static float height = 1000;
-public void update(State state, List<ServerPayload.PlayerAction> actions) {
+public void update(State state, @Nullable List<ServerPayload.PlayerAction> actions) {
 	class Cache {
 		public Car getCar(Logic.Player.Id id) {
 			for(Car car : state.cars) {
@@ -20,19 +22,21 @@ public void update(State state, List<ServerPayload.PlayerAction> actions) {
 		}
 	}
 	Cache cache = new Cache();
-	for(ServerPayload.PlayerAction p : actions) {
-		Car car = cache.getCar(p.id);
-		if(car == null) {
-			continue;
+	if(actions != null) {
+		for(ServerPayload.PlayerAction p : actions) {
+			Car car = cache.getCar(p.id);
+			if(car == null) {
+				continue;
+			}
+			float secondsToMove = 2.0f;
+			car.speedX = (p.action.touchX - car.x) / secondsToMove;
+			car.speedY = (p.action.touchY - car.y) / secondsToMove;
 		}
-		float secondsToMove = 2.0f;
-		car.speedX = (p.action.touchX - car.x) / secondsToMove;
-		car.speedY = (p.action.touchY - car.y) / secondsToMove;
 	}
 	for(Car car : state.cars) {
 		if(car.destroyedBy == null) {
-			car.x += car.speedX * UPDATE_MS / 1000;
-			car.y += car.speedY * UPDATE_MS / 1000;
+			car.x += car.speedX * UPDATE_S;
+			car.y += car.speedY * UPDATE_S;
 			if(car.x > width) {
 				car.x -= width;
 			} else if(car.x < 0) {
