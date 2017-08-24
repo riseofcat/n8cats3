@@ -45,7 +45,7 @@ public Model() {
 				stateTick = s.stable.tick;
 			}
 		}
-		if(s.actions != null) {
+		if(s.actions != null && s.actions.size() > 0) {
 			for(ServerPayload.TickActions t : s.actions) {
 				actions.getExistsOrPutDefault(t.tick).addAll(t.list);
 			}

@@ -18,6 +18,13 @@ public V getExistsOrPutDefault(K key) {
 		return v;
 	}
 }
+public V getOrNew(K key, ICreateNew<V> or) {
+	if(map.containsKey(key)) {
+		return map.get(key);
+	} else {
+		return or.createNew();
+	}
+}
 public interface ICreateNew<V> {
 	V createNew();
 }

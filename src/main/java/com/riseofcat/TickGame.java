@@ -44,9 +44,10 @@ public TickGame(ConcreteRoomsServer.Room room, Logic logic) {
 				payload.actions.add(ta);
 			}
 			player.session.send(payload);
+			mapPlayerActionVersion.put(player.getId(), previousActionsVersion);
 			//Говорим другим, что пришёл новый игрок
 			for(RoomsDecorator<ClientPayload, ServerPayload>.Room.Player p : room.getPlayers()) {
-				if(p != player) {
+				if(!p.equals(player)) {
 					p.session.send(createStablePayload());
 				}
 			}
@@ -83,7 +84,7 @@ public TickGame(ConcreteRoomsServer.Room room, Logic logic) {
 					actions.getExistsOrPutDefault(message.payload.tick + a.wait).add(pa);
 				}
 				for(RoomsDecorator<ClientPayload, ServerPayload>.Room.Player p : room.getPlayers()) {
-					if(p.getId() == message.player.getId()) {
+					if(p.getId().equals(message.player.getId())) {
 						continue;
 					}
 					ServerPayload payload2 = new ServerPayload();
@@ -100,13 +101,14 @@ public TickGame(ConcreteRoomsServer.Room room, Logic logic) {
 								ta.tick = k;
 								ta.list = new ArrayList<>();
 							}
+							ta.list.add(pa);
 						}
 						if(ta != null) {
 							payload2.actions.add(ta);
 						}
 					}
 					mapPlayerActionVersion.put(message.player.getId(), previousActionsVersion);
-					message.player.session.send(payload2);
+					p.session.send(payload2);
 				}
 			}
 		}
