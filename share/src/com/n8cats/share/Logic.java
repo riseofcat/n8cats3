@@ -96,6 +96,12 @@ public static class Car {
 }
 
 public static class Action {
+	public Action() {
+	}
+	public Action(float touchX, float touchY) {
+		this.touchX = touchX;
+		this.touchY = touchY;
+	}
 	public float touchX;
 	public float touchY;
 }
@@ -109,6 +115,27 @@ public static class State {
 			result.cars.add(c.copy());
 		}
 		return result;
+	}
+}
+
+public static class Tick {
+	//do not use in JSON
+	//todo move out from here
+	public final int tick;
+	public Tick(int tick) {
+		this.tick = tick;
+	}
+	public Tick add(int t) {
+		return new Tick(tick + t);
+	}
+	public boolean equals(Object o) {
+		if(this == o) return true;
+		if(o == null || getClass() != o.getClass()) return false;
+		Tick tick1 = (Tick) o;
+		return tick == tick1.tick;
+	}
+	public int hashCode() {
+		return tick;
 	}
 }
 

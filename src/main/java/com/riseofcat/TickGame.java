@@ -18,7 +18,7 @@ public static final int REMOVE_TICKS = 20;//bigger removed
 private int previousActionsVersion = 0;
 private int tick = 0;
 private Logic.State state = new Logic.State();
-DefaultValueMap<Integer, ArrayList<ServerPayload.PlayerAction>> actions = new DefaultValueMap<>(new ConcurrentHashMap<>(), ArrayList::new);
+DefaultValueMap<Logic.Tick, ArrayList<ServerPayload.PlayerAction>> actions = new DefaultValueMap<>(new ConcurrentHashMap<>(), ArrayList::new);
 private Map<Logic.Player.Id, Integer> mapPlayerActionVersion = new ConcurrentHashMap<>();
 
 public TickGame(ConcreteRoomsServer.Room room, Logic logic) {
@@ -29,17 +29,13 @@ public TickGame(ConcreteRoomsServer.Room room, Logic logic) {
 			car.x = (float) (Math.random() * Logic.width);
 			car.y = (float) (Math.random() * Logic.height);
 			state.cars.add(car);
-			ServerPayload payload = new ServerPayload();
+			ServerPayload payload = createStablePayload();
 			payload.welcome = new ServerPayload.Welcome();
 			payload.welcome.id = player.getId();
-			payload.stable = new ServerPayload.Stable();
-			payload.stable.state = state.copy();
-			payload.stable.tick = getStableTick();
-			payload.tick = tick;
 			payload.actions = new ArrayList<>();
-			for(Integer k : actions.map.keySet()) {//todo duplicate
+			for(Logic.Tick k : actions.map.keySet()) {//todo duplicate
 				ServerPayload.TickActions ta = new ServerPayload.TickActions();
-				ta.tick = k;
+				ta.tick = k.tick;
 				ta.list = actions.map.get(k);
 				payload.actions.add(ta);
 			}
@@ -60,14 +56,14 @@ public TickGame(ConcreteRoomsServer.Room room, Logic logic) {
 					ServerPayload payload = new ServerPayload();
 					payload.tick = tick;
 					int delay = 0;
-					if(message.payload.tick + a.wait < getStableTick()) {
+					if(message.payload.tick + a.wait < getStableTick().tick) {
 						if(message.payload.tick + a.wait < getRemoveBeforeTick()) {
 							payload.canceled = new HashSet<>();
 							payload.canceled.add(a.aid);
 							message.player.session.send(payload);
 							continue;
 						} else {
-							delay = getStableTick() - (message.payload.tick + a.wait);//todo сложная логика
+							delay = getStableTick().tick - (message.payload.tick + a.wait);//todo сложная логика
 						}
 					}
 					payload.apply = new ArrayList<>();
@@ -81,7 +77,7 @@ public TickGame(ConcreteRoomsServer.Room room, Logic logic) {
 					pa.action = a.action;
 					pa.id  = message.player.getId();
 					pa.actionVersion = ++previousActionsVersion;
-					actions.getExistsOrPutDefault(message.payload.tick + a.wait).add(pa);
+					actions.getExistsOrPutDefault(new Logic.Tick(message.payload.tick + a.wait)).add(pa);
 				}
 				for(RoomsDecorator<ClientPayload, ServerPayload>.Room.Player p : room.getPlayers()) {
 					if(p.getId().equals(message.player.getId())) {
@@ -90,7 +86,7 @@ public TickGame(ConcreteRoomsServer.Room room, Logic logic) {
 					ServerPayload payload2 = new ServerPayload();
 					payload2.tick = tick;
 					payload2.actions = new ArrayList<>();
-					for(Integer k : actions.map.keySet()) {//todo duplicate
+					for(Logic.Tick k : actions.map.keySet()) {//todo duplicate
 						ServerPayload.TickActions ta = null;
 						for(ServerPayload.PlayerAction pa : actions.map.get(k)) {
 							if(pa.actionVersion <= mapPlayerActionVersion.get(message.player.getId())) {
@@ -98,7 +94,7 @@ public TickGame(ConcreteRoomsServer.Room room, Logic logic) {
 							}
 							if(ta == null) {
 								ta = new ServerPayload.TickActions();
-								ta.tick = k;
+								ta.tick = k.tick;
 								ta.list = new ArrayList<>();
 							}
 							ta.list.add(pa);
@@ -135,17 +131,17 @@ ServerPayload createStablePayload() {
 	ServerPayload result = new ServerPayload();
 	result.tick = tick;
 	result.stable = new ServerPayload.Stable();
-	result.stable.tick = getStableTick();
+	result.stable.tick = getStableTick().tick;
 	result.stable.state = state;
 	return result;
 }
 
-public int getStableTick() {
+public Logic.Tick getStableTick() {
 	int result = tick - DELAY_TICKS + 1;
 	if(result < 0) {
-		return 0;
+		return new Logic.Tick(0);
 	}
-	return result;
+	return new Logic.Tick(result);
 }
 
 public int getRemoveBeforeTick() {
