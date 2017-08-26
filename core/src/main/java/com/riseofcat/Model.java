@@ -1,5 +1,6 @@
 package com.riseofcat;
 import com.n8cats.lib_gwt.DefaultValueMap;
+import com.n8cats.lib_gwt.LibAllGwt;
 import com.n8cats.share.ClientPayload;
 import com.n8cats.share.Logic;
 import com.n8cats.share.ServerPayload;
@@ -23,7 +24,7 @@ private int stateTick;
 private int stableTick;
 private int previousActionId = 0;
 public static final int DEFAULT_LATENCY_MS = 50;
-public static final boolean LOCAL = false;
+public static final boolean LOCAL = LibAllGwt.getTrue();
 
 public Model() {
 	client = LOCAL ? new PingClient("localhost", 5000, "socket", ServerSayS.class) : new PingClient("n8cats3.herokuapp.com", 80, "socket", ServerSayS.class);

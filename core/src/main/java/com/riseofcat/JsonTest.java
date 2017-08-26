@@ -59,7 +59,6 @@ public static void test(ILog log) {
 	}
 	if(!json.toJson(result).equals(s)) {
 		log.error("json not equals");
-		App.breakpoint();
 	}
 	if(log != null) {
 		log.info(json.toJson(result));

@@ -34,22 +34,17 @@ public void update(State state, @Nullable List<ServerPayload.PlayerAction> actio
 		}
 	}
 	for(Car car : state.cars) {
-		if(car.destroyedBy == null) {
-			car.x += car.speedX * UPDATE_S;
-			car.y += car.speedY * UPDATE_S;
-			if(car.x > width) {
-				car.x -= width;
-			} else if(car.x < 0) {
-				car.x += width;
-			}
-			if(car.y > height) {
-				car.y -= height;
-			} else if(car.y < 0) {
-				car.y += height;
-			}
-			if(false) {
-				car.destroyedBy = car.playerId;
-			}
+		car.x += car.speedX * UPDATE_S;
+		car.y += car.speedY * UPDATE_S;
+		if(car.x > width) {
+			car.x -= width;
+		} else if(car.x < 0) {
+			car.x += width;
+		}
+		if(car.y > height) {
+			car.y -= height;
+		} else if(car.y < 0) {
+			car.y += height;
 		}
 	}
 }
@@ -68,7 +63,7 @@ abstract public static class Player {
 			return id;
 		}
 		public boolean equals(Object o) {
-			return o != null && ( o == this || /*o instanceof Id &&*/ o.getClass() == Id.class && ((Id) o).id == id );
+			return o != null && (o == this || o.getClass() == Id.class && ((Id) o).id == id);
 		}
 		public String toString() {
 			return String.valueOf(id);
@@ -82,7 +77,6 @@ public static class Car {
 	public float y = 0;
 	public float speedX = 0;
 	public float speedY = 0;
-	public Player.Id destroyedBy;
 	public Car copy() {//todo simplify
 		Car result = new Car();
 		result.playerId = this.playerId;
@@ -90,12 +84,12 @@ public static class Car {
 		result.y = this.y;
 		result.speedX = this.speedX;
 		result.speedY = this.speedY;
-		result.destroyedBy = this.destroyedBy;
 		return result;
 	}
 }
 
 public static class Action {
+	@SuppressWarnings("unused")
 	public Action() {
 	}
 	public Action(float touchX, float touchY) {
@@ -111,7 +105,7 @@ public static class State {
 	public State copy() {//todo simplify
 		State result = new State();
 		result.cars = new ArrayList<>();
-		for(Car c : this.cars) {
+		for(Car c : cars) {
 			result.cars.add(c.copy());
 		}
 		return result;

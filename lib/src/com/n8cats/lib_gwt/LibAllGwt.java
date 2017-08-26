@@ -4,6 +4,14 @@ import java.util.*;
 
 public class LibAllGwt {
 
+public static boolean getTrue() {
+	return Boolean.TRUE;
+}
+
+public static boolean getFalse() {
+	return Boolean.FALSE;
+}
+
 public static boolean nullOrEmpty(String s) {
 	if(s == null) {
 		return true;

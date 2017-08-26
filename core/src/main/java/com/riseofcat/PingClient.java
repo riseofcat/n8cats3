@@ -8,6 +8,7 @@ import com.github.czyzby.websocket.WebSockets;
 import com.github.czyzby.websocket.data.WebSocketCloseCode;
 import com.github.czyzby.websocket.data.WebSocketState;
 import com.github.czyzby.websocket.net.ExtendedNet;
+import com.n8cats.lib_gwt.LibAllGwt;
 import com.n8cats.lib_gwt.Signal;
 import com.n8cats.share.ClientSay;
 import com.n8cats.share.ServerSay;
@@ -16,17 +17,12 @@ import org.jetbrains.annotations.Nullable;
 
 public class PingClient<S, C> {
 public final Signal<S> incoming = new Signal<>();
-private WebSocket socket;
+private final WebSocket socket;
 @Nullable public Integer latency;
-public Integer id;
-private Queue<ClientSay<C>> queue = new Queue<>();
-public static final Json json = new Json();
+private final Queue<ClientSay<C>> queue = new Queue<>();//todo test
+private static final Json json = new Json();
 public PingClient(String host, int port, String path, Class<ServerSay<S>> typeS) {
-	if(true) {
-		socket = ExtendedNet.getNet().newWebSocket(host, port, path);
-	} else {
-		socket = WebSockets.newSocket(WebSockets.toWebSocketUrl(host, port, path));
-	}
+	socket = LibAllGwt.getTrue() ? ExtendedNet.getNet().newWebSocket(host, port, path) : WebSockets.newSocket(WebSockets.toWebSocketUrl(host, port, path));
 	socket.addListener(new WebSocketAdapter() {
 		public boolean onOpen(final WebSocket webSocket) {
 			while(queue.first() != null) {
