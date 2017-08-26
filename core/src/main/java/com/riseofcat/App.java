@@ -23,6 +23,7 @@ public static final ILog log = new ILog() {
 		Gdx.app.error(TAG, s);
 	}
 	public void debug(String s) {
+		info("debug " + s);//todo
 		Gdx.app.debug(TAG, s);
 	}
 };

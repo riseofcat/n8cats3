@@ -4,11 +4,11 @@ import java.util.*;
 
 public class LibAllGwt {
 
-public static boolean getTrue() {
+public static boolean TRUE() {
 	return Boolean.TRUE;
 }
 
-public static boolean getFalse() {
+public static boolean FALSE() {
 	return Boolean.FALSE;
 }
 

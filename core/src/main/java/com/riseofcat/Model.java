@@ -7,6 +7,7 @@ import com.n8cats.share.ServerPayload;
 import com.n8cats.share.redundant.ServerSayS;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
@@ -17,14 +18,17 @@ private final Logic logic = new Logic();
 private Logic.Player.Id playerId;
 private float clientTick;//Плавно меняется, подстраиваясь под сервер
 private float serverTick;//Задаётся моментально с сервера
-private final DefaultValueMap<Logic.Tick, List<ServerPayload.PlayerAction>> actions = new DefaultValueMap<>(new ConcurrentHashMap<>(), ArrayList::new);
-private final DefaultValueMap<Logic.Tick, List<ClientPayload.ClientAction>> clientActions = new DefaultValueMap<>(new ConcurrentHashMap<>(), ArrayList::new);//todo redundant field "wait"
+//todo test not concurrent hash maps:
+private final DefaultValueMap<Logic.Tick, List<ServerPayload.PlayerAction>> actions =
+		new DefaultValueMap<>(new HashMap<>(), ArrayList::new);
+private final DefaultValueMap<Logic.Tick, List<ClientPayload.ClientAction>> clientActions =
+		new DefaultValueMap<>(new HashMap<>(), ArrayList::new);//todo redundant field "wait"
 private Logic.State state;
 private int stateTick;
 private int stableTick;
 private int previousActionId = 0;
 public static final int DEFAULT_LATENCY_MS = 50;
-public static final boolean LOCAL = LibAllGwt.getTrue();
+public static final boolean LOCAL = LibAllGwt.TRUE();
 
 public Model() {
 	client = LOCAL ? new PingClient("localhost", 5000, "socket", ServerSayS.class) : new PingClient("n8cats3.herokuapp.com", 80, "socket", ServerSayS.class);
@@ -100,8 +104,11 @@ public Logic.State getDisplayState() {
 	return getState((int) clientTick);//todo плавно
 }
 private Logic.State getState(int tick) {
+//	App.log.info("begin getState(" + tick);
 	if(tick == stateTick) {
-		return state.copy();
+		Logic.State copy = state.copy();
+//		App.log.info("end getState(" + tick);
+		return copy;
 	}
 	List<ServerPayload.PlayerAction> as = new ArrayList<>();
 	List<ServerPayload.PlayerAction> others = actions.map.get(new Logic.Tick(tick - 1));
