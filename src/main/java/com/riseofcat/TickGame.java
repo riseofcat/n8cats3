@@ -57,26 +57,24 @@ public TickGame(ConcreteRoomsServer.Room room, Logic logic) {
 					ServerPayload payload = new ServerPayload();
 					payload.tick = tick;
 					int delay = 0;
-					if(message.payload.tick + a.wait < getStableTick().tick) {
-						if(message.payload.tick + a.wait < getRemoveBeforeTick()) {
+					if(a.tick < getStableTick().tick) {
+						if(a.tick < getRemoveBeforeTick()) {
 							payload.canceled = new HashSet<>();
 							payload.canceled.add(a.aid);
 							message.player.session.send(payload);
 							continue;
 						} else {
-							delay = getStableTick().tick - (message.payload.tick + a.wait);//todo сложная логика
+							delay = getStableTick().tick - a.tick;
 						}
 					}
 					payload.apply = new ArrayList<>();
-					boolean old = false;
-					if(old) a.wait += delay;
 					payload.apply.add(new ServerPayload.AppliedActions(a.aid, delay));
 					message.player.session.send(payload);
 					ServerPayload.PlayerAction pa = new ServerPayload.PlayerAction();
 					pa.action = a.action;
 					pa.id  = message.player.getId();
 					pa.actionVersion = ++previousActionsVersion;
-					actions.getExistsOrPutDefault(new Tick(message.payload.tick + a.wait + (old ? 0 : delay) )).add(pa);
+					actions.getExistsOrPutDefault(new Tick(a.tick + delay)).add(pa);
 				}
 				for(RoomsDecorator<ClientPayload, ServerPayload>.Room.Player p : room.getPlayers()) {
 					if(p.getId().equals(message.player.getId())) {

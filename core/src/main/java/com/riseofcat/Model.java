@@ -88,7 +88,7 @@ public void touch(float x, float y) {
 	int w = (int) (getLatencySeconds() / Logic.UPDATE_S) + 1;//todo Учитывать среднюю задержку
 	ClientPayload.ClientAction a = new ClientPayload.ClientAction();
 	a.aid = ++previousActionId;
-	a.wait = w;
+	a.tick = (int) clientTick + w;
 	a.action = new Logic.Action(x, y);
 	clientActions.getExistsOrPutDefault(new Tick((int) clientTick + w)).add(a);
 	ClientPayload payload = new ClientPayload();

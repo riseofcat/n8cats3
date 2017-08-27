@@ -8,7 +8,8 @@ public ArrayList<ClientAction> actions;
 
 public static class ClientAction {
 	public int aid;//Если действия будут отложены или не применимы то сервер сообщит по id-шнику. Рецеркулировать от 0 до 255
-	public int wait;
+//	public int wait;
+	public int tick;
 	public Logic.Action action;
 }
 
