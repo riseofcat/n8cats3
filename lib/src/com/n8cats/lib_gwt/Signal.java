@@ -5,13 +5,12 @@ import java.util.Iterator;
 
 public class Signal<T> {
 //todo weak reference
-private ArrayList<Callback<T>> callbacks = new ArrayList<Callback<T>>();
-
+private ArrayList<Callback> callbacks = new ArrayList<>();
 public void dispatch(T value) {
-	ArrayList<Callback<T>> currentCallbacks = new ArrayList<Callback<T>>(callbacks);
-	Iterator<Callback<T>> iterator = currentCallbacks.iterator();
+	ArrayList<Callback> currentCallbacks = new ArrayList<>(callbacks);
+	Iterator<Callback> iterator = currentCallbacks.iterator();
 	while(iterator.hasNext()) {
-		Callback<T> next = iterator.next();
+		Callback next = iterator.next();
 		next.listener.onSignal(value);
 		if(next.once) {
 			next.removed = true;
@@ -19,27 +18,27 @@ public void dispatch(T value) {
 	}
 	iterator = callbacks.iterator();
 	while(iterator.hasNext()) {
-		Callback<T> next = iterator.next();
+		Callback next = iterator.next();
 		if(next.removed) {
 			iterator.remove();
 		}
 	}
 }
-public void add(SignalListener<T> listener) {
-	Callback<T> c = new Callback<T>();
+public void add(Listener<T> listener) {
+	Callback c = new Callback();
 	c.listener = listener;
 	callbacks.add(c);
 }
-public void addOnce(SignalListener<T> listener) {
-	Callback<T> c = new Callback<T>();
+public void addOnce(Listener<T> listener) {
+	Callback c = new Callback();
 	c.listener = listener;
 	c.once = true;
 	callbacks.add(c);
 }
-public void remove(SignalListener<T> signalListener) {
-	Iterator<Callback<T>> iterator = callbacks.iterator();
+public void remove(Listener<T> signalListener) {
+	Iterator<Callback> iterator = callbacks.iterator();
 	while(iterator.hasNext()) {
-		Callback<T> next = iterator.next();
+		Callback next = iterator.next();
 		if(next.listener == signalListener) {
 			next.removed = true;
 			iterator.remove();
@@ -49,9 +48,12 @@ public void remove(SignalListener<T> signalListener) {
 public void destroy() {
 	callbacks.clear();
 }
+public interface Listener<T> {
+    void onSignal(T arg);
 }
-class Callback<T> {
-public SignalListener<T> listener;
-public boolean removed = false;
-public boolean once = false;
+private class Callback {
+	public Signal.Listener<T> listener;
+	public boolean removed = false;
+	public boolean once = false;
+}
 }

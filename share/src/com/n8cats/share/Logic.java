@@ -50,7 +50,6 @@ public void update(State state, @Nullable List<ServerPayload.PlayerAction> actio
 }
 abstract public static class Player {
 	abstract public Id getId();
-
 	public static class Id {
 		@SuppressWarnings("unused")
 		public Id() {
@@ -70,7 +69,6 @@ abstract public static class Player {
 		}
 	}
 }
-
 public static class Car {
 	public Player.Id playerId;
 	public float x = 0;
@@ -87,7 +85,6 @@ public static class Car {
 		return result;
 	}
 }
-
 public static class Action {
 	@SuppressWarnings("unused")
 	public Action() {
@@ -99,7 +96,16 @@ public static class Action {
 	public float touchX;
 	public float touchY;
 }
-
+public static class PlayerAction {
+	public Logic.Player.Id id;
+	public Logic.Action action;
+	public PlayerAction() {
+	}
+	public PlayerAction(Player.Id id, Action action) {
+		this.id = id;
+		this.action = action;
+	}
+}
 public static class State {
 	public ArrayList<Car> cars = new ArrayList<>();
 	public State copy() {//todo simplify maybe with json //todo maybe clone
