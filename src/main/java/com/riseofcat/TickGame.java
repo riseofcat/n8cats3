@@ -15,13 +15,11 @@ import java.util.concurrent.ConcurrentHashMap;
 public class TickGame {
 public static final int DELAY_TICKS = 10;//количество тиков для хранения действий //bigger delayed
 public static final int REMOVE_TICKS = 20;//bigger removed
-
 private int previousActionsVersion = 0;
 private int tick = 0;
 private Logic.State state = new Logic.State();
-DefaultValueMap<Tick, ArrayList<ServerPayload.PlayerAction>> actions = new DefaultValueMap<>(new ConcurrentHashMap<>(), ArrayList::new);
-private Map<Logic.Player.Id, Integer> mapPlayerActionVersion = new ConcurrentHashMap<>();
-
+private DefaultValueMap<Tick, ArrayList<Action>> actions = new DefaultValueMap<>(new ConcurrentHashMap<>(), ArrayList::new);
+private Map<Logic.Player.Id, Integer> mapPlayerVersion = new ConcurrentHashMap<>();
 public TickGame(ConcreteRoomsServer.Room room, Logic logic) {
 	room.onPlayerAdded.add(player -> {
 		synchronized(TickGame.this) {
@@ -37,11 +35,14 @@ public TickGame(ConcreteRoomsServer.Room room, Logic logic) {
 			for(Tick k : actions.map.keySet()) {//todo duplicate
 				ServerPayload.TickActions ta = new ServerPayload.TickActions();
 				ta.tick = k.tick;
-				ta.list = actions.map.get(k);
+				ta.list = new ArrayList<>();
+				for(Action a : actions.map.get(k)) {
+					ta.list.add(a.pa);
+				}
 				payload.actions.add(ta);
 			}
 			player.session.send(payload);
-			mapPlayerActionVersion.put(player.getId(), previousActionsVersion);
+			mapPlayerVersion.put(player.getId(), previousActionsVersion);
 			//Говорим другим, что пришёл новый игрок
 			for(RoomsDecorator<ClientPayload, ServerPayload>.Room.Player p : room.getPlayers()) {
 				if(!p.equals(player)) {
@@ -70,11 +71,7 @@ public TickGame(ConcreteRoomsServer.Room room, Logic logic) {
 					payload.apply = new ArrayList<>();
 					payload.apply.add(new ServerPayload.AppliedActions(a.aid, delay));
 					message.player.session.send(payload);
-					ServerPayload.PlayerAction pa = new ServerPayload.PlayerAction();
-					pa.action = a.action;
-					pa.id  = message.player.getId();
-					pa.actionVersion = ++previousActionsVersion;
-					actions.getExistsOrPutDefault(new Tick(a.tick + delay)).add(pa);
+					actions.getExistsOrPutDefault(new Tick(a.tick + delay)).add(new Action(++previousActionsVersion, new Logic.PlayerAction(message.player.getId(), a.action)));
 				}
 				for(RoomsDecorator<ClientPayload, ServerPayload>.Room.Player p : room.getPlayers()) {
 					if(p.getId().equals(message.player.getId())) {
@@ -85,8 +82,8 @@ public TickGame(ConcreteRoomsServer.Room room, Logic logic) {
 					payload2.actions = new ArrayList<>();
 					for(Tick k : actions.map.keySet()) {//todo duplicate
 						ServerPayload.TickActions ta = null;
-						for(ServerPayload.PlayerAction pa : actions.map.get(k)) {
-							if(pa.actionVersion <= mapPlayerActionVersion.get(message.player.getId())) {
+						for(Action pa : actions.map.get(k)) {
+							if(pa.actionVersion <= mapPlayerVersion.get(message.player.getId())) {
 								continue;
 							}
 							if(ta == null) {
@@ -94,13 +91,13 @@ public TickGame(ConcreteRoomsServer.Room room, Logic logic) {
 								ta.tick = k.tick;
 								ta.list = new ArrayList<>();
 							}
-							ta.list.add(pa);
+							ta.list.add(pa.pa);
 						}
 						if(ta != null) {
 							payload2.actions.add(ta);
 						}
 					}
-					mapPlayerActionVersion.put(message.player.getId(), previousActionsVersion);
+					mapPlayerVersion.put(message.player.getId(), previousActionsVersion);
 					p.session.send(payload2);
 				}
 			}
@@ -112,8 +109,12 @@ public TickGame(ConcreteRoomsServer.Room room, Logic logic) {
 		public void run() {
 			synchronized(TickGame.this) {
 				tick++;
-				logic.update(state, actions.map.get(getStableTick()));
-				actions.map.remove(getStableTick());
+				ArrayList<Logic.PlayerAction> list = new ArrayList<>();
+				for(Action a : actions.getOrNew(getStableTick(), ArrayList::new)) {
+					list.add(a.pa);
+				}
+				logic.update(state, list);
+				TickGame.this.actions.map.remove(getStableTick());
 				if(tick % 100 == 0) { //Разослать state всем игрокам
 					for(ConcreteRoomsServer.Room.Player player : room.getPlayers()) {
 						player.session.send(createStablePayload());
@@ -159,4 +160,12 @@ private void todo() {
 	Integer latency = player.session.get(PingDecorator.Extra.class).getLatency();
 }
 
+private class Action {
+	public int actionVersion;
+	public Logic.PlayerAction pa;
+	public Action(int actionVersion, Logic.PlayerAction pa) {
+		this.actionVersion = actionVersion;
+		this.pa = pa;
+	}
+}
 }

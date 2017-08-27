@@ -10,7 +10,7 @@ public static final int UPDATE_MS = 20;
 public static final float UPDATE_S = UPDATE_MS * 0.001f;
 public static float width = 1000;
 public static float height = 1000;
-public void update(State state, @Nullable List<ServerPayload.PlayerAction> actions) {
+public void update(State state, @Nullable List<Logic.PlayerAction> actions) {
 	class Cache {
 		public Car getCar(Logic.Player.Id id) {
 			for(Car car : state.cars) {
@@ -23,11 +23,9 @@ public void update(State state, @Nullable List<ServerPayload.PlayerAction> actio
 	}
 	Cache cache = new Cache();
 	if(actions != null) {
-		for(ServerPayload.PlayerAction p : actions) {
+		for(Logic.PlayerAction p : actions) {
 			Car car = cache.getCar(p.id);
-			if(car == null) {
-				continue;
-			}
+			if(car == null) continue;
 			float secondsToMove = 2.0f;
 			car.speedX = (p.action.touchX - car.x) / secondsToMove;
 			car.speedY = (p.action.touchY - car.y) / secondsToMove;
@@ -99,6 +97,7 @@ public static class Action {
 public static class PlayerAction {
 	public Logic.Player.Id id;
 	public Logic.Action action;
+	@SuppressWarnings("unused")
 	public PlayerAction() {
 	}
 	public PlayerAction(Player.Id id, Action action) {

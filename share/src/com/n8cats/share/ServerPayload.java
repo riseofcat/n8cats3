@@ -16,13 +16,7 @@ public int tick;
 
 public static class TickActions {
 	public int tick;
-	public ArrayList<PlayerAction> list;//Порядок важен
-}
-
-public static class PlayerAction {//todo перенести в Logic и может extends от Action
-	public Logic.Player.Id id;
-	public Logic.Action action;
-	public int actionVersion;//todo redundant for client
+	public ArrayList<Logic.PlayerAction> list;//Порядок важен
 }
 
 public static class Welcome {

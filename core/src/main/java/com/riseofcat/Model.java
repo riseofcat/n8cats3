@@ -19,17 +19,14 @@ private Logic.Player.Id playerId;
 private float clientTick;//Плавно меняется, подстраиваясь под сервер
 private float serverTick;//Задаётся моментально с сервера
 //todo test not concurrent hash maps:
-private final DefaultValueMap<Tick, List<ServerPayload.PlayerAction>> actions =
-		new DefaultValueMap<>(new HashMap<>(), ArrayList::new);
-private final DefaultValueMap<Tick, List<ClientPayload.ClientAction>> clientActions =
-		new DefaultValueMap<>(new HashMap<>(), ArrayList::new);//todo redundant field "wait"
+private final DefaultValueMap<Tick, List<Logic.PlayerAction>> actions = new DefaultValueMap<>(new HashMap<>(), ArrayList::new);
+private final DefaultValueMap<Tick, List<Action>> myActions = new DefaultValueMap<>(new HashMap<>(), ArrayList::new);
 private Logic.State state;
 private int stateTick;
 private int stableTick;
 private int previousActionId = 0;
 public static final int DEFAULT_LATENCY_MS = 50;
 public static final boolean LOCAL = LibAllGwt.TRUE();
-
 public Model() {
 	client = LOCAL ? new PingClient("localhost", 5000, "socket", ServerSayS.class) : new PingClient("n8cats3.herokuapp.com", 80, "socket", ServerSayS.class);
 	client.connect(s -> {
@@ -48,11 +45,11 @@ public Model() {
 				actions.getExistsOrPutDefault(new Tick(t.tick)).addAll(t.list);
 			}
 		}
-		for(Tick t : clientActions.map.keySet()) {
-			Iterator<ClientPayload.ClientAction> iterator = clientActions.map.get(t).iterator();
+		for(Tick t : myActions.map.keySet()) {
+			Iterator<Action> iterator = myActions.map.get(t).iterator();
 			whl:
 			while(iterator.hasNext()) {
-				ClientPayload.ClientAction next = iterator.next();
+				Action next = iterator.next();
 				if(s.canceled != null) {
 					if(s.canceled.contains(next.aid)) {
 						iterator.remove();
@@ -62,10 +59,7 @@ public Model() {
 				if(s.apply != null) {
 					for(ServerPayload.AppliedActions apply : s.apply) {
 						if(apply.aid == next.aid) {
-							ServerPayload.PlayerAction pa = new ServerPayload.PlayerAction();
-							pa.action = next.action;
-							pa.id = playerId;
-							actions.getExistsOrPutDefault(t.add(apply.delay)).add(pa);
+							actions.getExistsOrPutDefault(t.add(apply.delay)).add(new Logic.PlayerAction(playerId, next.action));
 							iterator.remove();
 							continue whl;
 						}
@@ -91,7 +85,7 @@ public void touch(float x, float y) {
 	a.wait = w;
 	a.tick = (int) clientTick + w;
 	a.action = new Logic.Action(x, y);
-	clientActions.getExistsOrPutDefault(new Tick((int) clientTick + w)).add(a);
+	myActions.getExistsOrPutDefault(new Tick((int) clientTick + w)).add(new Action(a.aid, a.action));
 	ClientPayload payload = new ClientPayload();
 	payload.tick = (int) clientTick;
 	payload.actions = new ArrayList<>();
@@ -108,16 +102,13 @@ public Logic.State getDisplayState() {
 }
 private Logic.State getState(int tick) {
 	if(tick == stateTick) return state.copy();
-	List<ServerPayload.PlayerAction> as = new ArrayList<>();
-	List<ServerPayload.PlayerAction> others = actions.map.get(new Tick(tick - 1));
+	List<Logic.PlayerAction> as = new ArrayList<>();
+	List<Logic.PlayerAction> others = actions.map.get(new Tick(tick - 1));
 	if(others != null) as.addAll(others);
-	List<ClientPayload.ClientAction> clientTickActions = clientActions.map.get(new Tick(tick - 1));
+	List<Action> clientTickActions = myActions.map.get(new Tick(tick - 1));
 	if(clientTickActions != null) {
-		for(ClientPayload.ClientAction my : clientTickActions) {
-			ServerPayload.PlayerAction pa = new ServerPayload.PlayerAction();
-			pa.id = playerId;
-			pa.action = my.action;
-			as.add(pa);
+		for(Action my : clientTickActions) {
+			as.add(new Logic.PlayerAction(playerId, my.action));
 		}
 	}
 	Logic.State s = getState(tick - 1);
@@ -126,5 +117,13 @@ private Logic.State getState(int tick) {
 }
 public void dispose() {
 	client.close();
+}
+private class Action {
+	public final int aid;
+	public final Logic.Action action;
+	public Action(int aid, Logic.Action action) {
+		this.aid = aid;
+		this.action = action;
+	}
 }
 }
