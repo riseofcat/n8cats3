@@ -17,7 +17,7 @@ import com.n8cats.share.ServerSay;
 import org.jetbrains.annotations.Nullable;
 
 public class PingClient<S, C> {
-public final Signal<S> incoming = new Signal<>();
+private final Signal<S> incoming = new Signal<>();
 private final WebSocket socket;
 @Nullable public Integer latency;
 @Deprecated
@@ -57,9 +57,9 @@ public PingClient(String host, int port, String path, Class<ServerSay<S>> typeS)
 			return super.onError(webSocket, error);//todo
 		}
 	});
-	socket.connect();
 }
-public void connect(SignalListener<S> incomeListener) {//todo
+public void connect(SignalListener<S> incomeListener) {
+	incoming.add(incomeListener);
 	socket.connect();
 }
 public void close() {

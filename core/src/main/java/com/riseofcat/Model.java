@@ -32,7 +32,7 @@ public static final boolean LOCAL = LibAllGwt.TRUE();
 
 public Model() {
 	client = LOCAL ? new PingClient("localhost", 5000, "socket", ServerSayS.class) : new PingClient("n8cats3.herokuapp.com", 80, "socket", ServerSayS.class);
-	client.incoming.add(s -> {
+	client.connect(s -> {
 		if(s.welcome != null) {
 			playerId = s.welcome.id;
 		}
@@ -60,7 +60,7 @@ public Model() {
 					}
 				}
 				if(s.apply != null) {
-					for(ServerPayload.ApplyedActions apply : s.apply) {
+					for(ServerPayload.AppliedActions apply : s.apply) {
 						if(apply.aid == next.aid) {
 							ServerPayload.PlayerAction pa = new ServerPayload.PlayerAction();
 							pa.action = next.action;

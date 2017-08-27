@@ -68,17 +68,15 @@ public TickGame(ConcreteRoomsServer.Room room, Logic logic) {
 						}
 					}
 					payload.apply = new ArrayList<>();
-					ServerPayload.ApplyedActions ap = new ServerPayload.ApplyedActions();
-					ap.aid = a.aid;
-					a.wait += delay;
-					ap.delay = delay;
-					payload.apply.add(ap);
+					boolean old = false;
+					if(old) a.wait += delay;
+					payload.apply.add(new ServerPayload.AppliedActions(a.aid, delay));
 					message.player.session.send(payload);
 					ServerPayload.PlayerAction pa = new ServerPayload.PlayerAction();
 					pa.action = a.action;
 					pa.id  = message.player.getId();
 					pa.actionVersion = ++previousActionsVersion;
-					actions.getExistsOrPutDefault(new Tick(message.payload.tick + a.wait)).add(pa);
+					actions.getExistsOrPutDefault(new Tick(message.payload.tick + a.wait + (old ? 0 : delay) )).add(pa);
 				}
 				for(RoomsDecorator<ClientPayload, ServerPayload>.Room.Player p : room.getPlayers()) {
 					if(p.getId().equals(message.player.getId())) {

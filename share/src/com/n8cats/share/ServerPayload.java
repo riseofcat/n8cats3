@@ -4,8 +4,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.SortedSet;
-import java.util.TreeSet;
 
 public class ServerPayload {
 public int tick;
@@ -13,7 +11,7 @@ public int tick;
 @Nullable public Stable stable;
 @Nullable public ArrayList<TickActions> actions;
 @Nullable public HashSet<Integer> canceled;
-@Nullable public ArrayList<ApplyedActions> apply;
+@Nullable public ArrayList<AppliedActions> apply;
 @Nullable public ServerError error;
 
 public static class TickActions {
@@ -31,9 +29,16 @@ public static class Welcome {
 	public Logic.Player.Id id;
 }
 
-public static class ApplyedActions {
-	public int delay;
+public static class AppliedActions {
+	@SuppressWarnings("unused")
+	public AppliedActions() {
+	}
+	public AppliedActions(int aid, int delay) {
+		this.aid = aid;
+		this.delay = delay;
+	}
 	public int aid;
+	public int delay;
 }
 
 public static class ServerError {
