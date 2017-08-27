@@ -33,11 +33,11 @@ public TickGame(ConcreteRoomsServer.Room room, Logic logic) {
 			payload.welcome.id = player.getId();
 			payload.actions = new ArrayList<>();
 			for(Tick k : actions.map.keySet()) {//todo duplicate
-				ServerPayload.TickActions ta = new ServerPayload.TickActions(k.tick, new ArrayList<>());
+				ArrayList<Logic.PlayerAction> temp = new ArrayList<>();
 				for(Action a : actions.map.get(k)) {
-					ta.list.add(a.pa);
+					temp.add(a.pa);
 				}
-				payload.actions.add(ta);
+				payload.actions.add(new ServerPayload.TickActions(k.tick, temp));
 			}
 			player.session.send(payload);
 			mapPlayerVersion.put(player.getId(), previousActionsVersion);
@@ -78,9 +78,7 @@ public TickGame(ConcreteRoomsServer.Room room, Logic logic) {
 					ServerPayload payload2 = new ServerPayload();
 					payload2.tick = tick;
 					payload2.actions = new ArrayList<>();
-
 					for(Tick k : actions.map.keySet()) {//todo duplicate
-						ServerPayload.TickActions ta = null;
 						ArrayList<Logic.PlayerAction> temp = new ArrayList<>();
 						for(Action pa : actions.map.get(k)) {
 							if(pa.actionVersion > mapPlayerVersion.get(message.player.getId())) {
@@ -88,8 +86,7 @@ public TickGame(ConcreteRoomsServer.Room room, Logic logic) {
 							}
 						}
 						if(temp.size() > 0) {
-							ta = new ServerPayload.TickActions(k.tick, temp);
-							payload2.actions.add(ta);
+							payload2.actions.add(new ServerPayload.TickActions(k.tick, temp));
 						}
 					}
 					mapPlayerVersion.put(message.player.getId(), previousActionsVersion);
