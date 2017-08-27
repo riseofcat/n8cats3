@@ -17,6 +17,13 @@ public int tick;
 public static class TickActions {
 	public int tick;
 	public ArrayList<Logic.PlayerAction> list;//Порядок важен
+	@SuppressWarnings("unused")
+	public TickActions() {
+	}
+	public TickActions(int tick, ArrayList<Logic.PlayerAction> list) {
+		this.tick = tick;
+		this.list = list;
+	}
 }
 
 public static class Welcome {
