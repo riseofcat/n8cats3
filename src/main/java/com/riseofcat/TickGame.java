@@ -3,6 +3,7 @@ import com.n8cats.lib_gwt.DefaultValueMap;
 import com.n8cats.share.ClientPayload;
 import com.n8cats.share.Logic;
 import com.n8cats.share.ServerPayload;
+import com.n8cats.share.Tick;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -18,7 +19,7 @@ public static final int REMOVE_TICKS = 20;//bigger removed
 private int previousActionsVersion = 0;
 private int tick = 0;
 private Logic.State state = new Logic.State();
-DefaultValueMap<Logic.Tick, ArrayList<ServerPayload.PlayerAction>> actions = new DefaultValueMap<>(new ConcurrentHashMap<>(), ArrayList::new);
+DefaultValueMap<Tick, ArrayList<ServerPayload.PlayerAction>> actions = new DefaultValueMap<>(new ConcurrentHashMap<>(), ArrayList::new);
 private Map<Logic.Player.Id, Integer> mapPlayerActionVersion = new ConcurrentHashMap<>();
 
 public TickGame(ConcreteRoomsServer.Room room, Logic logic) {
@@ -33,7 +34,7 @@ public TickGame(ConcreteRoomsServer.Room room, Logic logic) {
 			payload.welcome = new ServerPayload.Welcome();
 			payload.welcome.id = player.getId();
 			payload.actions = new ArrayList<>();
-			for(Logic.Tick k : actions.map.keySet()) {//todo duplicate
+			for(Tick k : actions.map.keySet()) {//todo duplicate
 				ServerPayload.TickActions ta = new ServerPayload.TickActions();
 				ta.tick = k.tick;
 				ta.list = actions.map.get(k);
@@ -77,7 +78,7 @@ public TickGame(ConcreteRoomsServer.Room room, Logic logic) {
 					pa.action = a.action;
 					pa.id  = message.player.getId();
 					pa.actionVersion = ++previousActionsVersion;
-					actions.getExistsOrPutDefault(new Logic.Tick(message.payload.tick + a.wait)).add(pa);
+					actions.getExistsOrPutDefault(new Tick(message.payload.tick + a.wait)).add(pa);
 				}
 				for(RoomsDecorator<ClientPayload, ServerPayload>.Room.Player p : room.getPlayers()) {
 					if(p.getId().equals(message.player.getId())) {
@@ -86,7 +87,7 @@ public TickGame(ConcreteRoomsServer.Room room, Logic logic) {
 					ServerPayload payload2 = new ServerPayload();
 					payload2.tick = tick;
 					payload2.actions = new ArrayList<>();
-					for(Logic.Tick k : actions.map.keySet()) {//todo duplicate
+					for(Tick k : actions.map.keySet()) {//todo duplicate
 						ServerPayload.TickActions ta = null;
 						for(ServerPayload.PlayerAction pa : actions.map.get(k)) {
 							if(pa.actionVersion <= mapPlayerActionVersion.get(message.player.getId())) {
@@ -136,12 +137,12 @@ ServerPayload createStablePayload() {
 	return result;
 }
 
-public Logic.Tick getStableTick() {
+public Tick getStableTick() {
 	int result = tick - DELAY_TICKS + 1;
 	if(result < 0) {
-		return new Logic.Tick(0);
+		return new Tick(0);
 	}
-	return new Logic.Tick(result);
+	return new Tick(result);
 }
 
 public int getRemoveBeforeTick() {

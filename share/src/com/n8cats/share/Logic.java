@@ -77,7 +77,7 @@ public static class Car {
 	public float y = 0;
 	public float speedX = 0;
 	public float speedY = 0;
-	public Car copy() {//todo simplify
+	public Car copy() {
 		Car result = new Car();
 		result.playerId = this.playerId;
 		result.x = this.x;
@@ -102,34 +102,13 @@ public static class Action {
 
 public static class State {
 	public ArrayList<Car> cars = new ArrayList<>();
-	public State copy() {//todo simplify
+	public State copy() {//todo simplify maybe with json //todo maybe clone
 		State result = new State();
 		result.cars = new ArrayList<>();
 		for(Car c : cars) {
 			result.cars.add(c.copy());
 		}
 		return result;
-	}
-}
-
-public static class Tick {
-	//do not use in JSON
-	//todo move out from here
-	public final int tick;
-	public Tick(int tick) {
-		this.tick = tick;
-	}
-	public Tick add(int t) {
-		return new Tick(tick + t);
-	}
-	public boolean equals(Object o) {
-		if(this == o) return true;
-		if(o == null || getClass() != o.getClass()) return false;
-		Tick tick1 = (Tick) o;
-		return tick == tick1.tick;
-	}
-	public int hashCode() {
-		return tick;
 	}
 }
 

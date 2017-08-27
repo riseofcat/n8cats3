@@ -10,6 +10,7 @@ import com.github.czyzby.websocket.data.WebSocketState;
 import com.github.czyzby.websocket.net.ExtendedNet;
 import com.n8cats.lib_gwt.LibAllGwt;
 import com.n8cats.lib_gwt.Signal;
+import com.n8cats.lib_gwt.SignalListener;
 import com.n8cats.share.ClientSay;
 import com.n8cats.share.ServerSay;
 
@@ -19,6 +20,7 @@ public class PingClient<S, C> {
 public final Signal<S> incoming = new Signal<>();
 private final WebSocket socket;
 @Nullable public Integer latency;
+@Deprecated
 private final Queue<ClientSay<C>> queue = new Queue<>();//todo test
 private static final Json json = new Json();
 public PingClient(String host, int port, String path, Class<ServerSay<S>> typeS) {
@@ -55,9 +57,15 @@ public PingClient(String host, int port, String path, Class<ServerSay<S>> typeS)
 			return super.onError(webSocket, error);//todo
 		}
 	});
-	socket.connect();//socket.close();
+	socket.connect();
 }
-
+public void connect(SignalListener<S> incomeListener) {//todo
+	socket.connect();
+}
+public void close() {
+	WebSockets.closeGracefully(socket); // Null-safe closing method that catches and logs any exceptions.
+	if(false) socket.close();
+}
 public void say(C payload) {
 	ClientSay<C> answer = new ClientSay<>();
 	answer.payload = payload;
@@ -78,10 +86,6 @@ private void sayNow(ClientSay<C> say) {
 
 public WebSocketState getState() {
 	return socket.getState();
-}
-
-public void close() {
-	WebSockets.closeGracefully(socket); // Null-safe closing method that catches and logs any exceptions.
 }
 
 }

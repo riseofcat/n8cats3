@@ -4,13 +4,13 @@ import com.n8cats.lib_gwt.LibAllGwt;
 import com.n8cats.share.ClientPayload;
 import com.n8cats.share.Logic;
 import com.n8cats.share.ServerPayload;
+import com.n8cats.share.Tick;
 import com.n8cats.share.redundant.ServerSayS;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class Model {
 private final PingClient<ServerPayload, ClientPayload> client;
@@ -19,9 +19,9 @@ private Logic.Player.Id playerId;
 private float clientTick;//Плавно меняется, подстраиваясь под сервер
 private float serverTick;//Задаётся моментально с сервера
 //todo test not concurrent hash maps:
-private final DefaultValueMap<Logic.Tick, List<ServerPayload.PlayerAction>> actions =
+private final DefaultValueMap<Tick, List<ServerPayload.PlayerAction>> actions =
 		new DefaultValueMap<>(new HashMap<>(), ArrayList::new);
-private final DefaultValueMap<Logic.Tick, List<ClientPayload.ClientAction>> clientActions =
+private final DefaultValueMap<Tick, List<ClientPayload.ClientAction>> clientActions =
 		new DefaultValueMap<>(new HashMap<>(), ArrayList::new);//todo redundant field "wait"
 private Logic.State state;
 private int stateTick;
@@ -45,10 +45,10 @@ public Model() {
 		}
 		if(s.actions != null && s.actions.size() > 0) {
 			for(ServerPayload.TickActions t : s.actions) {
-				actions.getExistsOrPutDefault(new Logic.Tick(t.tick)).addAll(t.list);
+				actions.getExistsOrPutDefault(new Tick(t.tick)).addAll(t.list);
 			}
 		}
-		for(Logic.Tick t : clientActions.map.keySet()) {
+		for(Tick t : clientActions.map.keySet()) {
 			Iterator<ClientPayload.ClientAction> iterator = clientActions.map.get(t).iterator();
 			whl:
 			while(iterator.hasNext()) {
@@ -77,19 +77,20 @@ public Model() {
 		clientTick = serverTick;//todo плавно
 	});
 }
+public boolean ready() {
+	return playerId != null;
+}
 public float getLatencySeconds() {
 	return (client.latency == null ? DEFAULT_LATENCY_MS : client.latency) / 1000f;
 }
 public void touch(float x, float y) {
-	if(playerId == null) {
-		return;
-	}
+	if(!ready()) return;
 	int w = (int) (getLatencySeconds() / Logic.UPDATE_S) + 1;//todo Учитывать среднюю задержку
 	ClientPayload.ClientAction a = new ClientPayload.ClientAction();
 	a.aid = ++previousActionId;
 	a.wait = w;
 	a.action = new Logic.Action(x, y);
-	clientActions.getExistsOrPutDefault(new Logic.Tick((int) clientTick + w)).add(a);
+	clientActions.getExistsOrPutDefault(new Tick((int) clientTick + w)).add(a);
 	ClientPayload payload = new ClientPayload();
 	payload.tick = (int) clientTick;
 	payload.actions = new ArrayList<>();
@@ -101,21 +102,15 @@ public void update(float deltaTime) {
 	clientTick += deltaTime / Logic.UPDATE_S;
 }
 public Logic.State getDisplayState() {
+	if(!ready()) return new Logic.State();
 	return getState((int) clientTick);//todo плавно
 }
 private Logic.State getState(int tick) {
-//	App.log.info("begin getState(" + tick);
-	if(tick == stateTick) {
-		Logic.State copy = state.copy();
-//		App.log.info("end getState(" + tick);
-		return copy;
-	}
+	if(tick == stateTick) return state.copy();
 	List<ServerPayload.PlayerAction> as = new ArrayList<>();
-	List<ServerPayload.PlayerAction> others = actions.map.get(new Logic.Tick(tick - 1));
-	if(others != null) {
-		as.addAll(others);
-	}
-	List<ClientPayload.ClientAction> clientTickActions = clientActions.map.get(new Logic.Tick(tick - 1));
+	List<ServerPayload.PlayerAction> others = actions.map.get(new Tick(tick - 1));
+	if(others != null) as.addAll(others);
+	List<ClientPayload.ClientAction> clientTickActions = clientActions.map.get(new Tick(tick - 1));
 	if(clientTickActions != null) {
 		for(ClientPayload.ClientAction my : clientTickActions) {
 			ServerPayload.PlayerAction pa = new ServerPayload.PlayerAction();

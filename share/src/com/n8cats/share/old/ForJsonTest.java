@@ -1,4 +1,6 @@
-package com.n8cats.share;
+package com.n8cats.share.old;
+
+import com.n8cats.share.Logic;
 
 import java.util.ArrayList;
 import java.util.HashMap;

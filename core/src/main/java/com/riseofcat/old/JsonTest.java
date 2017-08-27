@@ -1,8 +1,8 @@
-package com.riseofcat;
+package com.riseofcat.old;
 
 import com.badlogic.gdx.utils.Json;
 import com.n8cats.lib_gwt.ILog;
-import com.n8cats.share.ForJsonTest;
+import com.n8cats.share.old.ForJsonTest;
 import com.n8cats.share.Logic;
 
 import java.util.ArrayList;
@@ -16,6 +16,7 @@ public static final Json json = new Json();
 public static void main(String[] args) {
 	test(null);
 }
+@Deprecated
 public static void test(ILog log) {
 	ForJsonTest test = new ForJsonTest();
 	test.testStr = "testStrValue";
@@ -54,14 +55,16 @@ public static void test(ILog log) {
 	String s1 = result.mapIdStr.get("1");
 	String s2 = result.mapIdStr.get(new Logic.Player.Id(2));
 	if(log != null) {
-		log.info(s1);
-		log.info(s2);
+		log.debug(s1);
+		log.debug(s2);
 	}
 	if(!json.toJson(result).equals(s)) {
-		log.error("json not equals");
+		if(log != null) {
+			log.error("json not equals");
+		}
 	}
 	if(log != null) {
-		log.info(json.toJson(result));
+		log.debug(json.toJson(result));
 	} else {
 		System.out.println(json.toJson(result));
 	}

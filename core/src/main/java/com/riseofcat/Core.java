@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.n8cats.share.Logic;
+import com.riseofcat.old.JsonTest;
 
 public class Core extends ApplicationAdapter {
 public static final int WIDTH = 640, HEIGHT = 640;
