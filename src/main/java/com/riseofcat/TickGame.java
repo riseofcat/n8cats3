@@ -78,18 +78,17 @@ public TickGame(ConcreteRoomsServer.Room room, Logic logic) {
 					ServerPayload payload2 = new ServerPayload();
 					payload2.tick = tick;
 					payload2.actions = new ArrayList<>();
+
 					for(Tick k : actions.map.keySet()) {//todo duplicate
 						ServerPayload.TickActions ta = null;
+						ArrayList<Logic.PlayerAction> temp = new ArrayList<>();
 						for(Action pa : actions.map.get(k)) {
-							if(pa.actionVersion <= mapPlayerVersion.get(message.player.getId())) {
-								continue;
+							if(pa.actionVersion > mapPlayerVersion.get(message.player.getId())) {
+								temp.add(pa.pa);
 							}
-							if(ta == null) {
-								ta = new ServerPayload.TickActions(k.tick, new ArrayList<>());
-							}
-							ta.list.add(pa.pa);
 						}
-						if(ta != null) {
+						if(temp.size() > 0) {
+							ta = new ServerPayload.TickActions(k.tick, temp);
 							payload2.actions.add(ta);
 						}
 					}
