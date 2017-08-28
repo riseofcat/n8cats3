@@ -6,6 +6,9 @@ import com.n8cats.lib_gwt.ILog;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
+import java.lang.management.ManagementFactory;
+
 public class App {
 private static Logger logger = LoggerFactory.getLogger("main");
 public static ILog log = new ILog() {
@@ -32,7 +35,7 @@ final class Info {
 public float getMaxMemory() {
 	return Runtime.getRuntime().maxMemory() / Const.MEGA;
 }
-public float getUsedMemoty() {
+public float getUsedMemory() {
 	return (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) / Const.MEGA;
 }
 public int getCurrentThreads() {
@@ -40,6 +43,15 @@ public int getCurrentThreads() {
 }
 public int getAvailableProcessors() {
 	return Runtime.getRuntime().availableProcessors();
+}
+public float getCpuLoad() {
+	return (float) ManagementFactory.getOperatingSystemMXBean().getSystemLoadAverage();
+}
+public float getTotalSpace() {
+	return new File(".").getTotalSpace()/Const.MEGA;
+}
+public float getFreeSpace() {
+	return new File(".").getFreeSpace()/Const.MEGA;
 }
 public float averagePing() {
 	return 0;//todo
