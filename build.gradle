@@ -42,6 +42,7 @@ if (true) /*java server*/ {
   dependencies {
     compile 'com.sparkjava:spark-core:2.6.0' /*websocket*///compile 'com.sparkjava:spark-core:+'
     compile 'org.slf4j:slf4j-simple:1.8.0-alpha2' /*logs*///compile 'org.slf4j:slf4j-simple:+'
+    //runtime "org.slf4j:slf4j-simple:1.7.12"
   }
 }
 dependencies {
@@ -61,7 +62,10 @@ if (true)/*heroku*/ {
     into "$buildDir/libs"
     from(configurations.compile)
   }
-  task stage(dependsOn: ['clean', 'build', 'copyToLib'])
+//  task stage(dependsOn: ['clean', 'build', 'copyToLib'])
+  task stage {
+    dependsOn clean, build, copyToLib
+  }
   build.mustRunAfter clean
 }
 if (false)/*kotlin server*/ {//kotlin eats + 5 MB RAM

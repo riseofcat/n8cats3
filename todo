@@ -1,2 +1,5 @@
 actions после смерти и после отсчёта stable.tick удаляются
 гладкий fps прорисовка координат между тиками
+
+Another file, system.properties, determines the version of Java to use. (Heroku supports many different versions). The contents of this file, which is optional, are quite straightforward:
+java.runtime.version=1.8
