@@ -6,6 +6,7 @@ import com.n8cats.share.Logic;
 import com.n8cats.share.ServerPayload;
 import com.n8cats.share.Tick;
 import com.n8cats.share.redundant.ServerSayS;
+import com.riseofcat.lib.XY;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -26,7 +27,7 @@ private int stateTick;
 private int stableTick;
 private int previousActionId = 0;
 public static final int DEFAULT_LATENCY_MS = 50;
-public static final boolean LOCAL = LibAllGwt.FALSE();
+public static final boolean LOCAL = LibAllGwt.TRUE();
 public Model() {
 	client = LOCAL ? new PingClient("localhost", 5000, "socket", ServerSayS.class) : new PingClient("n8cats3.herokuapp.com", 80, "socket", ServerSayS.class);
 	client.connect(s -> {
@@ -77,14 +78,14 @@ public boolean ready() {
 public float getLatencySeconds() {
 	return (client.latency == null ? DEFAULT_LATENCY_MS : client.latency) / 1000f;
 }
-public void touch(float x, float y) {
+public void touch(XY pos) {
 	if(!ready()) return;
 	int w = (int) (getLatencySeconds() / Logic.UPDATE_S) + 1;//todo Учитывать среднюю задержку
 	ClientPayload.ClientAction a = new ClientPayload.ClientAction();
 	a.aid = ++previousActionId;
 	a.wait = w;
 	a.tick = (int) clientTick + w;
-	a.action = new Logic.Action(x, y);
+	a.action = new Logic.Action(pos.x, pos.y);
 	myActions.getExistsOrPutDefault(new Tick((int) clientTick + w)).add(new Action(a.aid, a.action));
 	ClientPayload payload = new ClientPayload();
 	payload.tick = (int) clientTick;

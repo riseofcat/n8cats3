@@ -3,6 +3,7 @@ package com.riseofcat.desktop;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
 import com.github.czyzby.websocket.CommonWebSockets;
+import com.n8cats.share.Params;
 import com.riseofcat.Core;
 
 /**
@@ -21,9 +22,9 @@ private static LwjglApplication createApplication() {
 
 private static LwjglApplicationConfiguration getDefaultConfiguration() {
 	final LwjglApplicationConfiguration configuration = new LwjglApplicationConfiguration();
-	configuration.title = "libgdxwebsocket";
-	configuration.width = Core.WIDTH;
-	configuration.height = Core.HEIGHT;
+	configuration.title = Params.TITLE;
+	configuration.width = 640;
+	configuration.height = 480;
 //	for(int size : new int[]{128, 64, 32, 16}) {
 //		configuration.addIcon("libgdx" + size + ".png", FileType.Internal);
 //	}
