@@ -3,7 +3,6 @@ package com.riseofcat;
 import com.badlogic.gdx.utils.Json;
 import com.n8cats.lib.LibAll;
 import com.n8cats.share.ClientPayload;
-import com.n8cats.share.Logic;
 import com.n8cats.share.ServerPayload;
 import com.n8cats.share.redundant.ClientSayC;
 
@@ -25,12 +24,11 @@ public static void main(String[] args) {
 	Spark.staticFiles.location("/public");
 	Spark.staticFiles.expireTime(600);
 	final Json json = new Json();
-
 	Spark.webSocket("/socket", new SparkWebSocket(
 			new UsageMonitorDecorator<>(
 			new ConvertDecorator<>(
 			new PingDecorator<>(
-			new RoomsDecorator<ClientPayload, ServerPayload>(room -> new TickGame(room)), 1000),
+			new RoomsDecorator<ClientPayload, ServerPayload>(TickGame::new), 1000),
 			obj -> json.fromJson(ClientSayC.class, obj),
 			json::toJson))));
 	Spark.get("/", new Route() {
