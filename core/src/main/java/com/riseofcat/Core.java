@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
@@ -36,7 +37,7 @@ public void create() {
 	shapeRenderer.setAutoShapeType(false);//todo test true
 	Gdx.input.setInputProcessor(new InputMultiplexer(stage, new InputAdapter() {
 		public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-			model.touch(new XY(viewport1.unproject(new Vector3(screenX, screenY, 0))));
+			model.touch(new XY(viewport1.unproject(new Vector2(screenX, screenY))));
 			return true;
 		}
 	}));
