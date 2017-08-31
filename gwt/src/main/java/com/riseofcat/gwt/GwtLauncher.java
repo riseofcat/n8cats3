@@ -14,6 +14,7 @@ public class GwtLauncher extends GwtApplication {
 @Override
 public GwtApplicationConfiguration getConfig() {
 	GwtApplicationConfiguration configuration = new GwtApplicationConfiguration(640, 640);
+	configuration.preferFlash = false;
 	return configuration;
 }
 
