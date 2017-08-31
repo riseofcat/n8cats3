@@ -149,10 +149,6 @@ public int getRemoveBeforeTick() {
 	return tick - REMOVE_TICKS + 1;
 }
 
-public static class Reconciliation {
-
-}
-
 private static class ConcreteRoomsServer extends RoomsDecorator<ClientPayload, ServerPayload> {
 
 }
