@@ -22,7 +22,7 @@ private final WebSocket socket;
 @Deprecated
 private final Queue<ClientSay<C>> queue = new Queue<>();//todo test
 private static final Json json = new Json();
-public PingClient(String host, int port, String path, Class<ServerSay<S>> typeS) {
+public PingClient(String host, int port, String path, final Class<ServerSay<S>> typeS) {
 	socket = LibAllGwt.TRUE() ? ExtendedNet.getNet().newWebSocket(host, port, path) : WebSockets.newSocket(WebSockets.toWebSocketUrl(host, port, path));
 	socket.addListener(new WebSocketAdapter() {
 		public boolean onOpen(final WebSocket webSocket) {

@@ -21,10 +21,15 @@ buildscript {//libgdx
     classpath "de.richsource.gradle.plugins:gwt-gradle-plugin:$gwtPluginVersion"
   }
 }
-def applyJava = {
+def applyJava8 = {
   apply plugin: 'java'
   sourceCompatibility = JavaVersion.VERSION_1_8
   targetCompatibility = JavaVersion.VERSION_1_8
+}
+def applyJava7 = {
+  apply plugin: 'java'
+  sourceCompatibility = JavaVersion.VERSION_1_7
+  targetCompatibility = JavaVersion.VERSION_1_7
 }
 allprojects {
   repositories {
@@ -35,7 +40,7 @@ allprojects {
   }
 }
 if(true) /*java server*/ {
-  configure(project(':server'), applyJava)//old style: applyJava()
+  configure(project(':server'), applyJava8)//old style: applyJava()
   configure(project(':server')) {
     sourceSets {
       main.java.srcDirs += 'src/main/java'
@@ -55,7 +60,7 @@ configure(project(':server')) {
   }
 }
 if (true) /*libgdx*//*share*/ {
-  configure(file("local.properties").exists() ? /*allprojects*/ subprojects - project(':android') : allprojects, applyJava)//todo bad exists()?
+  configure(file("local.properties").exists() ? /*allprojects*/ subprojects - project(':android') : allprojects, applyJava7)//todo bad exists()?
   subprojects {
     ext.appName = 'mass-power.io'//power-mass.io,react-mass.io//libgdx
   }

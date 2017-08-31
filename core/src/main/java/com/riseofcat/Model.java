@@ -1,6 +1,7 @@
 package com.riseofcat;
 import com.n8cats.lib_gwt.DefaultValueMap;
 import com.n8cats.lib_gwt.LibAllGwt;
+import com.n8cats.lib_gwt.Signal;
 import com.n8cats.share.ClientPayload;
 import com.n8cats.share.Logic;
 import com.n8cats.share.ServerPayload;
@@ -19,56 +20,67 @@ private Logic.Player.Id playerId;
 private float clientTick;//Плавно меняется, подстраиваясь под сервер
 private float serverTick;//Задаётся моментально с сервера
 //todo test not concurrent hash maps:
-private final DefaultValueMap<Tick, List<Logic.PlayerAction>> actions = new DefaultValueMap<>(new HashMap<>(), ArrayList::new);
-private final DefaultValueMap<Tick, List<Action>> myActions = new DefaultValueMap<>(new HashMap<>(), ArrayList::new);
+private final DefaultValueMap<Tick, List<Logic.PlayerAction>> actions = new DefaultValueMap<>(new HashMap<Tick, List<Logic.PlayerAction>>(), new DefaultValueMap.ICreateNew<List<Logic.PlayerAction>>() {
+	public List<Logic.PlayerAction> createNew() {
+		return new ArrayList<>();
+	}
+});
+private final DefaultValueMap<Tick, List<Action>> myActions = new DefaultValueMap<>(new HashMap<Tick, List<Action>>(), new DefaultValueMap.ICreateNew<List<Action>>() {
+	public List<Action> createNew() {
+		return new ArrayList<>();
+	}
+});
 private Logic.State state;
 private int stateTick;
 private int stableTick;
 private int previousActionId = 0;
 public static final int DEFAULT_LATENCY_MS = 50;
-public static final boolean LOCAL = LibAllGwt.TRUE();
+public static final boolean LOCAL = LibAllGwt.FALSE();
 public Model() {
 	client = LOCAL ? new PingClient("localhost", 5000, "socket", ServerSayS.class) : new PingClient("n8cats3.herokuapp.com", 80, "socket", ServerSayS.class);
-	client.connect(s -> {
-		if(s.welcome != null) {
-			playerId = s.welcome.id;
-		}
-		if(s.stable != null) {
-			stableTick = s.stable.tick;
-			if(s.stable.state != null) {
-				state = s.stable.state;
-				stateTick = s.stable.tick;
+	client.connect(new Signal.Listener<ServerPayload>() {
+		public void onSignal(ServerPayload s) {
+			if(s.welcome != null) {
+				playerId = s.welcome.id;
 			}
-		}
-		if(s.actions != null && s.actions.size() > 0) {
-			for(ServerPayload.TickActions t : s.actions) {
-				actions.getExistsOrPutDefault(new Tick(t.tick)).addAll(t.list);
-			}
-		}
-		for(Tick t : myActions.map.keySet()) {
-			Iterator<Action> iterator = myActions.map.get(t).iterator();
-			whl:
-			while(iterator.hasNext()) {
-				Action next = iterator.next();
-				if(s.canceled != null) {
-					if(s.canceled.contains(next.aid)) {
-						iterator.remove();
-						continue;
-					}
+			if(s.stable != null) {
+				stableTick = s.stable.tick;
+				if(s.stable.state != null) {
+					state = s.stable.state;
+					stateTick = s.stable.tick;
 				}
-				if(s.apply != null) {
-					for(ServerPayload.AppliedActions apply : s.apply) {
-						if(apply.aid == next.aid) {
-							actions.getExistsOrPutDefault(t.add(apply.delay)).add(new Logic.PlayerAction(playerId, next.action));
+			}
+			if(s.actions != null && s.actions.size() > 0) {
+				for(ServerPayload.TickActions t : s.actions) {
+					actions.getExistsOrPutDefault(new Tick(t.tick)).addAll(t.list);
+				}
+			}
+			for(Tick t : myActions.map.keySet()) {
+				Iterator<Action> iterator = myActions.map.get(t).iterator();
+				whl:
+				while(iterator.hasNext()) {
+					Action next = iterator.next();
+					if(s.canceled != null) {
+						if(s.canceled.contains(next.aid)) {
 							iterator.remove();
-							continue whl;
+							continue;
+						}
+					}
+					if(s.apply != null) {
+						for(ServerPayload.AppliedActions apply : s.apply) {
+							if(apply.aid == next.aid) {
+								actions.getExistsOrPutDefault(t.add(apply.delay)).add(new Logic.PlayerAction(playerId, next.action));
+								iterator.remove();
+								continue whl;
+							}
 						}
 					}
 				}
 			}
+			serverTick = s.tick + getLatencySeconds() / Logic.UPDATE_S;
+			clientTick = serverTick;//todo плавно
+
 		}
-		serverTick = s.tick + getLatencySeconds() / Logic.UPDATE_S;
-		clientTick = serverTick;//todo плавно
 	});
 }
 public boolean ready() {
@@ -114,10 +126,17 @@ private Logic.State getState(int tick) {
 		public Logic.PlayerAction next() {
 			return new Logic.PlayerAction(playerId, iterator.next().action);//todo new???
 		}
+		public void remove() {
+			throw new RuntimeException("not supported");
+		}
 	}
 	if(tick == stateTick) return state.copy();
 	return getState(tick - 1)
-			.act(actions.getOrNew(new Tick(tick - 1), ArrayList::new).iterator())
+			.act(actions.getOrNew(new Tick(tick - 1), new DefaultValueMap.ICreateNew<List<Logic.PlayerAction>>() {
+				public List<Logic.PlayerAction> createNew() {
+					return new ArrayList<>();
+				}
+			}).iterator())
 			.act(new Adapter(myActions.map.get(new Tick(tick - 1))))
 			.tick();
 }
