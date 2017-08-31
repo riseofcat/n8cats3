@@ -186,4 +186,15 @@ public interface IDoNow<T> {
 	T doNow();
 }
 
+public static <T, R> R checkNull(T value, IDo<T,R> doIfNotNull, IDoNow<R> doIfNull) {
+	if(value != null) {
+		return doIfNotNull.doIfNotNull(value);
+	}
+	return doIfNull.doNow();
+}
+
+public interface IDo<T, R> {
+	R doIfNotNull(T v);
+}
+
 }

@@ -7,6 +7,7 @@ import com.n8cats.share.Tick;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -99,13 +100,23 @@ public TickGame(ConcreteRoomsServer.Room room) {
 	timer.schedule(new TimerTask() {
 		@Override
 		public void run() {
+			class Adapter implements Iterator<Logic.PlayerAction> {
+				private Iterator<Action> iterator;
+				public Adapter(ArrayList<Action> arr) {
+					if(arr != null) {
+						iterator = arr.iterator();
+					}
+				}
+				public boolean hasNext() {
+					return iterator != null && iterator.hasNext();
+				}
+				public Logic.PlayerAction next() {
+					return iterator.next().pa;
+				}
+			}
 			synchronized(TickGame.this) {
 				tick++;
-				ArrayList<Logic.PlayerAction> list = new ArrayList<>();
-				for(Action a : actions.getOrNew(getStableTick(), ArrayList::new)) {
-					list.add(a.pa);
-				}
-				state.update(list);
+				state.act(new Adapter(actions.map.get(getStableTick()))).tick();
 				TickGame.this.actions.map.remove(getStableTick());
 				if(tick % 100 == 0) { //Разослать state всем игрокам
 					for(ConcreteRoomsServer.Room.Player player : room.getPlayers()) {

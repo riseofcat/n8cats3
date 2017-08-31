@@ -101,17 +101,25 @@ public Logic.State getDisplayState() {
 	return getState((int) clientTick);//todo плавно
 }
 private Logic.State getState(int tick) {
-	if(tick == stateTick) return state.copy();
-	List<Logic.PlayerAction> as = new ArrayList<>();
-	List<Logic.PlayerAction> others = actions.map.get(new Tick(tick - 1));
-	if(others != null) as.addAll(others);
-	List<Action> clientTickActions = myActions.map.get(new Tick(tick - 1));
-	if(clientTickActions != null) {
-		for(Action my : clientTickActions) {
-			as.add(new Logic.PlayerAction(playerId, my.action));
+	class Adapter implements Iterator<Logic.PlayerAction> {
+		private Iterator<Action> iterator;
+		public Adapter(List<Action> arr) {
+			if(arr != null) {
+				iterator = arr.iterator();
+			}
+		}
+		public boolean hasNext() {
+			return iterator != null && iterator.hasNext();
+		}
+		public Logic.PlayerAction next() {
+			return new Logic.PlayerAction(playerId, iterator.next().action);//todo new???
 		}
 	}
-	return getState(tick - 1).update(as);
+	if(tick == stateTick) return state.copy();
+	return getState(tick - 1)
+			.act(actions.getOrNew(new Tick(tick - 1), ArrayList::new).iterator())
+			.act(new Adapter(myActions.map.get(new Tick(tick - 1))))
+			.tick();
 }
 public void dispose() {
 	client.close();

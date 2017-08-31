@@ -1,9 +1,7 @@
 package com.n8cats.share;
 
-import org.jetbrains.annotations.Nullable;
-
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Iterator;
 
 public class Logic {
 public static final int UPDATE_MS = 20;
@@ -79,7 +77,7 @@ public static class State {
 		}
 		return result;
 	}
-	public State update(@Nullable List<Logic.PlayerAction> actions) {
+	public State act(Iterator<PlayerAction> iterator) {
 		class Cache {
 			public Car getCar(Logic.Player.Id id) {
 				for(Car car : cars) {
@@ -91,15 +89,17 @@ public static class State {
 			}
 		}
 		Cache cache = new Cache();
-		if(actions != null) {
-			for(Logic.PlayerAction p : actions) {
-				Car car = cache.getCar(p.id);
-				if(car == null) continue;
-				float secondsToMove = 2.0f;
-				car.speedX = (p.action.touchX - car.x) / secondsToMove;
-				car.speedY = (p.action.touchY - car.y) / secondsToMove;
-			}
+		while(iterator.hasNext()) {
+			PlayerAction p = iterator.next();
+			Car car = cache.getCar(p.id);
+			if(car == null) continue;
+			float secondsToMove = 2.0f;
+			car.speedX = (p.action.touchX - car.x) / secondsToMove;
+			car.speedY = (p.action.touchY - car.y) / secondsToMove;
 		}
+		return this;
+	}
+	public State tick() {
 		for(Car car : cars) {
 			car.x += car.speedX * UPDATE_S;
 			car.y += car.speedY * UPDATE_S;
