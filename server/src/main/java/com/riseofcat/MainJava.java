@@ -30,7 +30,7 @@ public static void main(String[] args) {
 			new UsageMonitorDecorator<>(
 			new ConvertDecorator<>(
 			new PingDecorator<>(
-			new RoomsDecorator<ClientPayload, ServerPayload>(room -> new TickGame(room, new Logic())), 1000),
+			new RoomsDecorator<ClientPayload, ServerPayload>(room -> new TickGame(room)), 1000),
 			obj -> json.fromJson(ClientSayC.class, obj),
 			json::toJson))));
 	Spark.get("/", new Route() {

@@ -20,7 +20,7 @@ private int tick = 0;
 private Logic.State state = new Logic.State();
 private DefaultValueMap<Tick, ArrayList<Action>> actions = new DefaultValueMap<>(new ConcurrentHashMap<>(), ArrayList::new);
 private Map<Logic.Player.Id, Integer> mapPlayerVersion = new ConcurrentHashMap<>();
-public TickGame(ConcreteRoomsServer.Room room, Logic logic) {
+public TickGame(ConcreteRoomsServer.Room room) {
 	room.onPlayerAdded.add(player -> {
 		synchronized(TickGame.this) {
 			Logic.Car car = new Logic.Car();
@@ -105,7 +105,7 @@ public TickGame(ConcreteRoomsServer.Room room, Logic logic) {
 				for(Action a : actions.getOrNew(getStableTick(), ArrayList::new)) {
 					list.add(a.pa);
 				}
-				logic.update(state, list);
+				state.update(list);
 				TickGame.this.actions.map.remove(getStableTick());
 				if(tick % 100 == 0) { //Разослать state всем игрокам
 					for(ConcreteRoomsServer.Room.Player player : room.getPlayers()) {

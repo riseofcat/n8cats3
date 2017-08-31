@@ -15,7 +15,6 @@ import java.util.List;
 
 public class Model {
 private final PingClient<ServerPayload, ClientPayload> client;
-private final Logic logic = new Logic();
 private Logic.Player.Id playerId;
 private float clientTick;//Плавно меняется, подстраиваясь под сервер
 private float serverTick;//Задаётся моментально с сервера
@@ -112,9 +111,7 @@ private Logic.State getState(int tick) {
 			as.add(new Logic.PlayerAction(playerId, my.action));
 		}
 	}
-	Logic.State s = getState(tick - 1);
-	logic.update(s, as);
-	return s;
+	return getState(tick - 1).update(as);
 }
 public void dispose() {
 	client.close();

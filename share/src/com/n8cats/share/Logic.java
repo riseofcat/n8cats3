@@ -10,42 +10,6 @@ public static final int UPDATE_MS = 20;
 public static final float UPDATE_S = UPDATE_MS * 0.001f;
 public static float width = 1000;
 public static float height = 1000;
-public void update(State state, @Nullable List<Logic.PlayerAction> actions) {
-	class Cache {
-		public Car getCar(Logic.Player.Id id) {
-			for(Car car : state.cars) {
-				if(id.equals(car.playerId)) {
-					return car;
-				}
-			}
-			return null;
-		}
-	}
-	Cache cache = new Cache();
-	if(actions != null) {
-		for(Logic.PlayerAction p : actions) {
-			Car car = cache.getCar(p.id);
-			if(car == null) continue;
-			float secondsToMove = 2.0f;
-			car.speedX = (p.action.touchX - car.x) / secondsToMove;
-			car.speedY = (p.action.touchY - car.y) / secondsToMove;
-		}
-	}
-	for(Car car : state.cars) {
-		car.x += car.speedX * UPDATE_S;
-		car.y += car.speedY * UPDATE_S;
-		if(car.x > width) {
-			car.x -= width;
-		} else if(car.x < 0) {
-			car.x += width;
-		}
-		if(car.y > height) {
-			car.y -= height;
-		} else if(car.y < 0) {
-			car.y += height;
-		}
-	}
-}
 abstract public static class Player {
 	abstract public Id getId();
 	public static class Id {
@@ -114,6 +78,43 @@ public static class State {
 			result.cars.add(c.copy());
 		}
 		return result;
+	}
+	public State update(@Nullable List<Logic.PlayerAction> actions) {
+		class Cache {
+			public Car getCar(Logic.Player.Id id) {
+				for(Car car : cars) {
+					if(id.equals(car.playerId)) {
+						return car;
+					}
+				}
+				return null;
+			}
+		}
+		Cache cache = new Cache();
+		if(actions != null) {
+			for(Logic.PlayerAction p : actions) {
+				Car car = cache.getCar(p.id);
+				if(car == null) continue;
+				float secondsToMove = 2.0f;
+				car.speedX = (p.action.touchX - car.x) / secondsToMove;
+				car.speedY = (p.action.touchY - car.y) / secondsToMove;
+			}
+		}
+		for(Car car : cars) {
+			car.x += car.speedX * UPDATE_S;
+			car.y += car.speedY * UPDATE_S;
+			if(car.x > width) {
+				car.x -= width;
+			} else if(car.x < 0) {
+				car.x += width;
+			}
+			if(car.y > height) {
+				car.y -= height;
+			} else if(car.y < 0) {
+				car.y += height;
+			}
+		}
+		return this;
 	}
 }
 
