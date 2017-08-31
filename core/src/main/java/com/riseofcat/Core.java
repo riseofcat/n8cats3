@@ -3,11 +3,10 @@ package com.riseofcat;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputAdapter;
+import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector3;
@@ -17,38 +16,30 @@ import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.n8cats.share.Logic;
 import com.riseofcat.lib.XY;
-import com.riseofcat.old.JsonTest;
 
 public class Core extends ApplicationAdapter {
 private SpriteBatch batch;
-private BitmapFont font;
 private ShapeRenderer shapeRenderer;
 private Model model;
 private Viewport viewport1;
 private Viewport viewport2;
 private Stage stage;
 public void create() {
-	font = new BitmapFont();
-	font.getRegion().getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
 	batch = new SpriteBatch();
 	viewport1 = new ExtendViewport(Logic.width, Logic.height, new OrthographicCamera());
 	viewport2 = new ExtendViewport(500, 500, new OrthographicCamera());
 	stage = new Stage(viewport2/*, batch*/);
-	if(false) {
-		Gdx.input.setInputProcessor(stage);
-	}
 	stage.addActor(new GradientShapeRect(200, 50));
 	stage.addActor(new Image(Resources.Textures.green));
 	model = new Model();
 	shapeRenderer = new ShapeRenderer(1000);
 	shapeRenderer.setAutoShapeType(false);//todo test true
-	Gdx.input.setInputProcessor(new InputAdapter() {
+	Gdx.input.setInputProcessor(new InputMultiplexer(stage, new InputAdapter() {
 		public boolean touchDown(int screenX, int screenY, int pointer, int button) {
 			model.touch(new XY(viewport1.unproject(new Vector3(screenX, screenY, 0))));
 			return true;
 		}
-	});
-	JsonTest.test(App.log);
+	}));
 }
 public void resize(int width, int height) {
 	viewport1.update(width/2, height, true);
@@ -72,8 +63,7 @@ public void render() {
 	shapeRenderer.end();
 	viewport2.apply();
 	batch.begin();
-	font.draw(batch, "font1", 0, 200);
-	Resources.Font.normalFont().draw(batch, "font2", 0, 400);
+	Resources.Font.loadedFont().draw(batch, "font", 0, 200);
 	batch.draw(Resources.Textures.green, Logic.width / 2, Logic.height / 2);
 	batch.end();
 }
@@ -82,8 +72,5 @@ public void dispose() {
 	batch.dispose();
 	shapeRenderer.dispose();
 	Resources.dispose();
-}
-private void todo() {
-	new OrthographicCamera().setToOrtho(false, 100, 100);//in update method
 }
 }

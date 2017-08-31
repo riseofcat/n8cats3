@@ -19,26 +19,30 @@ public static class Textures {
 	}
 }
 public static class Font {
-	private static BitmapFont font = new BitmapFont(Gdx.files.internal("dejavu_sans_mono.fnt"), new TextureRegion(Textures.font));
-
-	public static BitmapFont loseFont() {
-		font.setColor(Color.RED);
-		font.getData().setScale(2);
-		return font;
+	private static BitmapFont defaultFont = new BitmapFont();
+	private static BitmapFont loadedFont = new BitmapFont(Gdx.files.internal("dejavu_sans_mono.fnt"), new TextureRegion(Textures.font));
+	static {
+		if(true) {
+			defaultFont.getRegion().getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
+		}
 	}
-	public static BitmapFont winFont() {
-		font.setColor(Color.GREEN);
-		font.getData().setScale(2);
-		return font;
+	public static BitmapFont defaultFont() {
+		return defaultFont;
 	}
-	public static BitmapFont normalFont() {
-		font.setColor(Color.WHITE);
-		font.getData().setScale(2);
-		return font;
+	public static BitmapFont loadedFont() {
+		loadedFont.setColor(Color.WHITE);
+		loadedFont.getData().setScale(2);
+		return loadedFont;
 	}
 }
 public static void dispose() {
-	//todo
+	Font.defaultFont.dispose();
+	Font.loadedFont.dispose();
+	Textures.green.dispose();
+	Textures.font.dispose();
+	if(false) {
+		Textures.background.dispose();
+	}
 }
 
 }
