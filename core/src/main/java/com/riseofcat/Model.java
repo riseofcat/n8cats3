@@ -19,7 +19,7 @@ private final PingClient<ServerPayload, ClientPayload> client;
 private Logic.Player.Id playerId;
 private float clientTick;//Плавно меняется, подстраиваясь под сервер
 private float serverTick;//Задаётся моментально с сервера
-//todo test not concurrent hash maps:
+//todo bad not concurrent hash maps and array lists. Look exception in todo.
 private final DefaultValueMap<Tick, List<Logic.PlayerAction>> actions = new DefaultValueMap<>(new HashMap<Tick, List<Logic.PlayerAction>>(), new DefaultValueMap.ICreateNew<List<Logic.PlayerAction>>() {
 	public List<Logic.PlayerAction> createNew() {
 		return new ArrayList<>();

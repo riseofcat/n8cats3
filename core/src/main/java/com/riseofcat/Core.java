@@ -25,6 +25,8 @@ private Model model;
 private Viewport viewport1;
 private Viewport viewport2;
 private Stage stage;
+private static final Color[] colors = {Color.BLUE, Color.GOLD, Color.PINK, Color.RED, Color.GREEN, Color.VIOLET, Color.LIME, Color.TEAL, Color.YELLOW};
+
 public void create() {
 	batch = new SpriteBatch();
 	viewport1 = new ExtendViewport(Logic.width, Logic.height, new OrthographicCamera());
@@ -58,7 +60,8 @@ public void render() {
 	viewport1.apply();
 	shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
 	for(Logic.Car car : model.getDisplayState().cars) {
-		shapeRenderer.setColor(Color.BLUE);
+		Color color = colors[car.playerId.id % (colors.length - 1)];
+		shapeRenderer.setColor(color);
 		shapeRenderer.circle(car.x, car.y, 20);
 	}
 	shapeRenderer.end();

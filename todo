@@ -1,5 +1,16 @@
-actions после смерти и после отсчёта stable.tick удаляются
 гладкий fps прорисовка координат между тиками
 
 Another file, system.properties, determines the version of Java to use. (Heroku supports many different versions). The contents of this file, which is optional, are quite straightforward:
-java.runtime.version=1.8
+
+
+Exception in thread "LWJGL Application" java.util.ConcurrentModificationException
+	at java.util.ArrayList$Itr.checkForComodification(ArrayList.java:901)
+	at java.util.ArrayList$Itr.next(ArrayList.java:851)
+	at com.riseofcat.Model$1Adapter.next(Model.java:127)
+	at com.riseofcat.Model$1Adapter.next(Model.java:116)
+	at com.n8cats.share.Logic$State.act(Logic.java:93)
+	at com.riseofcat.Model.getState(Model.java:140)
+	at com.riseofcat.Model.getDisplayState(Model.java:113)
+	at com.riseofcat.Core.render(Core.java:62)
+	at com.badlogic.gdx.backends.lwjgl.LwjglApplication.mainLoop(LwjglApplication.java:225)
+	at com.badlogic.gdx.backends.lwjgl.LwjglApplication$1.run(LwjglApplication.java:126)
