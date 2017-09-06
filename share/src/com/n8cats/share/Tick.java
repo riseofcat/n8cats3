@@ -1,5 +1,5 @@
 package com.n8cats.share;
-
+//todo redundant. Replace with Integer
 public class Tick {
 //do not use in JSON
 public final int tick;

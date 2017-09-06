@@ -113,42 +113,23 @@ public Logic.State getDisplayState() {
 	return getState((int) clientTick);//todo плавно
 }
 private Logic.State getState(int tick) {
-	class Adapter implements Iterator<Logic.PlayerAction> {
-		private Iterator<Action> iterator;
-		public Adapter(List<Action> arr) {
-			if(arr != null) {
-				iterator = arr.iterator();
-			}
-		}
-		public boolean hasNext() {
-			return iterator != null && iterator.hasNext();
-		}
-		public Logic.PlayerAction next() {
-			return new Logic.PlayerAction(playerId, iterator.next().action);
-		}
-		public void remove() {
-			throw new RuntimeException("not supported");
-		}
-	}
 	if(tick == stateTick) return state.copy();
-	return getState(tick - 1)
-			.act(actions.getOrNew(new Tick(tick - 1), new DefaultValueMap.ICreateNew<List<Logic.PlayerAction>>() {
-				public List<Logic.PlayerAction> createNew() {
-					return new ArrayList<>();
-				}
-			}).iterator())
-			.act(new Adapter(myActions.map.get(new Tick(tick - 1))))
-			.tick();
+	Logic.State result = getState(tick - 1);
+	List<Logic.PlayerAction> other = actions.map.get(new Tick(tick - 1));
+	if(other != null) result.act(other.iterator());
+	List<Action> my = myActions.map.get(new Tick(tick - 1));
+	if(my != null) result.act(my.iterator());
+	return result.tick();
 }
 public void dispose() {
 	client.close();
 }
-private class Action {
+private class Action extends Logic.PlayerAction {
 	public final int aid;
-	public final Logic.Action action;
 	public Action(int aid, Logic.Action action) {
-		this.aid = aid;
+		this.id = playerId;
 		this.action = action;
+		this.aid = aid;
 	}
 }
 }

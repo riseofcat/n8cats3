@@ -77,7 +77,7 @@ public static class State {
 		}
 		return result;
 	}
-	public State act(Iterator<PlayerAction> iterator) {
+	public State act(Iterator<? extends PlayerAction> iterator) {
 		class Cache {
 			public Car getCar(Logic.Player.Id id) {
 				for(Car car : cars) {
