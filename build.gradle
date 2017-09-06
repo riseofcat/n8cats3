@@ -59,10 +59,14 @@ configure(project(':server')) {
     //  compile project(":lib")
   }
 }
+def java7projects = /*allprojects*/ subprojects - project(':server')
+if(file("local.properties").exists()) {
+  java7projects -= project(':android')
+}
 if (true) /*libgdx*//*share*/ {
-  configure(file("local.properties").exists() ? /*allprojects*/ subprojects - project(':android') : allprojects, applyJava7)//todo bad exists()?
+  configure(java7projects, applyJava7)
   subprojects {
-    ext.appName = 'mass-power.io'//power-mass.io,react-mass.io//libgdx
+    ext.appName = 'mass-power.io'//power-mass.io,react-mass.io
   }
 }
 if (true)/*heroku*/ {

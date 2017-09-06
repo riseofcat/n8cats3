@@ -4,38 +4,38 @@ import com.n8cats.lib_gwt.LibAllGwt;
 import com.n8cats.lib_gwt.Signal;
 import com.n8cats.share.ClientPayload;
 import com.n8cats.share.Logic;
+import com.n8cats.share.Params;
 import com.n8cats.share.ServerPayload;
 import com.n8cats.share.Tick;
 import com.n8cats.share.redundant.ServerSayS;
 import com.riseofcat.lib.XY;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class Model {
 private final PingClient<ServerPayload, ClientPayload> client;
 private Logic.Player.Id playerId;
 private float clientTick;//Плавно меняется, подстраиваясь под сервер
 private float serverTick;//Задаётся моментально с сервера
-//todo bad not concurrent hash maps and array lists. Look exception in todo.
-private final DefaultValueMap<Tick, List<Logic.PlayerAction>> actions = new DefaultValueMap<>(new HashMap<Tick, List<Logic.PlayerAction>>(), new DefaultValueMap.ICreateNew<List<Logic.PlayerAction>>() {
+private final DefaultValueMap<Tick, List<Logic.PlayerAction>> actions = new DefaultValueMap<>(new ConcurrentHashMap<Tick, List<Logic.PlayerAction>>(), new DefaultValueMap.ICreateNew<List<Logic.PlayerAction>>() {
 	public List<Logic.PlayerAction> createNew() {
-		return new ArrayList<>();
+		return new CopyOnWriteArrayList<>();
 	}
 });
-private final DefaultValueMap<Tick, List<Action>> myActions = new DefaultValueMap<>(new HashMap<Tick, List<Action>>(), new DefaultValueMap.ICreateNew<List<Action>>() {
+private final DefaultValueMap<Tick, List<Action>> myActions = new DefaultValueMap<>(new ConcurrentHashMap<Tick, List<Action>>(), new DefaultValueMap.ICreateNew<List<Action>>() {
 	public List<Action> createNew() {
-		return new ArrayList<>();
+		return new CopyOnWriteArrayList<>();
 	}
 });
 private Logic.State state;
 private int stateTick;
 private int stableTick;
 private int previousActionId = 0;
-public static final int DEFAULT_LATENCY_MS = 50;
-public static final boolean LOCAL = LibAllGwt.FALSE();
+public static final boolean LOCAL = LibAllGwt.TRUE();
 public Model() {
 	client = LOCAL ? new PingClient("localhost", 5000, "socket", ServerSayS.class) : new PingClient("n8cats3.herokuapp.com", 80, "socket", ServerSayS.class);
 	client.connect(new Signal.Listener<ServerPayload>() {
@@ -87,7 +87,7 @@ public boolean ready() {
 	return playerId != null;
 }
 public float getLatencySeconds() {
-	return (client.latency == null ? DEFAULT_LATENCY_MS : client.latency) / 1000f;
+	return (client.latency == null ? Params.DEFAULT_LATENCY_MS : client.latency) / 1000f;
 }
 public void touch(XY pos) {
 	if(!ready()) return;
@@ -124,7 +124,7 @@ private Logic.State getState(int tick) {
 			return iterator != null && iterator.hasNext();
 		}
 		public Logic.PlayerAction next() {
-			return new Logic.PlayerAction(playerId, iterator.next().action);//todo new???
+			return new Logic.PlayerAction(playerId, iterator.next().action);
 		}
 		public void remove() {
 			throw new RuntimeException("not supported");

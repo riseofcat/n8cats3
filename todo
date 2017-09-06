@@ -1,7 +1,6 @@
 гладкий fps прорисовка координат между тиками
 
-Another file, system.properties, determines the version of Java to use. (Heroku supports many different versions). The contents of this file, which is optional, are quite straightforward:
-
+Heroku supports many different versions of Java, system.properties(optional), determines the version to use.
 
 Exception in thread "LWJGL Application" java.util.ConcurrentModificationException
 	at java.util.ArrayList$Itr.checkForComodification(ArrayList.java:901)
@@ -14,3 +13,4 @@ Exception in thread "LWJGL Application" java.util.ConcurrentModificationExceptio
 	at com.riseofcat.Core.render(Core.java:62)
 	at com.badlogic.gdx.backends.lwjgl.LwjglApplication.mainLoop(LwjglApplication.java:225)
 	at com.badlogic.gdx.backends.lwjgl.LwjglApplication$1.run(LwjglApplication.java:126)
+
