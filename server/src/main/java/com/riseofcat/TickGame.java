@@ -8,6 +8,7 @@ import com.n8cats.share.Tick;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -19,7 +20,7 @@ public static final int REMOVE_TICKS = 20;//bigger removed
 private int previousActionsVersion = 0;
 private int tick = 0;
 private Logic.State state = new Logic.State();
-private DefaultValueMap<Tick, ArrayList<Action>> actions = new DefaultValueMap<>(new ConcurrentHashMap<>(), ArrayList::new);
+private DefaultValueMap<Tick, List<Action>> actions = new DefaultValueMap<>(new ConcurrentHashMap<>(), ArrayList::new);
 private Map<Logic.Player.Id, Integer> mapPlayerVersion = new ConcurrentHashMap<>();
 public TickGame(ConcreteRoomsServer.Room room) {
 	room.onPlayerAdded.add(player -> {
@@ -33,7 +34,7 @@ public TickGame(ConcreteRoomsServer.Room room) {
 			payload.welcome = new ServerPayload.Welcome();
 			payload.welcome.id = player.getId();
 			payload.actions = new ArrayList<>();
-			for(Map.Entry<Tick, ArrayList<Action>> entry : actions.map.entrySet()) {
+			for(Map.Entry<Tick, List<Action>> entry : actions.map.entrySet()) {
 				ArrayList<Logic.PlayerAction> temp = new ArrayList<>();
 				for(Action a : entry.getValue()) temp.add(a.pa);
 				payload.actions.add(new ServerPayload.TickActions(entry.getKey().tick, temp));
@@ -77,7 +78,7 @@ public TickGame(ConcreteRoomsServer.Room room) {
 					ServerPayload payload2 = new ServerPayload();
 					payload2.tick = tick;
 					payload2.actions = new ArrayList<>();
-					for(Map.Entry<Tick, ArrayList<Action>> entry : actions.map.entrySet()) {
+					for(Map.Entry<Tick, List<Action>> entry : actions.map.entrySet()) {
 						ArrayList<Logic.PlayerAction> temp = new ArrayList<>();
 						for(Action a : entry.getValue()) {
 							if(a.actionVersion > mapPlayerVersion.get(message.player.getId())) {
@@ -100,7 +101,7 @@ public TickGame(ConcreteRoomsServer.Room room) {
 		public void run() {
 			class Adapter implements Iterator<Logic.PlayerAction> {
 				private Iterator<Action> iterator;
-				public Adapter(ArrayList<Action> arr) {
+				public Adapter(List<Action> arr) {
 					if(arr != null) {
 						iterator = arr.iterator();
 					}
