@@ -112,7 +112,7 @@ public Logic.State getDisplayState() {
 	return getState((int) clientTick);//todo плавно
 }
 private Logic.State getState(int tick) {
-	if(tick == stateTick) return LibAllGwt.copy(state);
+	if(tick == stateTick) return UtilsCore.copy(state);
 	Logic.State result = getState(tick - 1);
 	List<Logic.PlayerAction> other = actions.map.get(new Tick(tick - 1));
 	if(other != null) result.act(other.iterator());
