@@ -1,6 +1,10 @@
 package com.n8cats.lib_gwt;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 public class LibAllGwt {
 
@@ -195,6 +199,15 @@ public static <T, R> R checkNull(T value, IDo<T,R> doIfNotNull, IDoNow<R> doIfNu
 
 public interface IDo<T, R> {
 	R doIfNotNull(T v);
+}
+public static <T extends Cloneable<T>> T copy(T value) {
+	return clone(value);
+}
+public static <T extends Cloneable<T>> T clone(T value) {
+	return value.clone();
+}
+public interface Cloneable<T> extends java.lang.Cloneable {
+	public T clone();
 }
 
 }

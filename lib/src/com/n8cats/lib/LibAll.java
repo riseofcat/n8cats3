@@ -435,5 +435,57 @@ public static String readBuffer(BufferedReader reader) {
 	}
 	return null;
 }
+public static <T extends Serializable> T copy(T value) {
+	return copyByte(value);
+}
+public static <T extends Serializable> T copyByte(T src) {
+	ByteArrayOutputStream outByteStream = null;
+	ObjectOutputStream outStream = null;
+	ObjectInputStream inStream = null;
+	ByteArrayInputStream inByteStream = null;
+	try{
+		outByteStream = new ByteArrayOutputStream();
+		outStream = new ObjectOutputStream(outByteStream);
+		outStream.writeObject(src);
+		outStream.flush();//todo redundant?
+		inByteStream = new ByteArrayInputStream(outByteStream.toByteArray());
+		inStream = new ObjectInputStream(inByteStream);
+		Object result = inStream.readObject();
+		return (T) result;
+	} catch(IOException | ClassNotFoundException e) {
+		e.printStackTrace();//todo
+	} finally {
+		if(outByteStream != null) {
+			try {
+				outByteStream.close();//todo redundant?
+			} catch(IOException e) {
+				e.printStackTrace();
+			}
+		}
+		if(outStream != null) {
+			try {
+				outStream.close();
+			} catch(IOException e) {
+				e.printStackTrace();
+			}
+		}
+		if(inByteStream != null) {
+			try {
+				inByteStream.close();//todo redundant?
+			} catch(IOException e) {
+				e.printStackTrace();
+			}
+		}
+		if(inStream != null) {
+			try {
+				inStream.close();
+			} catch(IOException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+	return null;
+}
+
 
 }

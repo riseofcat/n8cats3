@@ -11,24 +11,23 @@ import com.n8cats.share.redundant.ServerSayS;
 import com.riseofcat.lib.XY;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 public class Model {
 private final PingClient<ServerPayload, ClientPayload> client;
 private Logic.Player.Id playerId;
 private float clientTick;//Плавно меняется, подстраиваясь под сервер
 private float serverTick;//Задаётся моментально с сервера
-private final DefaultValueMap<Tick, List<Logic.PlayerAction>> actions = new DefaultValueMap<>(new ConcurrentHashMap<Tick, List<Logic.PlayerAction>>(), new DefaultValueMap.ICreateNew<List<Logic.PlayerAction>>() {
+private final DefaultValueMap<Tick, List<Logic.PlayerAction>> actions = new DefaultValueMap<>(new HashMap<Tick, List<Logic.PlayerAction>>(), new DefaultValueMap.ICreateNew<List<Logic.PlayerAction>>() {
 	public List<Logic.PlayerAction> createNew() {
-		return new CopyOnWriteArrayList<>();
+		return new ArrayList<>();
 	}
 });
-private final DefaultValueMap<Tick, List<Action>> myActions = new DefaultValueMap<>(new ConcurrentHashMap<Tick, List<Action>>(), new DefaultValueMap.ICreateNew<List<Action>>() {
+private final DefaultValueMap<Tick, List<Action>> myActions = new DefaultValueMap<>(new HashMap<Tick, List<Action>>(), new DefaultValueMap.ICreateNew<List<Action>>() {
 	public List<Action> createNew() {
-		return new CopyOnWriteArrayList<>();
+		return new ArrayList<>();
 	}
 });
 private Logic.State state;
@@ -113,7 +112,7 @@ public Logic.State getDisplayState() {
 	return getState((int) clientTick);//todo плавно
 }
 private Logic.State getState(int tick) {
-	if(tick == stateTick) return state.copy();
+	if(tick == stateTick) return LibAllGwt.copy(state);
 	Logic.State result = getState(tick - 1);
 	List<Logic.PlayerAction> other = actions.map.get(new Tick(tick - 1));
 	if(other != null) result.act(other.iterator());

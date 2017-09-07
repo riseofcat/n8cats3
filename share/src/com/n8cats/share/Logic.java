@@ -1,5 +1,8 @@
 package com.n8cats.share;
 
+import com.n8cats.lib_gwt.LibAllGwt;
+
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
 
@@ -10,7 +13,7 @@ public static float width = 1000;
 public static float height = 1000;
 abstract public static class Player {
 	abstract public Id getId();
-	public static class Id {
+	public static class Id implements Serializable {
 		@SuppressWarnings("unused")
 		public Id() {
 		}
@@ -29,20 +32,19 @@ abstract public static class Player {
 		}
 	}
 }
-public static class Car {
+public static class Car implements LibAllGwt.Cloneable<Car>{
 	public Player.Id playerId;
 	public float x = 0;
 	public float y = 0;
 	public float speedX = 0;
 	public float speedY = 0;
-	public Car copy() {
-		Car result = new Car();
-		result.playerId = this.playerId;
-		result.x = this.x;
-		result.y = this.y;
-		result.speedX = this.speedX;
-		result.speedY = this.speedY;
-		return result;
+	public Car clone() {
+		try {
+			return (Car) super.clone();
+		} catch(CloneNotSupportedException e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 }
 public static class Action {
@@ -67,16 +69,8 @@ public static class PlayerAction {
 		this.action = action;
 	}
 }
-public static class State {
+public static class State implements Serializable, LibAllGwt.Cloneable<State>{
 	public ArrayList<Car> cars = new ArrayList<>();
-	public State copy() {//todo simplify maybe with json //todo maybe clone
-		State result = new State();
-		result.cars = new ArrayList<>();
-		for(Car c : cars) {
-			result.cars.add(c.copy());
-		}
-		return result;
-	}
 	public State act(Iterator<? extends PlayerAction> iterator) {
 		class Cache {
 			public Car getCar(Logic.Player.Id id) {
@@ -98,6 +92,14 @@ public static class State {
 			car.speedY = (p.action.touchY - car.y) / secondsToMove;
 		}
 		return this;
+	}
+	public State clone() {
+		State result = new State();
+		result.cars = new ArrayList<>();
+		for(Car car : cars) {
+			result.cars.add(LibAllGwt.clone(car));
+		}
+		return result;
 	}
 	public State tick() {
 		for(Car car : cars) {
