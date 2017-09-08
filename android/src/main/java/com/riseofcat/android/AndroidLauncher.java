@@ -5,7 +5,11 @@ import android.os.Bundle;
 import com.badlogic.gdx.backends.android.AndroidApplication;
 import com.badlogic.gdx.backends.android.AndroidApplicationConfiguration;
 import com.github.czyzby.websocket.CommonWebSockets;
+import com.riseofcat.App;
 import com.riseofcat.Core;
+
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /** Launches the Android application. */
 public class AndroidLauncher extends AndroidApplication {
@@ -15,6 +19,10 @@ public class AndroidLauncher extends AndroidApplication {
         // Initiating web sockets module:
         CommonWebSockets.initiate();
         AndroidApplicationConfiguration configuration = new AndroidApplicationConfiguration();
-        initialize(new Core(), configuration);
+        initialize(new Core(new App.Context() {
+            public <T> List<T> createConcurrentList() {
+                return new CopyOnWriteArrayList<T>();
+            }
+        }), configuration);
     }
 }

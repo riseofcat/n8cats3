@@ -22,12 +22,12 @@ private float clientTick;//Плавно меняется, подстраивая
 private float serverTick;//Задаётся моментально с сервера
 private final DefaultValueMap<Tick, List<Logic.PlayerAction>> actions = new DefaultValueMap<>(new HashMap<Tick, List<Logic.PlayerAction>>(), new DefaultValueMap.ICreateNew<List<Logic.PlayerAction>>() {
 	public List<Logic.PlayerAction> createNew() {
-		return new ArrayList<>();
+		return App.context.createConcurrentList();
 	}
 });
 private final DefaultValueMap<Tick, List<Action>> myActions = new DefaultValueMap<>(new HashMap<Tick, List<Action>>(), new DefaultValueMap.ICreateNew<List<Action>>() {
 	public List<Action> createNew() {
-		return new ArrayList<>();
+		return App.context.createConcurrentList();
 	}
 });
 private Logic.State state;

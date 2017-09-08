@@ -4,7 +4,11 @@ import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
 import com.github.czyzby.websocket.CommonWebSockets;
 import com.n8cats.share.Params;
+import com.riseofcat.App;
 import com.riseofcat.Core;
+
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * Launches the desktop (LWJGL) application.
@@ -17,7 +21,11 @@ public static void main(final String[] args) {
 }
 
 private static LwjglApplication createApplication() {
-	return new LwjglApplication(new Core(), getDefaultConfiguration());
+	return new LwjglApplication(new Core(new App.Context() {
+		public <T> List<T> createConcurrentList() {
+			return new CopyOnWriteArrayList<>();
+		}
+	}), getDefaultConfiguration());
 }
 
 private static LwjglApplicationConfiguration getDefaultConfiguration() {

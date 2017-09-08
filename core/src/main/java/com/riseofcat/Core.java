@@ -27,7 +27,12 @@ private Viewport viewport2;
 private Stage stage;
 private static final Color[] colors = {Color.BLUE, Color.GOLD, Color.PINK, Color.RED, Color.GREEN, Color.VIOLET, Color.LIME, Color.TEAL, Color.YELLOW};
 
+public Core(App.Context context) {
+	App.context = context;
+}
+
 public void create() {
+	App.create();
 	batch = new SpriteBatch();
 	viewport1 = new ExtendViewport(Logic.width, Logic.height, new OrthographicCamera());
 	viewport2 = new ExtendViewport(500, 500, new OrthographicCamera());

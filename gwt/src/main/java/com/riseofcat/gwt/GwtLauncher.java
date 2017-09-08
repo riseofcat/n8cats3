@@ -5,7 +5,11 @@ import com.badlogic.gdx.backends.gwt.GwtApplication;
 import com.badlogic.gdx.backends.gwt.GwtApplicationConfiguration;
 import com.github.czyzby.websocket.GwtWebSockets;
 import com.n8cats.share.Params;
+import com.riseofcat.App;
 import com.riseofcat.Core;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Launches the GWT application.
@@ -22,6 +26,10 @@ public GwtApplicationConfiguration getConfig() {
 public ApplicationListener createApplicationListener() {
 	// Initiating GWT web sockets module:
 	GwtWebSockets.initiate();
-	return new Core();
+	return new Core(new App.Context() {
+		public <T> List<T> createConcurrentList() {
+			return new ArrayList<>();
+		}
+	});
 }
 }

@@ -1,8 +1,5 @@
 package com.n8cats.share;
 
-import com.n8cats.lib_gwt.LibAllGwt;
-
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
 
@@ -13,7 +10,7 @@ public static float width = 1000;
 public static float height = 1000;
 abstract public static class Player {
 	abstract public Id getId();
-	public static class Id implements Serializable {
+	public static class Id /*implements Serializable*/ {
 		@SuppressWarnings("unused")
 		public Id() {
 		}
@@ -32,20 +29,20 @@ abstract public static class Player {
 		}
 	}
 }
-public static class Car implements LibAllGwt.Cloneable<Car>{
+public static class Car{
 	public Player.Id playerId;
 	public float x = 0;
 	public float y = 0;
 	public float speedX = 0;
 	public float speedY = 0;
-	public Car clone() {
+	/*public Car clone() {
 		try {
 			return (Car) super.clone();
 		} catch(CloneNotSupportedException e) {
 			e.printStackTrace();
 		}
 		return null;
-	}
+	}*/
 }
 public static class Action {
 	@SuppressWarnings("unused")
@@ -69,7 +66,7 @@ public static class PlayerAction {
 		this.action = action;
 	}
 }
-public static class State implements Serializable, LibAllGwt.Cloneable<State>{
+public static class State /*implements Serializable, LibAllGwt.Cloneable<State>*/{
 	public ArrayList<Car> cars = new ArrayList<>();
 	public State act(Iterator<? extends PlayerAction> iterator) {
 		class Cache {
@@ -93,14 +90,14 @@ public static class State implements Serializable, LibAllGwt.Cloneable<State>{
 		}
 		return this;
 	}
-	public State clone() {
+	/*public State clone() {
 		State result = new State();
 		result.cars = new ArrayList<>();
 		for(Car car : cars) {
 			result.cars.add(LibAllGwt.clone(car));
 		}
 		return result;
-	}
+	}*/
 	public State tick() {
 		for(Car car : cars) {
 			car.x += car.speedX * UPDATE_S;
