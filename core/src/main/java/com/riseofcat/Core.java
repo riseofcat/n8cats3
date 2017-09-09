@@ -71,7 +71,6 @@ public void render() {
 	shapeRenderer.end();
 	viewport2.apply();
 	batch.begin();
-	Resources.Font.loadedFont().draw(batch, "serverTickDelta: " + model.serverTickDelta, 0, 300);
 	Resources.Font.loadedFont().draw(batch, "font", 0, 200);
 	batch.draw(Resources.Textures.green, Logic.width / 2, Logic.height / 2);
 	batch.end();

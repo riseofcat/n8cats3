@@ -32,7 +32,6 @@ public TickGame(ConcreteRoomsServer.Room room) {
 			car.y = (float) (Math.random() * Logic.height);
 			state.cars.add(car);
 			ServerPayload payload = createStablePayload();
-			payload.serverTickDelta = getServerTickDelta();
 			payload.welcome = new ServerPayload.Welcome();
 			payload.welcome.id = player.getId();
 			payload.actions = new ArrayList<>();
@@ -56,7 +55,6 @@ public TickGame(ConcreteRoomsServer.Room room) {
 			if(message.payload.actions != null) {
 				for(ClientPayload.ClientAction a : message.payload.actions) {
 					ServerPayload payload = new ServerPayload();
-					payload.serverTickDelta = getServerTickDelta();
 					payload.tick = tick;
 					int delay = 0;
 					if(a.tick < getStableTick().tick) {
@@ -79,7 +77,6 @@ public TickGame(ConcreteRoomsServer.Room room) {
 						continue;
 					}
 					ServerPayload payload2 = new ServerPayload();
-					payload2.serverTickDelta = getServerTickDelta();
 					payload2.tick = tick;
 					payload2.actions = new ArrayList<>();
 					for(Map.Entry<Tick, List<Action>> entry : actions.map.entrySet()) {
@@ -117,33 +114,29 @@ public TickGame(ConcreteRoomsServer.Room room) {
 					return iterator.next().pa;
 				}
 			}
-			synchronized(TickGame.this) {
-				tick++;
-				state.act(new Adapter(actions.map.get(getStableTick()))).tick();
-				TickGame.this.actions.map.remove(getStableTick());
-				if(tick % 100 == 0) { //Разослать state всем игрокам
-					for(ConcreteRoomsServer.Room.Player player : room.getPlayers()) {
-						player.session.send(createStablePayload());
+			while(System.currentTimeMillis() - startTime > tick * Logic.UPDATE_MS) {
+				synchronized(TickGame.this) {
+					tick++;
+					state.act(new Adapter(actions.map.get(getStableTick()))).tick();
+					TickGame.this.actions.map.remove(getStableTick());
+					if(tick % 100 == 0) { //Разослать state всем игрокам
+						for(ConcreteRoomsServer.Room.Player player : room.getPlayers()) {
+							player.session.send(createStablePayload());
+						}
 					}
 				}
 			}
 		}
-	}, 0, Logic.UPDATE_MS);
+	}, 0, Logic.UPDATE_MS/2);
 }
-private int getServerTickDelta() {
-	return (int) (System.currentTimeMillis() - startTime - Logic.UPDATE_MS * tick);
-}
-
 ServerPayload createStablePayload() {
 	ServerPayload result = new ServerPayload();
-	result.serverTickDelta = getServerTickDelta();
 	result.tick = tick;
 	result.stable = new ServerPayload.Stable();
 	result.stable.tick = getStableTick().tick;
 	result.stable.state = state;
 	return result;
 }
-
 public Tick getStableTick() {
 	int result = tick - DELAY_TICKS + 1;
 	if(result < 0) {
@@ -151,21 +144,12 @@ public Tick getStableTick() {
 	}
 	return new Tick(result);
 }
-
 public int getRemoveBeforeTick() {
 	return tick - REMOVE_TICKS + 1;
 }
-
 private static class ConcreteRoomsServer extends RoomsDecorator<ClientPayload, ServerPayload> {
 
 }
-
-private void todo() {
-	ConcreteRoomsServer.Room.Player player = null;
-	long startTime = player.session.get(UsageMonitorDecorator.Extra.class).getStartTime();
-	Integer latency = player.session.get(PingDecorator.Extra.class).getLatency();
-}
-
 private class Action {
 	public int actionVersion;
 	public Logic.PlayerAction pa;
@@ -173,5 +157,10 @@ private class Action {
 		this.actionVersion = actionVersion;
 		this.pa = pa;
 	}
+}
+private void todo() {
+	ConcreteRoomsServer.Room.Player player = null;
+	long startTime = player.session.get(UsageMonitorDecorator.Extra.class).getStartTime();
+	Integer latency = player.session.get(PingDecorator.Extra.class).getLatency();
 }
 }
