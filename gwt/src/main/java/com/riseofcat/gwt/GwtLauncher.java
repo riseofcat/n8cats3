@@ -4,6 +4,7 @@ import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.backends.gwt.GwtApplication;
 import com.badlogic.gdx.backends.gwt.GwtApplicationConfiguration;
 import com.github.czyzby.websocket.GwtWebSockets;
+import com.google.gwt.core.client.Duration;
 import com.n8cats.share.Params;
 import com.riseofcat.App;
 import com.riseofcat.Core;
@@ -25,6 +26,9 @@ public GwtApplicationConfiguration getConfig() {
 @Override
 public ApplicationListener createApplicationListener() {
 	// Initiating GWT web sockets module:
+	if(false) {
+		Duration.currentTimeMillis();
+	}
 	GwtWebSockets.initiate();
 	return new Core(new App.Context() {
 		public <T> List<T> createConcurrentList() {

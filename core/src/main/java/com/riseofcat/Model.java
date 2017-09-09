@@ -35,10 +35,15 @@ private int stateTick;
 private int stableTick;
 private int previousActionId = 0;
 public static final boolean LOCAL = LibAllGwt.TRUE();
+private Float previousTime;
+public int serverTickDelta;
+
 public Model() {
 	client = LOCAL ? new PingClient("localhost", 5000, "socket", ServerSayS.class) : new PingClient("n8cats3.herokuapp.com", 80, "socket", ServerSayS.class);
 	client.connect(new Signal.Listener<ServerPayload>() {
 		public void onSignal(ServerPayload s) {
+			if(previousTime == null) previousTime = App.timeSinceCreate();
+			serverTickDelta = s.serverTickDelta;
 			if(s.welcome != null) {
 				playerId = s.welcome.id;
 			}
@@ -103,9 +108,16 @@ public void touch(XY pos) {
 	payload.actions.add(a);
 	client.say(payload);
 }
-public void update(float deltaTime) {
-	serverTick += deltaTime / Logic.UPDATE_S;
-	clientTick += deltaTime / Logic.UPDATE_S;
+
+public void update(float graphicDelta) {
+	if(previousTime == null) {
+		return;
+	}
+	float time = App.timeSinceCreate();
+	float delta = time - previousTime;
+	serverTick += delta / Logic.UPDATE_S;
+	clientTick += delta / Logic.UPDATE_S;
+	previousTime = time;
 }
 public Logic.State getDisplayState() {
 	if(!ready()) return new Logic.State();

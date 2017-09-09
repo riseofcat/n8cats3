@@ -10,7 +10,6 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
@@ -72,6 +71,7 @@ public void render() {
 	shapeRenderer.end();
 	viewport2.apply();
 	batch.begin();
+	Resources.Font.loadedFont().draw(batch, "serverTickDelta: " + model.serverTickDelta, 0, 300);
 	Resources.Font.loadedFont().draw(batch, "font", 0, 200);
 	batch.draw(Resources.Textures.green, Logic.width / 2, Logic.height / 2);
 	batch.end();
@@ -81,5 +81,8 @@ public void dispose() {
 	batch.dispose();
 	shapeRenderer.dispose();
 	Resources.dispose();
+}
+private void todo() {
+
 }
 }

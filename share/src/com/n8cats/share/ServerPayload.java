@@ -13,6 +13,7 @@ public int tick;
 @Nullable public HashSet<Integer> canceled;
 @Nullable public ArrayList<AppliedActions> apply;
 @Nullable public ServerError error;
+public int serverTickDelta;
 
 public static class TickActions {
 	public int tick;

@@ -17,6 +17,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class TickGame {
 public static final int DELAY_TICKS = 10;//количество тиков для хранения действий //bigger delayed
 public static final int REMOVE_TICKS = 20;//bigger removed
+private final long startTime = System.currentTimeMillis();
 private int previousActionsVersion = 0;
 private int tick = 0;
 private Logic.State state = new Logic.State();
@@ -31,6 +32,7 @@ public TickGame(ConcreteRoomsServer.Room room) {
 			car.y = (float) (Math.random() * Logic.height);
 			state.cars.add(car);
 			ServerPayload payload = createStablePayload();
+			payload.serverTickDelta = getServerTickDelta();
 			payload.welcome = new ServerPayload.Welcome();
 			payload.welcome.id = player.getId();
 			payload.actions = new ArrayList<>();
@@ -54,6 +56,7 @@ public TickGame(ConcreteRoomsServer.Room room) {
 			if(message.payload.actions != null) {
 				for(ClientPayload.ClientAction a : message.payload.actions) {
 					ServerPayload payload = new ServerPayload();
+					payload.serverTickDelta = getServerTickDelta();
 					payload.tick = tick;
 					int delay = 0;
 					if(a.tick < getStableTick().tick) {
@@ -76,6 +79,7 @@ public TickGame(ConcreteRoomsServer.Room room) {
 						continue;
 					}
 					ServerPayload payload2 = new ServerPayload();
+					payload2.serverTickDelta = getServerTickDelta();
 					payload2.tick = tick;
 					payload2.actions = new ArrayList<>();
 					for(Map.Entry<Tick, List<Action>> entry : actions.map.entrySet()) {
@@ -126,9 +130,13 @@ public TickGame(ConcreteRoomsServer.Room room) {
 		}
 	}, 0, Logic.UPDATE_MS);
 }
+private int getServerTickDelta() {
+	return (int) (System.currentTimeMillis() - startTime - Logic.UPDATE_MS * tick);
+}
 
 ServerPayload createStablePayload() {
 	ServerPayload result = new ServerPayload();
+	result.serverTickDelta = getServerTickDelta();
 	result.tick = tick;
 	result.stable = new ServerPayload.Stable();
 	result.stable.tick = getStableTick().tick;
