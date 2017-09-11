@@ -82,7 +82,7 @@ public TickGame(ConcreteRoomsServer.Room room) {
 					for(Map.Entry<Tick, List<Action>> entry : actions.map.entrySet()) {
 						ArrayList<Logic.PlayerAction> temp = new ArrayList<>();
 						for(Action a : entry.getValue()) {
-							if(a.actionVersion > mapPlayerVersion.get(message.player.getId())) {
+							if(a.actionVersion > mapPlayerVersion.get(p.getId())) {
 								temp.add(a.pa);
 							}
 						}
@@ -90,7 +90,7 @@ public TickGame(ConcreteRoomsServer.Room room) {
 							payload2.actions.add(new ServerPayload.TickActions(entry.getKey().tick, temp));
 						}
 					}
-					mapPlayerVersion.put(message.player.getId(), previousActionsVersion);
+					mapPlayerVersion.put(p.getId(), previousActionsVersion);
 					p.session.send(payload2);
 				}
 			}
