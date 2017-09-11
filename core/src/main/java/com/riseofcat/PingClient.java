@@ -80,7 +80,12 @@ private void say(ClientSay<C> say) {
 }
 
 private void sayNow(ClientSay<C> say) {
-	socket.send(json.toJson(say));
+	try{
+		socket.send(json.toJson(say));
+	} catch(Throwable t) {
+		int a = 1+1;
+	}
+	int b = 1+1;
 }
 
 public WebSocketState getState() {

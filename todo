@@ -2,19 +2,7 @@
 
 Heroku supports many different versions of Java, system.properties(optional), determines the version to use.
 
-Exception in thread "LWJGL Application" java.util.ConcurrentModificationException
-	at java.util.ArrayList$Itr.checkForComodification(ArrayList.java:901)
-	at java.util.ArrayList$Itr.next(ArrayList.java:851)
-	at com.riseofcat.Model$1Adapter.next(Model.java:127)
-	at com.riseofcat.Model$1Adapter.next(Model.java:116)
-	at com.n8cats.share.Logic$State.act(Logic.java:93)
-	at com.riseofcat.Model.getState(Model.java:140)
-	at com.riseofcat.Model.getDisplayState(Model.java:113)
-	at com.riseofcat.Core.render(Core.java:62)
-	at com.badlogic.gdx.backends.lwjgl.LwjglApplication.mainLoop(LwjglApplication.java:225)
-	at com.badlogic.gdx.backends.lwjgl.LwjglApplication$1.run(LwjglApplication.java:126)
-
-system.time
+float server.tick
 
 Развлекательные сайты (Пикабу, ЯП, 9gag, d3 и иже с ними)
 Гиковские ресурсы (тут Хабр, конечно, вне конкуренции. Но нужен подходящий материал)

@@ -25,6 +25,7 @@ private Viewport viewport1;
 private Viewport viewport2;
 private Stage stage;
 private static final Color[] colors = {Color.BLUE, Color.GOLD, Color.PINK, Color.RED, Color.GREEN, Color.VIOLET, Color.LIME, Color.TEAL, Color.YELLOW};
+private static final boolean MULTIPLE_VIEWPORTS = false;
 
 public Core(App.Context context) {
 	App.context = context;
@@ -49,10 +50,15 @@ public void create() {
 	}));
 }
 public void resize(int width, int height) {
-	viewport1.update(width/2, height, true);
-	viewport1.setScreenX(width/2);
-	viewport2.update(width/2, height, true);
-	batch.setProjectionMatrix(viewport1.getCamera().combined);
+	if(MULTIPLE_VIEWPORTS) {
+		viewport1.update(width/2, height, true);
+		viewport1.setScreenX(width/2);
+		viewport2.update(width/2, height, true);
+		batch.setProjectionMatrix(viewport2.getCamera().combined);
+	} else {
+		viewport1.update(width, height, true);
+		batch.setProjectionMatrix(viewport1.getCamera().combined);
+	}
 	shapeRenderer.setProjectionMatrix(viewport1.getCamera().combined);
 }
 public void render() {
@@ -63,15 +69,20 @@ public void render() {
 	stage.draw();
 	viewport1.apply();
 	shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-	for(Logic.Car car : model.getDisplayState().cars) {
-		Color color = colors[car.playerId.id % (colors.length - 1)];
-		shapeRenderer.setColor(color);
-		shapeRenderer.circle(car.x, car.y, 20);
+	Logic.State state = model.getDisplayState();
+	if(state != null) {
+		for(Logic.Car car : state.cars) {
+			Color color = colors[car.playerId.id % (colors.length - 1)];
+			shapeRenderer.setColor(color);
+			shapeRenderer.circle(car.x, car.y, 20);
+		}
 	}
 	shapeRenderer.end();
-	viewport2.apply();
+	if(MULTIPLE_VIEWPORTS) {
+		viewport2.apply();
+	}
 	batch.begin();
-	Resources.Font.loadedFont().draw(batch, "font", 0, 200);
+	Resources.Font.loadedFont().draw(batch, model.getPlayerName(), 0, 200);
 	batch.draw(Resources.Textures.green, Logic.width / 2, Logic.height / 2);
 	batch.end();
 }
@@ -80,8 +91,5 @@ public void dispose() {
 	batch.dispose();
 	shapeRenderer.dispose();
 	Resources.dispose();
-}
-private void todo() {
-
 }
 }

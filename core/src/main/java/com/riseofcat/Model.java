@@ -10,6 +10,8 @@ import com.n8cats.share.Tick;
 import com.n8cats.share.redundant.ServerSayS;
 import com.riseofcat.lib.XY;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -30,60 +32,66 @@ private final DefaultValueMap<Tick, List<Action>> myActions = new DefaultValueMa
 		return App.context.createConcurrentList();
 	}
 });
-private Logic.State state;
-private int stateTick;
-private int stableTick;
+private StateWrapper old;
 private int previousActionId = 0;
-public static final boolean LOCAL = LibAllGwt.FALSE();
+public static final boolean LOCAL = LibAllGwt.TRUE();
 private Float previousTime;
-
 public Model() {
 	client = LOCAL ? new PingClient("localhost", 5000, "socket", ServerSayS.class) : new PingClient("n8cats3.herokuapp.com", 80, "socket", ServerSayS.class);
 	client.connect(new Signal.Listener<ServerPayload>() {
 		public void onSignal(ServerPayload s) {
-			if(previousTime == null) previousTime = App.timeSinceCreate();
-			if(s.welcome != null) {
-				playerId = s.welcome.id;
-			}
-			if(s.stable != null) {
-				stableTick = s.stable.tick;
-				if(s.stable.state != null) {
-					state = s.stable.state;
-					stateTick = s.stable.tick;
+			synchronized(this) {
+				if(previousTime == null) previousTime = App.timeSinceCreate();
+				if(s.welcome != null) {
+					playerId = s.welcome.id;
 				}
-			}
-			if(s.actions != null && s.actions.size() > 0) {
-				for(ServerPayload.TickActions t : s.actions) {
-					actions.getExistsOrPutDefault(new Tick(t.tick)).addAll(t.list);
-				}
-			}
-			for(Tick t : myActions.map.keySet()) {
-				Iterator<Action> iterator = myActions.map.get(t).iterator();
-				whl:
-				while(iterator.hasNext()) {
-					Action next = iterator.next();
-					if(s.canceled != null) {
-						if(s.canceled.contains(next.aid)) {
-							iterator.remove();
-							continue;
-						}
+				if(s.stable != null) {
+					if(s.stable.state != null) {
+						old = new StateWrapper();
+						old.state = s.stable.state;
+						old.tick = s.stable.tick;
+					} else {
+						old.tick(s.stable.tick);
 					}
-					if(s.apply != null) {
-						for(ServerPayload.AppliedActions apply : s.apply) {
-							if(apply.aid == next.aid) {
-								actions.getExistsOrPutDefault(t.add(apply.delay)).add(new Logic.PlayerAction(playerId, next.action));
+				}
+				if(s.actions != null && s.actions.size() > 0) {
+					for(ServerPayload.TickActions t : s.actions) {
+						actions.getExistsOrPutDefault(new Tick(t.tick)).addAll(t.list);
+					}
+				}
+				for(Tick t : myActions.map.keySet()) {
+					Iterator<Action> iterator = myActions.map.get(t).iterator();
+					whl:
+					while(iterator.hasNext()) {
+						Action next = iterator.next();
+						if(s.canceled != null) {
+							if(s.canceled.contains(next.aid)) {
 								iterator.remove();
-								continue whl;
+								continue;
+							}
+						}
+						if(s.apply != null) {
+							for(ServerPayload.AppliedActions apply : s.apply) {
+								if(apply.aid == next.aid) {
+									actions.getExistsOrPutDefault(t.add(apply.delay)).add(new Logic.PlayerAction(playerId, next.action));
+									iterator.remove();
+									continue whl;
+								}
 							}
 						}
 					}
 				}
+				serverTick = s.tick + getLatencySeconds() / Logic.UPDATE_S;
+				clientTick = serverTick;//todo плавно
 			}
-			serverTick = s.tick + getLatencySeconds() / Logic.UPDATE_S;
-			clientTick = serverTick;//todo плавно
-
 		}
 	});
+}
+public String getPlayerName(){
+	if(playerId == null) {
+		return "Unknown";
+	}
+	return "Player " + playerId.toString();
 }
 public boolean ready() {
 	return playerId != null;
@@ -117,18 +125,19 @@ public void update(float graphicDelta) {
 	clientTick += delta / Logic.UPDATE_S;
 	previousTime = time;
 }
-public Logic.State getDisplayState() {
-	if(!ready()) return new Logic.State();
-	return getState((int) clientTick);//todo плавно
+public @Nullable Logic.State getDisplayState() {
+	return getState((int) clientTick);
 }
-private Logic.State getState(int tick) {
-	if(tick == stateTick) return UtilsCore.copy(state);
-	Logic.State result = getState(tick - 1);
-	List<Logic.PlayerAction> other = actions.map.get(new Tick(tick - 1));
-	if(other != null) result.act(other.iterator());
-	List<Action> my = myActions.map.get(new Tick(tick - 1));
-	if(my != null) result.act(my.iterator());
-	return result.tick();
+private @Nullable Logic.State getState(int tick) {
+	StateWrapper temp;
+	synchronized(this) {
+		if(old == null) {
+			return null;
+		}
+		temp = old.copy();
+	}
+	temp.tick(tick);
+	return temp.state;
 }
 public void dispose() {
 	client.close();
@@ -140,5 +149,27 @@ private class Action extends Logic.PlayerAction {
 		this.action = action;
 		this.aid = aid;
 	}
+}
+
+private class StateWrapper {
+	public Logic.State state;
+	public int tick;
+	public StateWrapper copy() {
+		StateWrapper result = new StateWrapper();
+		result.state = UtilsCore.copy(state);
+		result.tick = tick;
+		return result;
+	}
+	public void tick(int targetTick) {
+		while(tick < targetTick) {
+			List<Logic.PlayerAction> other = actions.map.get(new Tick(tick));
+			if(other != null) state.act(other.iterator());
+			List<Action> my = myActions.map.get(new Tick(tick));
+			if(my != null) state.act(my.iterator());
+			state.tick();
+			tick++;
+		}
+	}
+
 }
 }
