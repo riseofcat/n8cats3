@@ -36,6 +36,7 @@ private StateWrapper old;
 private int previousActionId = 0;
 public static final boolean LOCAL = LibAllGwt.FALSE();
 private Float previousTime;
+public float deltaTick = 0;
 public Model() {
 	client = LOCAL ? new PingClient("localhost", 5000, "socket", ServerSayS.class) : new PingClient("n8cats3.herokuapp.com", 80, "socket", ServerSayS.class);
 	client.connect(new Signal.Listener<ServerPayload>() {
@@ -82,6 +83,7 @@ public Model() {
 					}
 				}
 				serverTick = s.tick + getLatencySeconds() / Logic.UPDATE_S;
+				deltaTick = serverTick - clientTick;
 				clientTick = serverTick;//todo плавно
 			}
 		}
