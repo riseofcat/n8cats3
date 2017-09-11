@@ -119,7 +119,7 @@ public TickGame(ConcreteRoomsServer.Room room) {
 					state.act(new Adapter(actions.map.get(getStableTick()))).tick();
 					TickGame.this.actions.map.remove(getStableTick());
 					tick++;
-					if(tick % 2000 == 0) { //Разослать state всем игрокам//todo %
+					if(tick % 10 == 0) { //Разослать state всем игрокам//todo %
 						for(ConcreteRoomsServer.Room.Player player : room.getPlayers()) {
 							player.session.send(createStablePayload());
 						}
