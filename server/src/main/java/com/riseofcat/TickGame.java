@@ -19,7 +19,7 @@ public static final int DELAY_TICKS = 5;//количество тиков для
 public static final int REMOVE_TICKS = 8;//bigger removed
 private final long startTime = System.currentTimeMillis();
 private int previousActionsVersion = 0;
-private int tick = 0;
+volatile private int tick = 0;//todo volatile redundant?
 private Logic.State state = new Logic.State();
 private DefaultValueMap<Tick, List<Action>> actions = new DefaultValueMap<>(new ConcurrentHashMap<>(), ArrayList::new);
 private Map<Logic.Player.Id, Integer> mapPlayerVersion = new ConcurrentHashMap<>();
@@ -116,9 +116,9 @@ public TickGame(ConcreteRoomsServer.Room room) {
 			}
 			while(System.currentTimeMillis() - startTime > tick * Logic.UPDATE_MS) {
 				synchronized(TickGame.this) {
-					tick++;
 					state.act(new Adapter(actions.map.get(getStableTick()))).tick();
 					TickGame.this.actions.map.remove(getStableTick());
+					tick++;
 					if(tick % 200 == 0) { //Разослать state всем игрокам//todo %
 						for(ConcreteRoomsServer.Room.Player player : room.getPlayers()) {
 							player.session.send(createStablePayload());
