@@ -15,8 +15,8 @@ import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class TickGame {
-public static final int DELAY_TICKS = 10;//количество тиков для хранения действий //bigger delayed
-public static final int REMOVE_TICKS = 20;//bigger removed
+public static final int DELAY_TICKS = 5;//количество тиков для хранения действий //bigger delayed
+public static final int REMOVE_TICKS = 8;//bigger removed
 private final long startTime = System.currentTimeMillis();
 private int previousActionsVersion = 0;
 private int tick = 0;
@@ -119,7 +119,7 @@ public TickGame(ConcreteRoomsServer.Room room) {
 					tick++;
 					state.act(new Adapter(actions.map.get(getStableTick()))).tick();
 					TickGame.this.actions.map.remove(getStableTick());
-					if(tick % 1000 == 0) { //Разослать state всем игрокам//todo %
+					if(tick % 200 == 0) { //Разослать state всем игрокам//todo %
 						for(ConcreteRoomsServer.Room.Player player : room.getPlayers()) {
 							player.session.send(createStablePayload());
 						}

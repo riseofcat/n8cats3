@@ -24,12 +24,12 @@ private float clientTick;//Плавно меняется, подстраивая
 private float serverTick;//Задаётся моментально с сервера
 private final DefaultValueMap<Tick, List<Logic.PlayerAction>> actions = new DefaultValueMap<>(new HashMap<Tick, List<Logic.PlayerAction>>(), new DefaultValueMap.ICreateNew<List<Logic.PlayerAction>>() {
 	public List<Logic.PlayerAction> createNew() {
-		return App.context.createConcurrentList();
+		return new ArrayList<>();//App.context.createConcurrentList();
 	}
 });
 private final DefaultValueMap<Tick, List<Action>> myActions = new DefaultValueMap<>(new HashMap<Tick, List<Action>>(), new DefaultValueMap.ICreateNew<List<Action>>() {
 	public List<Action> createNew() {
-		return App.context.createConcurrentList();
+		return new ArrayList<>();//App.context.createConcurrentList();
 	}
 });
 private StateWrapper old;
@@ -100,19 +100,21 @@ public float getLatencySeconds() {
 	return (client.latency == null ? Params.DEFAULT_LATENCY_MS : client.latency) / 1000f;
 }
 public void touch(XY pos) {
-	if(!ready()) return;
-	int w = (int) (getLatencySeconds() / Logic.UPDATE_S) + 1;//todo Учитывать среднюю задержку
-	ClientPayload.ClientAction a = new ClientPayload.ClientAction();
-	a.aid = ++previousActionId;
-	a.wait = w;
-	a.tick = (int) clientTick + w;
-	a.action = new Logic.Action(pos.x, pos.y);
-	myActions.getExistsOrPutDefault(new Tick((int) clientTick + w)).add(new Action(a.aid, a.action));
-	ClientPayload payload = new ClientPayload();
-	payload.tick = (int) clientTick;
-	payload.actions = new ArrayList<>();
-	payload.actions.add(a);
-	client.say(payload);
+	synchronized(this) {
+		if(!ready()) return;
+		int w = (int) (getLatencySeconds() / Logic.UPDATE_S) + 1;//todo Учитывать среднюю задержку
+		ClientPayload.ClientAction a = new ClientPayload.ClientAction();
+		a.aid = ++previousActionId;
+		a.wait = w;
+		a.tick = (int) clientTick + w;
+		a.action = new Logic.Action(pos.x, pos.y);
+		myActions.getExistsOrPutDefault(new Tick((int) clientTick + w)).add(new Action(a.aid, a.action));
+		ClientPayload payload = new ClientPayload();
+		payload.tick = (int) clientTick;
+		payload.actions = new ArrayList<>();
+		payload.actions.add(a);
+		client.say(payload);
+	}
 }
 
 public void update(float graphicDelta) {
@@ -127,6 +129,10 @@ public void update(float graphicDelta) {
 }
 public @Nullable Logic.State getDisplayState() {
 	return getState((int) clientTick);
+}
+public int getOldTick() {
+	if(old == null) return 0;
+	return old.tick;
 }
 private @Nullable Logic.State getState(int tick) {
 	StateWrapper temp;
