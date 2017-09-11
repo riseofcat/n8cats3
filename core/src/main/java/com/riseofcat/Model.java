@@ -34,7 +34,7 @@ private final DefaultValueMap<Tick, List<Action>> myActions = new DefaultValueMa
 });
 private StateWrapper old;
 private int previousActionId = 0;
-public static final boolean LOCAL = LibAllGwt.TRUE();
+public static final boolean LOCAL = LibAllGwt.FALSE();
 private Float previousTime;
 public Model() {
 	client = LOCAL ? new PingClient("localhost", 5000, "socket", ServerSayS.class) : new PingClient("n8cats3.herokuapp.com", 80, "socket", ServerSayS.class);
@@ -82,7 +82,6 @@ public Model() {
 					}
 				}
 				serverTick = s.tick + getLatencySeconds() / Logic.UPDATE_S;
-				clientTick = serverTick;//todo плавно
 			}
 		}
 	});
@@ -127,6 +126,7 @@ public void update(float graphicDelta) {
 	float delta = time - previousTime;
 	serverTick += delta / Logic.UPDATE_S;
 	clientTick += delta / Logic.UPDATE_S;
+	clientTick += (serverTick - clientTick) * LibAllGwt.Fun.arg0toInf(Math.abs((serverTick - clientTick)*delta), 240/60f);
 	previousTime = time;
 }
 public @Nullable Logic.State getDisplayState() {

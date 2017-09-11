@@ -80,12 +80,14 @@ private void say(ClientSay<C> say) {
 }
 
 private void sayNow(ClientSay<C> say) {
-	try{
-		socket.send(json.toJson(say));
-	} catch(Throwable t) {
-		int a = 1+1;
+	int attempt = 0;
+	while(attempt++ < 3) {//todo Костыль JSON сериализации
+		try{
+			socket.send(json.toJson(say));
+			return;
+		} catch(Throwable t) {}
 	}
-	int b = 1+1;
+	int a = 1+1;
 }
 
 public WebSocketState getState() {
