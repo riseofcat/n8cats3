@@ -2,6 +2,7 @@ package com.riseofcat;
 import com.n8cats.lib_gwt.DefaultValueMap;
 import com.n8cats.share.ClientPayload;
 import com.n8cats.share.Logic;
+import com.n8cats.share.Params;
 import com.n8cats.share.ServerPayload;
 import com.n8cats.share.Tick;
 
@@ -15,8 +16,8 @@ import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class TickGame {
-public static final int DELAY_TICKS = 5;//количество тиков для хранения действий //bigger delayed
-public static final int REMOVE_TICKS = 8;//bigger removed
+public static final int DELAY_TICKS = Params.DEFAULT_LATENCY_MS/Logic.UPDATE_MS * 3;//количество тиков для хранения действий //bigger delayed
+public static final int REMOVE_TICKS = DELAY_TICKS * 2;//bigger removed
 private final long startTime = System.currentTimeMillis();
 private int previousActionsVersion = 0;
 volatile private int tick = 0;//todo volatile redundant?

@@ -34,9 +34,8 @@ private final DefaultValueMap<Tick, List<Action>> myActions = new DefaultValueMa
 });
 private StateWrapper old;
 private int previousActionId = 0;
-public static final boolean LOCAL = LibAllGwt.FALSE();
+public static final boolean LOCAL = LibAllGwt.TRUE();
 private Float previousTime;
-public float deltaTick = 0;
 public Model() {
 	client = LOCAL ? new PingClient("localhost", 5000, "socket", ServerSayS.class) : new PingClient("n8cats3.herokuapp.com", 80, "socket", ServerSayS.class);
 	client.connect(new Signal.Listener<ServerPayload>() {
@@ -83,11 +82,14 @@ public Model() {
 					}
 				}
 				serverTick = s.tick + getLatencySeconds() / Logic.UPDATE_S;
-				deltaTick = serverTick - clientTick;
 				clientTick = serverTick;//todo плавно
 			}
 		}
 	});
+}
+public int getLatency() {
+	if(client.latency == null) return Params.DEFAULT_LATENCY_MS;
+	return client.latency;
 }
 public String getPlayerName(){
 	if(playerId == null) {
@@ -120,9 +122,7 @@ public void touch(XY pos) {
 }
 
 public void update(float graphicDelta) {
-	if(previousTime == null) {
-		return;
-	}
+	if(previousTime == null) return;
 	float time = App.timeSinceCreate();
 	float delta = time - previousTime;
 	serverTick += delta / Logic.UPDATE_S;
@@ -131,10 +131,6 @@ public void update(float graphicDelta) {
 }
 public @Nullable Logic.State getDisplayState() {
 	return getState((int) clientTick);
-}
-public int getOldTick() {
-	if(old == null) return 0;
-	return old.tick;
 }
 private @Nullable Logic.State getState(int tick) {
 	StateWrapper temp;
@@ -158,7 +154,6 @@ private class Action extends Logic.PlayerAction {
 		this.aid = aid;
 	}
 }
-
 private class StateWrapper {
 	public Logic.State state;
 	public int tick;
@@ -178,6 +173,5 @@ private class StateWrapper {
 			tick++;
 		}
 	}
-
 }
 }

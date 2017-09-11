@@ -82,7 +82,7 @@ public void render() {
 		viewport2.apply();
 	}
 	batch.begin();
-	Resources.Font.loadedFont().draw(batch, model.getPlayerName() + " " + model.getOldTick() + ", deltaTick = " + ((int)model.deltaTick * 1000), 0, 200);
+	Resources.Font.loadedFont().draw(batch, model.getPlayerName() + " " + model.getLatency(), 0, 200);
 	batch.draw(Resources.Textures.green, Logic.width / 2, Logic.height / 2);
 	batch.end();
 }
