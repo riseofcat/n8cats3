@@ -29,7 +29,7 @@ private final DefaultValueMap<Tick, List<Action>> myActions = new DefaultValueMa
 	public List<Action> createNew() {return new ArrayList<>();}
 });
 private StateWrapper old;
-public static final boolean LOCAL = LibAllGwt.FALSE();
+public static final boolean LOCAL = LibAllGwt.TRUE();
 private Float serverTickPreviousTime;
 public Model() {
 	client = LOCAL ? new PingClient("localhost", 5000, "socket", ServerSayS.class) : new PingClient("n8cats3.herokuapp.com", 80, "socket", ServerSayS.class);

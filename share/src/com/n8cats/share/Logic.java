@@ -8,6 +8,10 @@ public static final int UPDATE_MS = 20;
 public static final float UPDATE_S = UPDATE_MS * 0.001f;
 public static float width = 1000;
 public static float height = 1000;
+public static final int MIN_SIZE = 10;
+public static final int FOOD_SIZE = 5;
+private static final float MIN_RADIUS = 1f;
+
 abstract public static class Player {
 	abstract public Id getId();
 	public static class Id /*implements Serializable*/ {
@@ -29,12 +33,38 @@ abstract public static class Player {
 		}
 	}
 }
-public static class Car{
-	public Player.Id playerId;
+public static abstract class PosObject {
 	public float x = 0;
 	public float y = 0;
+}
+public static abstract class SpeedObject extends PosObject {
 	public float speedX = 0;
 	public float speedY = 0;
+}
+public static abstract class EatMe extends SpeedObject {
+	public int size;
+	public float radius() {
+		return (float) (Math.sqrt(size) * 1f) + MIN_RADIUS;
+	}
+}
+public static class Food extends EatMe {
+	public Food() {
+		size = FOOD_SIZE;
+	}
+}
+public static class Reactive extends EatMe {
+	public Reactive() {
+	}
+	public Reactive(Car car) {
+		size = car.size / 10 + 1;
+		car.size-=size;
+	}
+}
+public static class Car extends EatMe{
+	public Car() {
+		size = MIN_SIZE;
+	}
+	public Player.Id playerId;
 	/*public Car clone() {
 		try {
 			return (Car) super.clone();
