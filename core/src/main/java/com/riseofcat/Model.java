@@ -31,6 +31,7 @@ private final DefaultValueMap<Tick, List<Action>> myActions = new DefaultValueMa
 private StateWrapper old;
 public static final boolean LOCAL = LibAllGwt.TRUE();
 private Float serverTickPreviousTime;
+private Logic.State displayState;
 public Model() {
 	client = LOCAL ? new PingClient("localhost", 5000, "socket", ServerSayS.class) : new PingClient("n8cats3.herokuapp.com", 80, "socket", ServerSayS.class);
 	client.connect(new Signal.Listener<ServerPayload>() {
@@ -101,13 +102,21 @@ public float getLatencySeconds() {
 private int previousActionId = 0;
 public void touch(XY pos) {
 	synchronized(this) {
+		displayState = getDisplayState();
+		if(displayState == null) return;
 		if(!ready()) return;
 		int w = (int) (getLatencySeconds() / Logic.UPDATE_S) + 1;//todo Учитывать среднюю задержку
 		ClientPayload.ClientAction a = new ClientPayload.ClientAction();
 		a.aid = ++previousActionId;
 		a.wait = w;
 		a.tick = (int) clientTick + w;
-		a.action = new Logic.Action(pos.x, pos.y);
+		for(Logic.Car car : displayState.cars) {
+			if(playerId.equals(car.playerId)) {
+				Logic.Angle direction = pos.sub(new XY(car.x, car.y)).calcAngle().add(new Logic.DegreesAngle(180));//todo new XY
+				a.action = new Logic.Action(direction);
+				break;
+			}
+		}
 		myActions.getExistsOrPutDefault(new Tick((int) clientTick + w)).add(new Action(a.aid, a.action));
 		ClientPayload payload = new ClientPayload();
 		payload.tick = (int) clientTick;

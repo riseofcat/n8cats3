@@ -2,6 +2,8 @@ package com.riseofcat.lib;
 
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+import com.n8cats.lib_gwt.LibAllGwt;
+import com.n8cats.share.Logic;
 
 public class XY {
 public float x;
@@ -46,10 +48,24 @@ public Vector2 getVector() {
 public double dst(XY xy) {
 	return Math.sqrt((xy.x - x) * (xy.x - x) + (xy.y - y) * (xy.y - y));
 }
-public XY rotate(Angle angleA) {
+public double len() {
+	return dst(new XY(0,0));
+}
+public XY rotate(Logic.Angle angleA) {
 	Vector2 vector = this.getVector();
-	Angle angle = new DegreesAngle(vector.angle()).add(angleA);
+	Logic.Angle angle = new Logic.DegreesAngle(vector.angle()).add(angleA);
 	float len = vector.len();
 	return new XY(len*angle.cos(), len * angle.sin());
+}
+public Logic.Angle calcAngle() {
+	try {
+		Logic.Angle result = new Logic.Angle(Math.atan(y / x));
+		if(x < 0) {
+			result = result.add(new Logic.DegreesAngle(180));
+		}
+		return result;
+	} catch(Throwable t) {
+		return new Logic.DegreesAngle(LibAllGwt.Fun.sign(y) * 90);
+	}
 }
 }

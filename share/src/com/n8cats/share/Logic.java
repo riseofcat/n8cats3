@@ -33,34 +33,40 @@ abstract public static class Player {
 		}
 	}
 }
+
 public static abstract class PosObject {
 	public float x = 0;
 	public float y = 0;
 }
+
 public static abstract class SpeedObject extends PosObject {
 	public float speedX = 0;
 	public float speedY = 0;
 }
+
 public static abstract class EatMe extends SpeedObject {
 	public int size;
 	public float radius() {
 		return (float) (Math.sqrt(size) * 1f) + MIN_RADIUS;
 	}
 }
+
 public static class Food extends EatMe {
 	public Food() {
 		size = FOOD_SIZE;
 	}
 }
+
 public static class Reactive extends EatMe {
 	public Reactive() {
 	}
 	public Reactive(Car car) {
 		size = car.size / 10 + 1;
-		car.size-=size;
+		car.size -= size;
 	}
 }
-public static class Car extends EatMe{
+
+public static class Car extends EatMe {
 	public Car() {
 		size = MIN_SIZE;
 	}
@@ -74,17 +80,17 @@ public static class Car extends EatMe{
 		return null;
 	}*/
 }
+
 public static class Action {
 	@SuppressWarnings("unused")
 	public Action() {
 	}
-	public Action(float touchX, float touchY) {
-		this.touchX = touchX;
-		this.touchY = touchY;
+	public Action(Angle direction) {
+		this.direction = direction;
 	}
-	public float touchX;
-	public float touchY;
+	public Angle direction;
 }
+
 public static class PlayerAction {
 	public Logic.Player.Id id;
 	public Logic.Action action;
@@ -96,7 +102,8 @@ public static class PlayerAction {
 		this.action = action;
 	}
 }
-public static class State /*implements Serializable, LibAllGwt.Cloneable<State>*/{
+
+public static class State /*implements Serializable, LibAllGwt.Cloneable<State>*/ {
 	public ArrayList<Car> cars = new ArrayList<>();
 	public State act(Iterator<? extends PlayerAction> iterator) {
 		class Cache {
@@ -114,9 +121,9 @@ public static class State /*implements Serializable, LibAllGwt.Cloneable<State>*
 			PlayerAction p = iterator.next();
 			Car car = cache.getCar(p.id);
 			if(car == null) continue;
-			float secondsToMove = 2.0f;
-			car.speedX = (p.action.touchX - car.x) / secondsToMove;
-			car.speedY = (p.action.touchY - car.y) / secondsToMove;
+			float koeff1 = 100f;
+			car.speedY += p.action.direction.sin() * koeff1;
+			car.speedX += p.action.direction.cos() * koeff1;
 		}
 		return this;
 	}
@@ -147,4 +154,80 @@ public static class State /*implements Serializable, LibAllGwt.Cloneable<State>*
 	}
 }
 
+public static class Angle {
+	static {
+		Angle pi = new Angle(2 * Math.PI);
+//	if(Math.abs(pi.radians) > 0.0001f) {
+//		throw new RuntimeException("test fail");
+//	}
+//	Angle minusPi = new Angle(-2.00001 * Math.PI);
+//	if(Math.abs(minusPi.radians) > 0.01f) {
+//		throw new RuntimeException("test fail");
+//	}
+//	Angle angle1 = new Angle(2 * Math.PI + 0.5f);
+//	if(angle1.radians < 0 || angle1.radians > 2 * Math.PI) {
+//		throw new RuntimeException("test fail");
+//	}
+//	Angle angle2 = new Angle(-2 * Math.PI - 0.5f);
+//	if(angle2.radians < 0 || angle2.radians > 2 * Math.PI) {
+//		throw new RuntimeException("test fail");
+//	}
+	}
+	private float radians;
+	public Angle() {
+	}
+	public Angle(double radians) {
+		this.radians = (float) radians;
+		fix();
+	}
+	public Angle(float radians) {
+		this.radians = radians;
+		fix();
+	}
+	private void fix() {
+		int circles = (int) (radians / (2 * Math.PI));
+		if(Math.abs(circles) > 0) {
+			int a = 1 + 1;//todo
+		}
+//	radians -= circles * 2 * Math.PI;
+//	if(radians < 0) {
+//		radians += 2 * Math.PI;
+//	}
+	}
+	public float getRadians() {
+		return radians;
+	}
+	public float getDegrees() {
+		return (float) (radians * 180 / Math.PI);
+	}
+	public float getTransformRotation() {
+		return getDegrees();
+	}
+	public float sin() {
+		return (float) Math.sin(radians);
+	}
+	public float cos() {
+		return (float) Math.cos(radians);
+	}
+	public Angle add(double radians) {
+		return new Angle(this.radians + radians);
+	}
+	public void addThis(double radians) {
+		this.radians += radians;
+		fix();
+		throw new RuntimeException("bad");
+	}
+	public Angle add(Angle deltaAngle) {
+		return new Angle(this.radians + deltaAngle.radians);
+	}
+	public Angle subtract(Angle sub) {
+		return new Angle(this.radians - sub.radians);
+	}
+}
+
+public static class DegreesAngle extends Logic.Angle {
+	public DegreesAngle(double degrees) {
+		super(degrees / 180 * Math.PI);
+	}
+}
 }
