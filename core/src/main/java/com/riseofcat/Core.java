@@ -15,7 +15,6 @@ import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.n8cats.share.Logic;
-import com.riseofcat.lib.XY;
 
 public class Core extends ApplicationAdapter {
 private SpriteBatch batch;
@@ -42,7 +41,7 @@ public void create() {
 	shapeRenderer.setAutoShapeType(false);//todo test true
 	Gdx.input.setInputProcessor(new InputMultiplexer(stage, new InputAdapter() {
 		public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-			model.touch(new XY(viewport1.unproject(new Vector2(screenX, screenY))));
+			model.touch(new GdxXY(viewport1.unproject(new Vector2(screenX, screenY))));
 			return true;
 		}
 	}));

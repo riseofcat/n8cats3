@@ -1,5 +1,7 @@
 package com.n8cats.share;
 
+import com.n8cats.lib_gwt.LibAllGwt;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 
@@ -60,9 +62,13 @@ public static class Food extends EatMe {
 public static class Reactive extends EatMe {
 	public Reactive() {
 	}
-	public Reactive(Car car) {
+	public Reactive(Car car, Angle direction) {
 		size = car.size / 10 + 1;
 		car.size -= size;
+		x = car.x;
+		y = car.y;
+		speedX = 0;
+		speedY = 0;
 	}
 }
 
@@ -228,6 +234,58 @@ public static class Angle {
 public static class DegreesAngle extends Logic.Angle {
 	public DegreesAngle(double degrees) {
 		super(degrees / 180 * Math.PI);
+	}
+}
+public static class XY {
+	public float x;
+	public float y;
+	public XY() {
+		x = 0;
+		y = 0;
+	}
+	public XY(double x, double y) {
+		this.x = (float) x;
+		this.y = (float) y;
+	}
+	public XY add(XY a) {
+		XY result = new XY();
+		result.x = this.x + a.x;
+		result.y = this.y + a.y;
+		return result;
+	}
+	public XY sub(XY a) {
+		return add(a.scale(-1));
+	}
+	public XY scale(float scl) {
+		XY result = new XY();
+		result.x = this.x * scl;
+		result.y = this.y * scl;
+		return result;
+	}
+	public double dst(XY xy) {
+		return Math.sqrt((xy.x - x) * (xy.x - x) + (xy.y - y) * (xy.y - y));
+	}
+	public double len() {
+		return dst(new XY(0,0));
+	}
+	public XY rotate(Logic.Angle angleA) {
+		Logic.Angle angle = calcAngle().add(angleA);
+		return new XY(len()*angle.cos(), len() * angle.sin());
+	}
+	public Logic.Angle calcAngle() {
+		if(true) {
+			return new Angle(Math.atan2(y, x));
+		} else {
+			try {
+				Logic.Angle result = new Logic.Angle(Math.atan(y / x));
+				if(x < 0) {
+					result = result.add(new Logic.DegreesAngle(180));
+				}
+				return result;
+			} catch(Throwable t) {
+				return new Logic.DegreesAngle(LibAllGwt.Fun.sign(y) * 90);
+			}
+		}
 	}
 }
 }

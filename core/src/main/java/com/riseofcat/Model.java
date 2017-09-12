@@ -8,7 +8,6 @@ import com.n8cats.share.Params;
 import com.n8cats.share.ServerPayload;
 import com.n8cats.share.Tick;
 import com.n8cats.share.redundant.ServerSayS;
-import com.riseofcat.lib.XY;
 
 import org.jetbrains.annotations.Nullable;
 
@@ -100,9 +99,9 @@ public float getLatencySeconds() {
 	return (client.latency == null ? Params.DEFAULT_LATENCY_MS : client.latency) / 1000f;
 }
 private int previousActionId = 0;
-public void touch(XY pos) {
+public void touch(Logic.XY pos) {
 	synchronized(this) {
-		displayState = getDisplayState();
+		displayState = getDisplayState();//todo
 		if(displayState == null) return;
 		if(!ready()) return;
 		int w = (int) (getLatencySeconds() / Logic.UPDATE_S) + 1;//todo Учитывать среднюю задержку
@@ -112,7 +111,7 @@ public void touch(XY pos) {
 		a.tick = (int) clientTick + w;
 		for(Logic.Car car : displayState.cars) {
 			if(playerId.equals(car.playerId)) {
-				Logic.Angle direction = pos.sub(new XY(car.x, car.y)).calcAngle().add(new Logic.DegreesAngle(180));//todo new XY
+				Logic.Angle direction = pos.sub(new Logic.XY(car.x, car.y)).calcAngle().add(new Logic.DegreesAngle(180));//todo new XY
 				a.action = new Logic.Action(direction);
 				break;
 			}
