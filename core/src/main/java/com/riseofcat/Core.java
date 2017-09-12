@@ -26,11 +26,9 @@ private Viewport viewport2;
 private Stage stage;
 private static final Color[] colors = {Color.BLUE, Color.GOLD, Color.PINK, Color.RED, Color.GREEN, Color.VIOLET, Color.LIME, Color.TEAL, Color.YELLOW};
 private static final boolean MULTIPLE_VIEWPORTS = false;
-
 public Core(App.Context context) {
 	App.context = context;
 }
-
 public void create() {
 	App.create();
 	batch = new SpriteBatch();

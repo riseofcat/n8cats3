@@ -28,5 +28,4 @@ public V getOrNew(K key, ICreateNew<V> or) {
 public interface ICreateNew<V> {
 	V createNew();
 }
-
 }

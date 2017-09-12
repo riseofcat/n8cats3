@@ -21,7 +21,7 @@ public static final int REMOVE_TICKS = DELAY_TICKS * 2;//bigger removed
 public static final int FUTURE_TICKS = DELAY_TICKS * 2;
 private final long startTime = System.currentTimeMillis();
 private int previousActionsVersion = 0;
-volatile private int tick = 0;//todo volatile redundant?
+volatile private int tick = 0;//todo volatile redundant?//todo float
 private Logic.State state = new Logic.State();
 private DefaultValueMap<Tick, List<Action>> actions = new DefaultValueMap<>(new ConcurrentHashMap<>(), ArrayList::new);
 private Map<Logic.Player.Id, Integer> mapPlayerVersion = new ConcurrentHashMap<>();
@@ -126,7 +126,7 @@ public TickGame(ConcreteRoomsServer.Room room) {
 					state.act(new Adapter(actions.map.get(getStableTick()))).tick();
 					TickGame.this.actions.map.remove(getStableTick());
 					tick++;
-					if(tick % 20 == 0) { //Разослать state всем игрокам//todo %
+					if(tick % 200 == 0) { //Разослать state всем игрокам//todo %
 						for(ConcreteRoomsServer.Room.Player player : room.getPlayers()) {
 							player.session.send(createStablePayload());
 						}
@@ -154,11 +154,9 @@ private Tick getStableTick() {
 private int getRemoveBeforeTick() {
 	return tick - REMOVE_TICKS + 1;
 }
-
 private int getFutureTick() {
 	return tick + FUTURE_TICKS;
 }
-
 private static class ConcreteRoomsServer extends RoomsDecorator<ClientPayload, ServerPayload> {
 
 }

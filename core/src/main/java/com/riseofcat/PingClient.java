@@ -87,7 +87,7 @@ private void sayNow(ClientSay<C> say) {
 			return;
 		} catch(Throwable t) {}
 	}
-	int a = 1+1;
+	App.log.error("sayNow 3 attempts fail");
 }
 
 public WebSocketState getState() {

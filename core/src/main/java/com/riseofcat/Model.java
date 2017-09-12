@@ -20,30 +20,27 @@ import java.util.List;
 public class Model {
 private final PingClient<ServerPayload, ClientPayload> client;
 private Logic.Player.Id playerId;
-private float clientTick;//Плавно меняется, подстраиваясь под сервер
 private float serverTick;//Задаётся моментально с сервера
+private float clientTick;//Плавно меняется, подстраиваясь под сервер
 private final DefaultValueMap<Tick, List<Logic.PlayerAction>> actions = new DefaultValueMap<>(new HashMap<Tick, List<Logic.PlayerAction>>(), new DefaultValueMap.ICreateNew<List<Logic.PlayerAction>>() {
-	public List<Logic.PlayerAction> createNew() {
-		return new ArrayList<>();//App.context.createConcurrentList();
-	}
+	public List<Logic.PlayerAction> createNew() {return new ArrayList<>();}
 });
 private final DefaultValueMap<Tick, List<Action>> myActions = new DefaultValueMap<>(new HashMap<Tick, List<Action>>(), new DefaultValueMap.ICreateNew<List<Action>>() {
-	public List<Action> createNew() {
-		return new ArrayList<>();//App.context.createConcurrentList();
-	}
+	public List<Action> createNew() {return new ArrayList<>();}
 });
 private StateWrapper old;
-private int previousActionId = 0;
 public static final boolean LOCAL = LibAllGwt.FALSE();
-private Float previousTime;
+private Float serverTickPreviousTime;
 public Model() {
 	client = LOCAL ? new PingClient("localhost", 5000, "socket", ServerSayS.class) : new PingClient("n8cats3.herokuapp.com", 80, "socket", ServerSayS.class);
 	client.connect(new Signal.Listener<ServerPayload>() {
 		public void onSignal(ServerPayload s) {
 			synchronized(this) {
-				if(previousTime == null) previousTime = App.timeSinceCreate();
+				serverTick = s.tick + getLatencySeconds() / Logic.UPDATE_S;
+				serverTickPreviousTime = App.timeSinceCreate();
 				if(s.welcome != null) {
 					playerId = s.welcome.id;
+					clientTick = s.tick;
 				}
 				if(s.stable != null) {
 					if(s.stable.state != null) {
@@ -81,7 +78,6 @@ public Model() {
 						}
 					}
 				}
-				serverTick = s.tick + getLatencySeconds() / Logic.UPDATE_S;
 			}
 		}
 	});
@@ -102,6 +98,7 @@ public boolean ready() {
 public float getLatencySeconds() {
 	return (client.latency == null ? Params.DEFAULT_LATENCY_MS : client.latency) / 1000f;
 }
+private int previousActionId = 0;
 public void touch(XY pos) {
 	synchronized(this) {
 		if(!ready()) return;
@@ -119,15 +116,13 @@ public void touch(XY pos) {
 		client.say(payload);
 	}
 }
-
 public void update(float graphicDelta) {
-	if(previousTime == null) return;
+	if(serverTickPreviousTime == null) return;
 	float time = App.timeSinceCreate();
-	float delta = time - previousTime;
-	serverTick += delta / Logic.UPDATE_S;
-	clientTick += delta / Logic.UPDATE_S;
-	clientTick += (serverTick - clientTick) * LibAllGwt.Fun.arg0toInf(Math.abs((serverTick - clientTick)*delta), 240/60f);
-	previousTime = time;
+	serverTick += (time - serverTickPreviousTime) / Logic.UPDATE_S;
+	serverTickPreviousTime = time;
+	clientTick += graphicDelta / Logic.UPDATE_S;
+	clientTick += (serverTick - clientTick) * LibAllGwt.Fun.arg0toInf(Math.abs((serverTick - clientTick)*graphicDelta), 360/60f);
 }
 public @Nullable Logic.State getDisplayState() {
 	return getState((int) clientTick);
@@ -135,9 +130,7 @@ public @Nullable Logic.State getDisplayState() {
 private @Nullable Logic.State getState(int tick) {
 	StateWrapper temp;
 	synchronized(this) {
-		if(old == null) {
-			return null;
-		}
+		if(old == null) return null;
 		temp = old.copy();
 	}
 	temp.tick(tick);
