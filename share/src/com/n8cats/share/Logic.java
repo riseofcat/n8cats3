@@ -47,13 +47,17 @@ public static abstract class SpeedObject extends PosObject {
 public static abstract class EatMe extends SpeedObject {
 	public int size;
 	public float radius() {
-		return (float) (Math.sqrt(size) * 1f) + MIN_RADIUS;
+		return (float) (Math.sqrt(size) * 5f) + MIN_RADIUS;
 	}
 }
 
 public static class Food extends EatMe {
 	public Food() {
 		size = FOOD_SIZE;
+	}
+	public Food(XY pos) {
+		this();
+		this.pos = pos;
 	}
 }
 
@@ -63,7 +67,7 @@ public static class Reactive extends EatMe {
 	public Reactive(Car car, Angle direction) {
 		size = car.size / 10 + 1;
 		car.size -= size;
-		pos = car.pos.clone();
+		pos = new XY(car.pos);
 		speed = new XY();//todo
 	}
 }
@@ -107,6 +111,8 @@ public static class PlayerAction {
 
 public static class State /*implements Serializable, LibAllGwt.Cloneable<State>*/ {
 	public ArrayList<Car> cars = new ArrayList<>();
+	public ArrayList<Food> foods = new ArrayList<>();
+	public int random;
 	public State act(Iterator<? extends PlayerAction> iterator) {
 		class Cache {
 			public Car getCar(Logic.Player.Id id) {
@@ -148,8 +154,31 @@ public static class State /*implements Serializable, LibAllGwt.Cloneable<State>*
 			} else if(car.pos.y < 0) {
 				car.pos.y += height;
 			}
+			car.speed = car.speed.scale(0.99f);
+		}
+		if(foods.size() < 100) {
+			foods.add(new Food(rndPos()));
 		}
 		return this;
+	}
+	private int rnd(int min, int max) {
+		random = (random * 1664525 + 1013904223) & 0x7fffffff;
+		return min + random % (max - min + 1);
+	}
+	private int rnd(int max) {
+		return rnd(0, max);
+	}
+	private float rndf(float min, float max) {
+		return min + rnd(999)/1000f * (max - min);//todo optimize
+	}
+	private float rndf(float max) {
+		return rndf(0, max);
+	}
+	private float rndf() {
+		return rndf(1f);
+	}
+	private XY rndPos() {
+		return new XY(rndf(width), rndf(height));
 	}
 }
 
@@ -232,7 +261,7 @@ public static class DegreesAngle extends Logic.Angle {
 		super(degrees / 180 * Math.PI);
 	}
 }
-public static class XY implements LibAllGwt.Cloneable<XY>{
+public static class XY{
 	public float x;
 	public float y;
 	public XY() {
@@ -243,12 +272,8 @@ public static class XY implements LibAllGwt.Cloneable<XY>{
 		this.x = (float) x;
 		this.y = (float) y;
 	}
-	public XY clone() {
-		try {
-			return (XY) super.clone();
-		} catch(CloneNotSupportedException e) {
-			throw new RuntimeException("fail clone");
-		}
+	public XY(XY pos) {//todo Вынести копирование в context
+		this(pos.x, pos.y);
 	}
 	public XY add(XY a) {
 		XY result = new XY();
