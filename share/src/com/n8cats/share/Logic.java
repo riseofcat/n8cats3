@@ -62,13 +62,15 @@ public static class Food extends EatMe {
 }
 
 public static class Reactive extends EatMe {
+	public Player.Id owner;
 	public int ticks;
 	public Reactive() {
 	}
-	public Reactive(int size, XY pos, XY speed) {
+	public Reactive(Player.Id owner, int size, XY pos, XY speed) {
 		this.size = size;
 		this.pos = pos;
 		this.speed = speed;
+		this.owner = owner;
 	}
 }
 
@@ -76,7 +78,7 @@ public static class Car extends EatMe {
 	public Car() {
 		size = MIN_SIZE;
 	}
-	public Player.Id playerId;
+	public Player.Id owner;
 	/*public Car clone() {
 		try {
 			return (Car) super.clone();
@@ -118,7 +120,7 @@ public static class State /*implements Serializable, LibAllGwt.Cloneable<State>*
 		class Cache {
 			public Car getCar(Logic.Player.Id id) {
 				for(Car car : cars) {
-					if(id.equals(car.playerId)) {
+					if(id.equals(car.owner)) {
 						return car;
 					}
 				}
@@ -136,7 +138,7 @@ public static class State /*implements Serializable, LibAllGwt.Cloneable<State>*
 			if(car.size - s >= MIN_SIZE) {
 				car.size -= s;
 			}
-			reactive.add(new Reactive(s, new XY(car.pos), new XY(p.action.direction.add(new DegreesAngle(180)).xy().scale(3f * scl))));
+			reactive.add(new Reactive(p.id, s, new XY(car.pos), new XY(p.action.direction.add(new DegreesAngle(180)).xy().scale(3f * scl))));
 		}
 		return this;
 	}

@@ -68,18 +68,19 @@ public void render() {
 	shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
 	Logic.State state = model.getDisplayState();
 	if(state != null) {
-		for(Logic.Car car : state.cars) {
-			Color color = colors[car.playerId.id % (colors.length - 1)];
-			shapeRenderer.setColor(color);
-			shapeRenderer.circle(car.pos.x, car.pos.y, car.radius());
-		}
 		shapeRenderer.setColor(Color.WHITE);
 		for(Logic.Food food : state.foods) {
 			shapeRenderer.circle(food.pos.x, food.pos.y, food.radius());
 		}
-		shapeRenderer.setColor(Color.RED);
 		for(Logic.Reactive react : state.reactive) {
+			Color color = colors[react.owner.id % (colors.length - 1)];
+			shapeRenderer.setColor(color);
 			shapeRenderer.circle(react.pos.x, react.pos.y, react.radius());
+		}
+		for(Logic.Car car : state.cars) {
+			Color color = colors[car.owner.id % (colors.length - 1)];
+			shapeRenderer.setColor(color);
+			shapeRenderer.circle(car.pos.x, car.pos.y, car.radius());
 		}
 	}
 	shapeRenderer.end();
