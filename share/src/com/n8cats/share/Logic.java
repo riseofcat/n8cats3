@@ -62,6 +62,7 @@ public static class Food extends EatMe {
 }
 
 public static class Reactive extends EatMe {
+	public int ticks;
 	public Reactive() {
 	}
 	public Reactive(int size, XY pos, XY speed) {
@@ -163,6 +164,22 @@ public static class State /*implements Serializable, LibAllGwt.Cloneable<State>*
 				o.pos.y += height;
 			}
 			o.speed = o.speed.scale(0.99f);
+		}
+		Iterator<Reactive> reactItr = reactive.iterator();
+		while(reactItr.hasNext()) {
+			if(reactItr.next().ticks++ > 200) {
+				reactItr.remove();
+			}
+		}
+		for(Car car : cars) {
+			Iterator<Food> foodItr = foods.iterator();
+			while(foodItr.hasNext()) {
+				Food f = foodItr.next();
+				if(car.pos.sub(f.pos).len() <= car.radius()) {
+					car.size += f.size;
+					foodItr.remove();
+				}
+			}
 		}
 		if(foods.size() < 100) {
 			foods.add(new Food(rndPos()));
