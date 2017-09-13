@@ -71,7 +71,7 @@ public void render() {
 		for(Logic.Car car : state.cars) {
 			Color color = colors[car.playerId.id % (colors.length - 1)];
 			shapeRenderer.setColor(color);
-			shapeRenderer.circle(car.x, car.y, 20);
+			shapeRenderer.circle(car.pos.x, car.pos.y, 20);
 		}
 	}
 	shapeRenderer.end();

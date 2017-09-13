@@ -30,8 +30,7 @@ public TickGame(ConcreteRoomsServer.Room room) {
 		synchronized(TickGame.this) {
 			Logic.Car car = new Logic.Car();
 			car.playerId = player.getId();
-			car.x = (float) (Math.random() * Logic.width);
-			car.y = (float) (Math.random() * Logic.height);
+			car.pos = new Logic.XY(Math.random() * Logic.width, Math.random() * Logic.height);
 			state.cars.add(car);
 			ServerPayload payload = createStablePayload();
 			payload.welcome = new ServerPayload.Welcome();

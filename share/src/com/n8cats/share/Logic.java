@@ -37,13 +37,11 @@ abstract public static class Player {
 }
 
 public static abstract class PosObject {
-	public float x = 0;
-	public float y = 0;
+	public XY pos = new XY();
 }
 
 public static abstract class SpeedObject extends PosObject {
-	public float speedX = 0;
-	public float speedY = 0;
+	public XY speed = new XY();
 }
 
 public static abstract class EatMe extends SpeedObject {
@@ -65,10 +63,8 @@ public static class Reactive extends EatMe {
 	public Reactive(Car car, Angle direction) {
 		size = car.size / 10 + 1;
 		car.size -= size;
-		x = car.x;
-		y = car.y;
-		speedX = 0;
-		speedY = 0;
+		pos = car.pos.clone();
+		speed = new XY();//todo
 	}
 }
 
@@ -127,9 +123,7 @@ public static class State /*implements Serializable, LibAllGwt.Cloneable<State>*
 			PlayerAction p = iterator.next();
 			Car car = cache.getCar(p.id);
 			if(car == null) continue;
-			float koeff1 = 100f;
-			car.speedY += p.action.direction.sin() * koeff1;
-			car.speedX += p.action.direction.cos() * koeff1;
+			car.speed = car.speed.add(p.action.direction.xy().scale(100f));
 		}
 		return this;
 	}
@@ -143,17 +137,16 @@ public static class State /*implements Serializable, LibAllGwt.Cloneable<State>*
 	}*/
 	public State tick() {
 		for(Car car : cars) {
-			car.x += car.speedX * UPDATE_S;
-			car.y += car.speedY * UPDATE_S;
-			if(car.x > width) {
-				car.x -= width;
-			} else if(car.x < 0) {
-				car.x += width;
+			car.pos = car.pos.add(car.speed.scale(UPDATE_S));
+			if(car.pos.x > width) {
+				car.pos.x -= width;
+			} else if(car.pos.x < 0) {
+				car.pos.x += width;
 			}
-			if(car.y > height) {
-				car.y -= height;
-			} else if(car.y < 0) {
-				car.y += height;
+			if(car.pos.y > height) {
+				car.pos.y -= height;
+			} else if(car.pos.y < 0) {
+				car.pos.y += height;
 			}
 		}
 		return this;
@@ -215,6 +208,9 @@ public static class Angle {
 	public float cos() {
 		return (float) Math.cos(radians);
 	}
+	public XY xy() {
+		return new XY(cos(), sin());
+	}
 	public Angle add(double radians) {
 		return new Angle(this.radians + radians);
 	}
@@ -236,7 +232,7 @@ public static class DegreesAngle extends Logic.Angle {
 		super(degrees / 180 * Math.PI);
 	}
 }
-public static class XY {
+public static class XY implements LibAllGwt.Cloneable<XY>{
 	public float x;
 	public float y;
 	public XY() {
@@ -246,6 +242,13 @@ public static class XY {
 	public XY(double x, double y) {
 		this.x = (float) x;
 		this.y = (float) y;
+	}
+	public XY clone() {
+		try {
+			return (XY) super.clone();
+		} catch(CloneNotSupportedException e) {
+			throw new RuntimeException("fail clone");
+		}
 	}
 	public XY add(XY a) {
 		XY result = new XY();

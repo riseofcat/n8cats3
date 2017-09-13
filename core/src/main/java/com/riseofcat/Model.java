@@ -101,7 +101,7 @@ public float getLatencySeconds() {
 private int previousActionId = 0;
 public void touch(Logic.XY pos) {
 	synchronized(this) {
-		displayState = getDisplayState();//todo
+		displayState = getDisplayState();//todo//
 		if(displayState == null) return;
 		if(!ready()) return;
 		int w = (int) (getLatencySeconds() / Logic.UPDATE_S) + 1;//todo Учитывать среднюю задержку
@@ -111,7 +111,7 @@ public void touch(Logic.XY pos) {
 		a.tick = (int) clientTick + w;
 		for(Logic.Car car : displayState.cars) {
 			if(playerId.equals(car.playerId)) {
-				Logic.Angle direction = pos.sub(new Logic.XY(car.x, car.y)).calcAngle().add(new Logic.DegreesAngle(180));//todo new XY
+				Logic.Angle direction = pos.sub(car.pos).calcAngle().add(new Logic.DegreesAngle(180));
 				a.action = new Logic.Action(direction);
 				break;
 			}
