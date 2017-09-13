@@ -6,12 +6,12 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 public class Logic {
-public static final int UPDATE_MS = 20;
+public static final int UPDATE_MS = 40;
 public static final float UPDATE_S = UPDATE_MS * 0.001f;
 public static float width = 1000;
 public static float height = 1000;
-public static final int MIN_SIZE = 10;
-public static final int FOOD_SIZE = 5;
+public static final int MIN_SIZE = 15;
+public static final int FOOD_SIZE = 7;
 private static final float MIN_RADIUS = 1f;
 
 abstract public static class Player {
@@ -76,7 +76,7 @@ public static class Reactive extends EatMe {
 
 public static class Car extends EatMe {
 	public Car() {
-		size = MIN_SIZE;
+		size = MIN_SIZE * 2;
 	}
 	public Player.Id owner;
 	/*public Car clone() {
@@ -134,7 +134,7 @@ public static class State /*implements Serializable, LibAllGwt.Cloneable<State>*
 			if(car == null) continue;
 			float scl = 100f;
 			car.speed = car.speed.add(p.action.direction.xy().scale(scl));
-			int s = car.size / 10 + 1;
+			int s = car.size / 15 + 1;
 			if(car.size - s >= MIN_SIZE) {
 				car.size -= s;
 			}
@@ -165,11 +165,11 @@ public static class State /*implements Serializable, LibAllGwt.Cloneable<State>*
 			} else if(o.pos.y < 0) {
 				o.pos.y += height;
 			}
-			o.speed = o.speed.scale(0.99f);
+			o.speed = o.speed.scale(0.98f);
 		}
 		Iterator<Reactive> reactItr = reactive.iterator();
 		while(reactItr.hasNext()) {
-			if(reactItr.next().ticks++ > 200) {
+			if(reactItr.next().ticks++ > 60) {
 				reactItr.remove();
 			}
 		}
@@ -183,7 +183,7 @@ public static class State /*implements Serializable, LibAllGwt.Cloneable<State>*
 				}
 			}
 		}
-		if(foods.size() < 100) {
+		if(foods.size() < 40) {
 			foods.add(new Food(rndPos()));
 		}
 		return this;

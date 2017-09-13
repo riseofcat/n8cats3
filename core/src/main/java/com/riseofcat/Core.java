@@ -37,7 +37,7 @@ public void create() {
 	stage.addActor(new GradientShapeRect(200, 50));
 	stage.addActor(new Image(Resources.Textures.green));
 	model = new Model();
-	shapeRenderer = new ShapeRenderer(1000);
+	shapeRenderer = new ShapeRenderer(10000);
 	shapeRenderer.setAutoShapeType(false);//todo test true
 	Gdx.input.setInputProcessor(new InputMultiplexer(stage, new InputAdapter() {
 		public boolean touchDown(int screenX, int screenY, int pointer, int button) {
