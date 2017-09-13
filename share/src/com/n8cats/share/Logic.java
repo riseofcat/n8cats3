@@ -64,11 +64,10 @@ public static class Food extends EatMe {
 public static class Reactive extends EatMe {
 	public Reactive() {
 	}
-	public Reactive(Car car, Angle direction) {
-		size = car.size / 10 + 1;
-		car.size -= size;
-		pos = new XY(car.pos);
-		speed = new XY();//todo
+	public Reactive(int size, XY pos, XY speed) {
+		this.size = size;
+		this.pos = pos;
+		this.speed = speed;
 	}
 }
 
@@ -112,6 +111,7 @@ public static class PlayerAction {
 public static class State /*implements Serializable, LibAllGwt.Cloneable<State>*/ {
 	public ArrayList<Car> cars = new ArrayList<>();
 	public ArrayList<Food> foods = new ArrayList<>();
+	public ArrayList<Reactive> reactive = new ArrayList<>();
 	public int random;
 	public State act(Iterator<? extends PlayerAction> iterator) {
 		class Cache {
@@ -129,7 +129,13 @@ public static class State /*implements Serializable, LibAllGwt.Cloneable<State>*
 			PlayerAction p = iterator.next();
 			Car car = cache.getCar(p.id);
 			if(car == null) continue;
-			car.speed = car.speed.add(p.action.direction.xy().scale(100f));
+			float scl = 100f;
+			car.speed = car.speed.add(p.action.direction.xy().scale(scl));
+			int s = car.size / 10 + 1;
+			if(car.size - s >= MIN_SIZE) {
+				car.size -= s;
+			}
+			reactive.add(new Reactive(s, new XY(car.pos), new XY(p.action.direction.add(new DegreesAngle(180)).xy().scale(3f * scl))));
 		}
 		return this;
 	}
@@ -142,19 +148,21 @@ public static class State /*implements Serializable, LibAllGwt.Cloneable<State>*
 		return result;
 	}*/
 	public State tick() {
-		for(Car car : cars) {
-			car.pos = car.pos.add(car.speed.scale(UPDATE_S));
-			if(car.pos.x > width) {
-				car.pos.x -= width;
-			} else if(car.pos.x < 0) {
-				car.pos.x += width;
+		CompositeIterator<SpeedObject> iterator = new CompositeIterator<SpeedObject>(cars, reactive);
+		while(iterator.hasNext()) {
+			SpeedObject o = iterator.next();
+			o.pos = o.pos.add(o.speed.scale(UPDATE_S));
+			if(o.pos.x > width) {
+				o.pos.x -= width;
+			} else if(o.pos.x < 0) {
+				o.pos.x += width;
 			}
-			if(car.pos.y > height) {
-				car.pos.y -= height;
-			} else if(car.pos.y < 0) {
-				car.pos.y += height;
+			if(o.pos.y > height) {
+				o.pos.y -= height;
+			} else if(o.pos.y < 0) {
+				o.pos.y += height;
 			}
-			car.speed = car.speed.scale(0.99f);
+			o.speed = o.speed.scale(0.99f);
 		}
 		if(foods.size() < 100) {
 			foods.add(new Food(rndPos()));

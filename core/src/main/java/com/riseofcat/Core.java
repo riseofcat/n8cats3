@@ -77,6 +77,10 @@ public void render() {
 		for(Logic.Food food : state.foods) {
 			shapeRenderer.circle(food.pos.x, food.pos.y, food.radius());
 		}
+		shapeRenderer.setColor(Color.RED);
+		for(Logic.Reactive react : state.reactive) {
+			shapeRenderer.circle(react.pos.x, react.pos.y, react.radius());
+		}
 	}
 	shapeRenderer.end();
 	if(MULTIPLE_VIEWPORTS) {
