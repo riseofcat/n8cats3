@@ -28,7 +28,7 @@ private final DefaultValueMap<Tick, List<Action>> myActions = new DefaultValueMa
 	public List<Action> createNew() {return new ArrayList<>();}
 });
 private StateWrapper old;
-public static final boolean LOCAL = LibAllGwt.TRUE();
+public static final boolean LOCAL = LibAllGwt.FALSE();
 private Float serverTickPreviousTime;
 private Logic.State displayState;
 public Model() {
