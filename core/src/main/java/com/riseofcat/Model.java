@@ -28,10 +28,11 @@ private final DefaultValueMap<Tick, List<Action>> myActions = new DefaultValueMa
 	public List<Action> createNew() {return new ArrayList<>();}
 });
 private StateWrapper old;
-public static final boolean LOCAL = LibAllGwt.FALSE();
 private Float serverTickPreviousTime;
-private Logic.State displayState;
 public Model() {
+	final boolean LOCAL =
+			LibAllGwt.TRUE();
+//		  LibAllGwt.FALSE();
 	client = LOCAL ? new PingClient("localhost", 5000, "socket", ServerSayS.class) : new PingClient("n8cats3.herokuapp.com", 80, "socket", ServerSayS.class);
 	client.connect(new Signal.Listener<ServerPayload>() {
 		public void onSignal(ServerPayload s) {
@@ -86,9 +87,9 @@ public int getLatency() {
 	if(client.latency == null) return Params.DEFAULT_LATENCY_MS;
 	return client.latency;
 }
-public String getPlayerName(){
+public String getPlayerName() {
 	if(playerId == null) {
-		return "Unknown";
+		return "Wait connection...";
 	}
 	return "Player " + playerId.toString();
 }
@@ -99,23 +100,26 @@ public float getLatencySeconds() {
 	return (client.latency == null ? Params.DEFAULT_LATENCY_MS : client.latency) / 1000f;
 }
 private int previousActionId = 0;
-public void touch(Logic.XY pos) {
+public void touch(Logic.XY pos) {//todo move out?
+	Logic.State displayState = getDisplayState();
+	if(displayState == null) return;
+	for(Logic.Car car : displayState.cars) {
+		if(playerId.equals(car.owner)) {
+			Logic.Angle direction = pos.sub(car.pos).calcAngle().add(new Logic.DegreesAngle(0 * 180));
+			action(new Logic.Action(direction));
+			break;
+		}
+	}
+}
+public void action(Logic.Action action) {
 	synchronized(this) {
-		displayState = getDisplayState();
-		if(displayState == null) return;
 		if(!ready()) return;
 		int w = (int) (getLatencySeconds() / Logic.UPDATE_S) + 1;//todo Учитывать среднюю задержку
 		ClientPayload.ClientAction a = new ClientPayload.ClientAction();
 		a.aid = ++previousActionId;
 		a.wait = w;
 		a.tick = (int) clientTick + w;
-		for(Logic.Car car : displayState.cars) {
-			if(playerId.equals(car.owner)) {
-				Logic.Angle direction = pos.sub(car.pos).calcAngle().add(new Logic.DegreesAngle(0 * 180));
-				a.action = new Logic.Action(direction);
-				break;
-			}
-		}
+		a.action = action;
 		myActions.getExistsOrPutDefault(new Tick((int) clientTick + w)).add(new Action(a.aid, a.action));
 		ClientPayload payload = new ClientPayload();
 		payload.tick = (int) clientTick;
@@ -130,7 +134,7 @@ public void update(float graphicDelta) {
 	serverTick += (time - serverTickPreviousTime) / Logic.UPDATE_S;
 	serverTickPreviousTime = time;
 	clientTick += graphicDelta / Logic.UPDATE_S;
-	clientTick += (serverTick - clientTick) * LibAllGwt.Fun.arg0toInf(Math.abs((serverTick - clientTick)*graphicDelta), 360/60f);
+	clientTick += (serverTick - clientTick) * LibAllGwt.Fun.arg0toInf(Math.abs((serverTick - clientTick) * graphicDelta), 6f);
 }
 public @Nullable Logic.State getDisplayState() {
 	return getState((int) clientTick);
@@ -155,12 +159,13 @@ private class Action extends Logic.PlayerAction {
 		this.aid = aid;
 	}
 }
+
 private class StateWrapper {
 	public Logic.State state;
 	public int tick;
 	public StateWrapper copy() {
 		StateWrapper result = new StateWrapper();
-		result.state = UtilsCore.copy(state);
+		result.state = UtilsCore.copy(state);//todo 50% процессорного времени
 		result.tick = tick;
 		return result;
 	}

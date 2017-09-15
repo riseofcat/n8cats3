@@ -59,11 +59,14 @@ public void resize(int width, int height) {
 	shapeRenderer.setProjectionMatrix(viewport1.getCamera().combined);
 }
 public void render() {
+	final boolean TEST_TEXTURE = false;
 	model.update(Gdx.graphics.getDeltaTime());
 	Gdx.gl.glClearColor(0, 0, 0, 1);
 	Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-//	stage.act(/*Gdx.graphics.getDeltaTime()*/);
-//	stage.draw();
+	if(TEST_TEXTURE) {
+		stage.act(/*Gdx.graphics.getDeltaTime()*/);
+		stage.draw();
+	}
 	viewport1.apply();
 	shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
 	Logic.State state = model.getDisplayState();
@@ -90,7 +93,9 @@ public void render() {
 	batch.begin();
 	Resources.Font.loadedFont().draw(batch, model.getPlayerName(), 0, 200);
 	Resources.Font.loadedFont().draw(batch, "ping: " + model.getLatency(), 0, 250);
-//	batch.draw(Resources.Textures.green, Logic.width / 2, Logic.height / 2);
+	if(TEST_TEXTURE) {
+		batch.draw(Resources.Textures.green, Logic.width / 2, Logic.height / 2);
+	}
 	batch.end();
 }
 public void dispose() {
