@@ -19,8 +19,6 @@ import java.util.List;
 public class Model {
 private final PingClient<ServerPayload, ClientPayload> client;
 private Logic.Player.Id playerId;
-private float serverTick;//Задаётся моментально с сервера
-private float clientTick;//Плавно меняется, подстраиваясь под сервер
 private final DefaultValueMap<Tick, List<Logic.PlayerAction>> actions = new DefaultValueMap<>(new HashMap<Tick, List<Logic.PlayerAction>>(), new DefaultValueMap.ICreateNew<List<Logic.PlayerAction>>() {
 	public List<Logic.PlayerAction> createNew() {return new ArrayList<>();}
 });
@@ -28,7 +26,35 @@ private final DefaultValueMap<Tick, List<Action>> myActions = new DefaultValueMa
 	public List<Action> createNew() {return new ArrayList<>();}
 });
 private StateWrapper stable;
-private Float serverTickPreviousTime;
+private Sync sync;
+
+private static class Sync {
+	final float serverTick;
+	final float clientTick;
+	final long time;//todo предусмотреть перевод времени
+	public Sync(float serverTick, @Nullable Sync oldSync) {
+		time = App.timeMs();
+		this.serverTick = serverTick;
+		if(oldSync == null) {
+			this.clientTick = serverTick;
+		} else {
+			this.clientTick = oldSync.calcClientTick();
+		}
+	}
+	private float calcServerTick(long t) {
+		return serverTick + (t - time) / (float) Logic.UPDATE_MS;
+	}
+	public float calcServerTick() {
+		return calcServerTick(App.timeMs());
+	}
+	public float calcClientTick() {
+		long t = App.timeMs();
+		if(t < time) {
+			return calcServerTick(t);
+		}
+		return calcServerTick(t) + (serverTick - clientTick) * LibAllGwt.Fun.arg0toInf(t - time, 1300);
+	}
+}
 public Model() {
 	final boolean LOCAL =
 			LibAllGwt.TRUE();
@@ -44,11 +70,9 @@ public Model() {
 	client.connect(new Signal.Listener<ServerPayload>() {
 		public void onSignal(ServerPayload s) {
 			synchronized(this) {
-				serverTick = s.tick + getLatencySeconds() / Logic.UPDATE_S;
-				serverTickPreviousTime = App.timeSinceCreate();
+				sync = new Sync(s.tick + getLatencySeconds() / Logic.UPDATE_S, sync);
 				if(s.welcome != null) {
 					playerId = s.welcome.id;
-					clientTick = s.tick;
 				}
 				if(s.stable != null) {
 					if(s.stable.state != null) {
@@ -115,18 +139,19 @@ public float getLatencySeconds() {
 private int previousActionId = 0;
 public void action(Logic.Action action) {
 	synchronized(this) {
+		final int clientTick = (int) sync.calcClientTick();
 		if(!ready()) return;
-		if(serverTick - clientTick > Params.DELAY_TICKS) return;
-		if(clientTick - serverTick > Params.FUTURE_TICKS) return;
+		if(sync.calcServerTick() - sync.calcClientTick() > Params.DELAY_TICKS) return;
+		if(sync.calcClientTick() - sync.calcServerTick() > Params.FUTURE_TICKS) return;
 		int w = (int) (getLatencySeconds() / Logic.UPDATE_S) + 1;//todo Учитывать среднюю задержку
 		ClientPayload.ClientAction a = new ClientPayload.ClientAction();
 		a.aid = ++previousActionId;
 		a.wait = w;
-		a.tick = (int) clientTick + w;
+		a.tick = clientTick + w;
 		a.action = action;
-		myActions.getExistsOrPutDefault(new Tick((int) clientTick + w)).add(new Action(a.aid, a.action));
+		myActions.getExistsOrPutDefault(new Tick(clientTick + w)).add(new Action(a.aid, a.action));
 		ClientPayload payload = new ClientPayload();
-		payload.tick = (int) clientTick;
+		payload.tick = clientTick;
 		payload.actions = new ArrayList<>();
 		payload.actions.add(a);
 		client.say(payload);
@@ -144,15 +169,16 @@ public void touch(Logic.XY pos) {//todo move out?
 	}
 }
 public void update(float graphicDelta) {
-	if(serverTickPreviousTime == null) return;
-	float time = App.timeSinceCreate();
-	serverTick += (time - serverTickPreviousTime) / Logic.UPDATE_S;
-	serverTickPreviousTime = time;
-	clientTick += graphicDelta / Logic.UPDATE_S;
-	clientTick += (serverTick - clientTick) * LibAllGwt.Fun.arg0toInf(Math.abs((serverTick - clientTick) * graphicDelta), 6f);
+//	if(serverTickPreviousTime == null) return;
+//	float time = App.timeSinceCreate();
+//	serverTick += (time - serverTickPreviousTime) / Logic.UPDATE_S;
+//	serverTickPreviousTime = time;
+//	clientTick += graphicDelta / Logic.UPDATE_S;
+//	clientTick += (serverTick - clientTick) * LibAllGwt.Fun.arg0toInf(Math.abs((serverTick - clientTick) * graphicDelta), 6f);
 }
 public @Nullable Logic.State getDisplayState() {
-	return getState((int) clientTick);
+	if(sync == null) return null;
+	return getState((int) sync.calcClientTick());
 }
 private StateWrapper cache;
 private void clearCache(int tick) {
@@ -198,7 +224,7 @@ private class StateWrapper {
 	public int tick;
 	public StateWrapper copy() {
 		StateWrapper result = new StateWrapper();
-		result.state = UtilsCore.copy(state);//todo 50% процессорного времени
+		result.state = UtilsCore.copy(state);//todo тяжёлая операция
 		result.tick = tick;
 		return result;
 	}

@@ -165,7 +165,7 @@ public static class State /*implements Serializable, LibAllGwt.Cloneable<State>*
 			} else if(o.pos.y < 0) {
 				o.pos.y += height;
 			}
-			o.speed = o.speed.scale(0.98f);
+//			o.speed = o.speed.scale(0.98f);
 		}
 		Iterator<Reactive> reactItr = reactive.iterator();
 		while(reactItr.hasNext()) {
