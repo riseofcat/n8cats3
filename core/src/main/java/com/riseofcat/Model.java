@@ -52,7 +52,7 @@ private static class Sync {
 		if(t < time) {
 			return calcServerTick(t);
 		}
-		return calcServerTick(t) + (serverTick - clientTick) * LibAllGwt.Fun.arg0toInf(t - time, 1300);
+		return calcServerTick(t) + (clientTick - serverTick) * (1f - LibAllGwt.Fun.arg0toInf(t - time, 600));
 	}
 }
 public Model() {
@@ -141,8 +141,8 @@ public void action(Logic.Action action) {
 	synchronized(this) {
 		final int clientTick = (int) sync.calcClientTick();
 		if(!ready()) return;
-		if(sync.calcServerTick() - sync.calcClientTick() > Params.DELAY_TICKS) return;
-		if(sync.calcClientTick() - sync.calcServerTick() > Params.FUTURE_TICKS) return;
+		if(sync.calcServerTick() - sync.calcClientTick() > Params.DELAY_TICKS * 1.5) return;
+		if(sync.calcClientTick() - sync.calcServerTick() > Params.FUTURE_TICKS * 1.5) return;
 		int w = (int) (getLatencySeconds() / Logic.UPDATE_S) + 1;//todo Учитывать среднюю задержку
 		ClientPayload.ClientAction a = new ClientPayload.ClientAction();
 		a.aid = ++previousActionId;
