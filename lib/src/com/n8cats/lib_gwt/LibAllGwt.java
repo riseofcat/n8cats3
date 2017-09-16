@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 public class LibAllGwt {
-public static final float MILLIS_IN_SECCONDS = 1000f;
+public static final float MILLIS_IN_SECCOND = 1000f;
 public static boolean TRUE() {
 	return Boolean.TRUE;
 }

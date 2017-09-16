@@ -39,7 +39,7 @@ public PingClient(String host, int port, String path, final Class<ServerSay<S>> 
 		public boolean onMessage(final WebSocket webSocket, final String packet) {
 			ServerSay<S> serverSay = json.fromJson(typeS, packet);
 			if(serverSay.latency != null) {
-				latencyS = serverSay.latency / LibAllGwt.MILLIS_IN_SECCONDS;
+				latencyS = serverSay.latency / LibAllGwt.MILLIS_IN_SECCOND;
 				latencies.offer(new LatencyTime(serverSay.latency, App.timeMs()));
 				while(latencies.size() > 100) latencies.poll();
 				float sum = 0;
@@ -51,7 +51,7 @@ public PingClient(String host, int port, String path, final Class<ServerSay<S>> 
 					sum += w * l.latency;
 					weights += w;
 				}
-				if(weights > Float.MIN_VALUE * 1E10) smartLatencyS = sum / weights / LibAllGwt.MILLIS_IN_SECCONDS;
+				if(weights > Float.MIN_VALUE * 1E10) smartLatencyS = sum / weights / LibAllGwt.MILLIS_IN_SECCOND;
 			}
 			if(serverSay.ping) {
 				ClientSay<C> answer = new ClientSay<>();
