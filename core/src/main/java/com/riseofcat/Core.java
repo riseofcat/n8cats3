@@ -48,9 +48,9 @@ public void create() {
 }
 public void resize(int width, int height) {
 	if(MULTIPLE_VIEWPORTS) {
-		viewport1.update(width/2, height, true);
-		viewport1.setScreenX(width/2);
-		viewport2.update(width/2, height, true);
+		viewport1.update(width / 2, height, true);
+		viewport1.setScreenX(width / 2);
+		viewport2.update(width / 2, height, true);
 		batch.setProjectionMatrix(viewport2.getCamera().combined);
 	} else {
 		viewport1.update(width, height, true);
@@ -93,7 +93,8 @@ public void render() {
 	batch.begin();
 	Resources.Font.loadedFont().draw(batch, "fps: " + Gdx.graphics.getFramesPerSecond(), 0, 150);
 	Resources.Font.loadedFont().draw(batch, model.getPlayerName(), 0, 200);
-	Resources.Font.loadedFont().draw(batch, "ping: " + model.getLatency(), 0, 250);
+	Resources.Font.loadedFont().draw(batch, "latency:       " + (int) model.client.latency, 0, 250);
+	Resources.Font.loadedFont().draw(batch, "smart latency: " + (int) model.client.smartLatency, 0, 300);
 	if(TEST_TEXTURE) {
 		batch.draw(Resources.Textures.green, Logic.width / 2, Logic.height / 2);
 	}

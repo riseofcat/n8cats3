@@ -37,7 +37,7 @@ public static void create() {
 	Gdx.app.setLogLevel(Application.LOG_DEBUG);
 	createMs = timeMs();
 }
-public static long timeMs() {
+public static long timeMs() {//todo предусмотреть перевод времени
 	System.currentTimeMillis();
 	return TimeUtils.millis();
 }

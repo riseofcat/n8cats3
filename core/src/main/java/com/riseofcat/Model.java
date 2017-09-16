@@ -17,7 +17,7 @@ import java.util.Iterator;
 import java.util.List;
 
 public class Model {
-private final PingClient<ServerPayload, ClientPayload> client;
+public final PingClient<ServerPayload, ClientPayload> client;
 private Logic.Player.Id playerId;
 private final DefaultValueMap<Tick, List<Logic.PlayerAction>> actions = new DefaultValueMap<>(new HashMap<Tick, List<Logic.PlayerAction>>(), new DefaultValueMap.ICreateNew<List<Logic.PlayerAction>>() {
 	public List<Logic.PlayerAction> createNew() {return new ArrayList<>();}
@@ -31,7 +31,7 @@ private Sync sync;
 private static class Sync {
 	final float serverTick;
 	final float clientTick;
-	final long time;//todo предусмотреть перевод времени
+	final long time;
 	public Sync(float serverTick, @Nullable Sync oldSync) {
 		time = App.timeMs();
 		this.serverTick = serverTick;
@@ -42,7 +42,7 @@ private static class Sync {
 		}
 	}
 	private float calcServerTick(long t) {
-		return serverTick + (t - time) / (float) Logic.UPDATE_MS;
+		return serverTick + (t - time) / (float)Logic.UPDATE_MS;
 	}
 	public float calcServerTick() {
 		return calcServerTick(App.timeMs());
@@ -57,20 +57,20 @@ private static class Sync {
 }
 public Model() {
 	final boolean LOCAL =
-//			LibAllGwt.TRUE();
-		  LibAllGwt.FALSE();
+			LibAllGwt.TRUE();
+//		  LibAllGwt.FALSE();
 	String host = "n8cats3.herokuapp.com";
 	int port = 80;
 	if(LOCAL) {//todo параметры при компиляции
-		host = "192.168.0.82";
-//		host = "localhost";//"127.0.0.1"
+//		host = "192.168.0.82";
+		host = "localhost";//"127.0.0.1"
 		port = 5000;
 	}
 	client = new PingClient(host, port, "socket", ServerSayS.class);
 	client.connect(new Signal.Listener<ServerPayload>() {
 		public void onSignal(ServerPayload s) {
 			synchronized(this) {
-				sync = new Sync(s.tick + getLatencySeconds() / Logic.UPDATE_S, sync);
+				sync = new Sync(s.tick + client.smartLatency / Logic.UPDATE_MS, sync);
 				if(s.welcome != null) {
 					playerId = s.welcome.id;
 				}
@@ -120,10 +120,6 @@ public Model() {
 		}
 	});
 }
-public int getLatency() {
-	if(client.latency == null) return Params.DEFAULT_LATENCY_MS;
-	return client.latency;
-}
 public String getPlayerName() {
 	if(playerId == null) {
 		return "Wait connection...";
@@ -133,9 +129,6 @@ public String getPlayerName() {
 public boolean ready() {
 	return playerId != null;
 }
-public float getLatencySeconds() {
-	return (client.latency == null ? Params.DEFAULT_LATENCY_MS : client.latency) / 1000f;
-}
 private int previousActionId = 0;
 public void action(Logic.Action action) {
 	synchronized(this) {
@@ -143,7 +136,7 @@ public void action(Logic.Action action) {
 		if(!ready()) return;
 		if(sync.calcServerTick() - sync.calcClientTick() > Params.DELAY_TICKS * 1.5) return;
 		if(sync.calcClientTick() - sync.calcServerTick() > Params.FUTURE_TICKS * 1.5) return;
-		int w = (int) (getLatencySeconds() / Logic.UPDATE_S) + 1;//todo Учитывать среднюю задержку
+		int w = (int) (client.smartLatency / Logic.UPDATE_MS + 1);
 		ClientPayload.ClientAction a = new ClientPayload.ClientAction();
 		a.aid = ++previousActionId;
 		a.wait = w;

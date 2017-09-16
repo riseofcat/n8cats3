@@ -7,7 +7,7 @@ import java.util.Iterator;
 
 public class Logic {
 public static final int UPDATE_MS = 40;
-public static final float UPDATE_S = UPDATE_MS * 0.001f;
+public static final float UPDATE_S = UPDATE_MS * 1E-3f;
 public static float width = 1000;
 public static float height = 1000;
 public static final int MIN_SIZE = 15;
