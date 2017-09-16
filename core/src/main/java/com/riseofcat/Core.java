@@ -14,6 +14,7 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import com.n8cats.lib_gwt.LibAllGwt;
 import com.n8cats.share.Logic;
 
 public class Core extends ApplicationAdapter {
@@ -93,8 +94,8 @@ public void render() {
 	batch.begin();
 	Resources.Font.loadedFont().draw(batch, "fps: " + Gdx.graphics.getFramesPerSecond(), 0, 150);
 	Resources.Font.loadedFont().draw(batch, model.getPlayerName(), 0, 200);
-	Resources.Font.loadedFont().draw(batch, "latency:       " + (int) model.client.latency, 0, 250);
-	Resources.Font.loadedFont().draw(batch, "smart latency: " + (int) model.client.smartLatency, 0, 300);
+	Resources.Font.loadedFont().draw(batch, "latency:       " + (int) (model.client.latencyS * LibAllGwt.MILLIS_IN_SECCONDS), 0, 250);
+	Resources.Font.loadedFont().draw(batch, "smart latency: " + (int) (model.client.smartLatencyS * LibAllGwt.MILLIS_IN_SECCONDS), 0, 300);
 	if(TEST_TEXTURE) {
 		batch.draw(Resources.Textures.green, Logic.width / 2, Logic.height / 2);
 	}

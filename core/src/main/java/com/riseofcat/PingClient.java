@@ -22,8 +22,8 @@ private final Signal<S> incoming = new Signal<>();
 private final WebSocket socket;
 private final Queue<ClientSay<C>> queue = new LinkedList<>();//todo test
 private static final Json json = new Json();
-public float smartLatency = Params.DEFAULT_LATENCY_MS;
-public float latency = Params.DEFAULT_LATENCY_MS;
+public float smartLatencyS = Params.DEFAULT_LATENCY_S;
+public float latencyS = Params.DEFAULT_LATENCY_S;
 private Queue<LatencyTime> latencies = new ArrayDeque<>();
 public PingClient(String host, int port, String path, final Class<ServerSay<S>> typeS) {
 	latencies.add(new LatencyTime(Params.DEFAULT_LATENCY_MS, App.timeMs()));
@@ -39,19 +39,19 @@ public PingClient(String host, int port, String path, final Class<ServerSay<S>> 
 		public boolean onMessage(final WebSocket webSocket, final String packet) {
 			ServerSay<S> serverSay = json.fromJson(typeS, packet);
 			if(serverSay.latency != null) {
-				latency = serverSay.latency;
+				latencyS = serverSay.latency / LibAllGwt.MILLIS_IN_SECCONDS;
 				latencies.offer(new LatencyTime(serverSay.latency, App.timeMs()));
 				while(latencies.size() > 100) latencies.poll();
 				float sum = 0;
 				float weights = 0;
-				long time = App.timeMs();
+				final long time = App.timeMs();
 				for(LatencyTime l : latencies) {
 					double w = 1 - LibAllGwt.Fun.arg0toInf(time - l.time, 10_000);
 					w *= 1 - LibAllGwt.Fun.arg0toInf(l.latency, Params.DEFAULT_LATENCY_MS);
 					sum += w * l.latency;
 					weights += w;
 				}
-				if(weights > Float.MIN_VALUE * 1E10) smartLatency = sum / weights;
+				if(weights > Float.MIN_VALUE * 1E10) smartLatencyS = sum / weights / LibAllGwt.MILLIS_IN_SECCONDS;
 			}
 			if(serverSay.ping) {
 				ClientSay<C> answer = new ClientSay<>();

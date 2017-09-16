@@ -70,7 +70,7 @@ public Model() {
 	client.connect(new Signal.Listener<ServerPayload>() {
 		public void onSignal(ServerPayload s) {
 			synchronized(this) {
-				sync = new Sync(s.tick + client.smartLatency / Logic.UPDATE_MS, sync);
+				sync = new Sync(s.tick + client.smartLatencyS / Logic.UPDATE_S, sync);
 				if(s.welcome != null) {
 					playerId = s.welcome.id;
 				}
@@ -136,7 +136,7 @@ public void action(Logic.Action action) {
 		if(!ready()) return;
 		if(sync.calcServerTick() - sync.calcClientTick() > Params.DELAY_TICKS * 1.5) return;
 		if(sync.calcClientTick() - sync.calcServerTick() > Params.FUTURE_TICKS * 1.5) return;
-		int w = (int) (client.smartLatency / Logic.UPDATE_MS + 1);
+		int w = (int) (client.smartLatencyS / Logic.UPDATE_S + 1);
 		ClientPayload.ClientAction a = new ClientPayload.ClientAction();
 		a.aid = ++previousActionId;
 		a.wait = w;

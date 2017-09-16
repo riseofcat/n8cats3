@@ -41,9 +41,6 @@ public static long timeMs() {//todo предусмотреть перевод в
 	System.currentTimeMillis();
 	return TimeUtils.millis();
 }
-public static float timeSinceCreate() {
-	return (timeMs() - createMs)/1E3f;
-}
 public static void breakpoint() {
 	int a = 1+1;
 }
