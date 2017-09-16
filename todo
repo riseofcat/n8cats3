@@ -43,3 +43,5 @@ Reddit
 8:01:51 PM web.1 |      at sun.nio.ch.SocketChannelImpl.write(SocketChannelImpl.java:504)
 8:01:51 PM web.1 |      at org.eclipse.jetty.io.ChannelEndPoint.flush(ChannelEndPoint.java:272)
 8:01:51 PM web.1 |      ... 24 more
+
+ifconfig wlx2cd05ad18a19 | grep 'inet addr:' | cut -d: -f2 | awk '{ print $1}'

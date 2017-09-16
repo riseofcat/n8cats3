@@ -33,7 +33,14 @@ public Model() {
 	final boolean LOCAL =
 			LibAllGwt.TRUE();
 //		  LibAllGwt.FALSE();
-	client = LOCAL ? new PingClient("192.168.0.82", 5000, "socket", ServerSayS.class) : new PingClient("n8cats3.herokuapp.com", 80, "socket", ServerSayS.class);
+	String host = "n8cats3.herokuapp.com";
+	int port = 80;
+	if(LOCAL) {//todo параметры при компиляции
+		host = "192.168.0.82";
+//		host = "localhost";//"127.0.0.1"
+		port = 5000;
+	}
+	client = new PingClient(host, port, "socket", ServerSayS.class);
 	client.connect(new Signal.Listener<ServerPayload>() {
 		public void onSignal(ServerPayload s) {
 			synchronized(this) {
