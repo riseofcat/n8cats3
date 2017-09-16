@@ -16,9 +16,6 @@ import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class TickGame {
-public static final int DELAY_TICKS = Params.DEFAULT_LATENCY_MS * 3 / Logic.UPDATE_MS + 1;//количество тиков для хранения действий //bigger delayed
-public static final int REMOVE_TICKS = DELAY_TICKS * 2;//bigger removed
-public static final int FUTURE_TICKS = DELAY_TICKS * 2;
 private final long startTime = System.currentTimeMillis();
 private int previousActionsVersion = 0;
 volatile private int tick = 0;//todo volatile redundant?//todo float
@@ -144,17 +141,17 @@ ServerPayload createStablePayload() {
 	return result;
 }
 private Tick getStableTick() {
-	int result = tick - DELAY_TICKS + 1;
+	int result = tick - Params.DELAY_TICKS + 1;
 	if(result < 0) {
 		return new Tick(0);
 	}
 	return new Tick(result);
 }
 private int getRemoveBeforeTick() {
-	return tick - REMOVE_TICKS + 1;
+	return tick - Params.REMOVE_TICKS + 1;
 }
 private int getFutureTick() {
-	return tick + FUTURE_TICKS;
+	return tick + Params.FUTURE_TICKS;
 }
 private static class ConcreteRoomsServer extends RoomsDecorator<ClientPayload, ServerPayload> {
 

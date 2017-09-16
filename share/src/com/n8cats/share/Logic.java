@@ -183,7 +183,7 @@ public static class State /*implements Serializable, LibAllGwt.Cloneable<State>*
 				}
 			}
 		}
-		if(foods.size() < 40) {
+		if(foods.size() < 100) {
 			foods.add(new Food(rndPos()));
 		}
 		return this;

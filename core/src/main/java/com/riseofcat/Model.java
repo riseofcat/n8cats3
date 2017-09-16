@@ -27,13 +27,13 @@ private final DefaultValueMap<Tick, List<Logic.PlayerAction>> actions = new Defa
 private final DefaultValueMap<Tick, List<Action>> myActions = new DefaultValueMap<>(new HashMap<Tick, List<Action>>(), new DefaultValueMap.ICreateNew<List<Action>>() {
 	public List<Action> createNew() {return new ArrayList<>();}
 });
-private StateWrapper old;
+private StateWrapper stable;
 private Float serverTickPreviousTime;
 public Model() {
 	final boolean LOCAL =
 			LibAllGwt.TRUE();
 //		  LibAllGwt.FALSE();
-	client = LOCAL ? new PingClient("localhost", 5000, "socket", ServerSayS.class) : new PingClient("n8cats3.herokuapp.com", 80, "socket", ServerSayS.class);
+	client = LOCAL ? new PingClient("192.168.0.82", 5000, "socket", ServerSayS.class) : new PingClient("n8cats3.herokuapp.com", 80, "socket", ServerSayS.class);
 	client.connect(new Signal.Listener<ServerPayload>() {
 		public void onSignal(ServerPayload s) {
 			synchronized(this) {
@@ -45,16 +45,18 @@ public Model() {
 				}
 				if(s.stable != null) {
 					if(s.stable.state != null) {
-						old = new StateWrapper();
-						old.state = s.stable.state;
-						old.tick = s.stable.tick;
+						stable = new StateWrapper();
+						stable.state = s.stable.state;
+						stable.tick = s.stable.tick;
 					} else {
-						old.tick(s.stable.tick);
+						stable.tick(s.stable.tick);
 					}
+					clearCache(s.stable.tick);
 				}
 				if(s.actions != null && s.actions.size() > 0) {
 					for(ServerPayload.TickActions t : s.actions) {
 						actions.getExistsOrPutDefault(new Tick(t.tick)).addAll(t.list);
+						clearCache(t.tick + 1);
 					}
 				}
 				for(Tick t : myActions.map.keySet()) {
@@ -65,14 +67,18 @@ public Model() {
 						if(s.canceled != null) {
 							if(s.canceled.contains(next.aid)) {
 								iterator.remove();
+								clearCache(t.tick + 1);
 								continue;
 							}
 						}
 						if(s.apply != null) {
 							for(ServerPayload.AppliedActions apply : s.apply) {
 								if(apply.aid == next.aid) {
-									actions.getExistsOrPutDefault(t.add(apply.delay)).add(new Logic.PlayerAction(playerId, next.action));
-									iterator.remove();
+									if(apply.delay > 0) {
+										actions.getExistsOrPutDefault(t.add(apply.delay)).add(new Logic.PlayerAction(playerId, next.action));
+										iterator.remove();
+										clearCache(t.tick + 1);
+									}
 									continue whl;
 								}
 							}
@@ -100,20 +106,11 @@ public float getLatencySeconds() {
 	return (client.latency == null ? Params.DEFAULT_LATENCY_MS : client.latency) / 1000f;
 }
 private int previousActionId = 0;
-public void touch(Logic.XY pos) {//todo move out?
-	Logic.State displayState = getDisplayState();
-	if(displayState == null) return;
-	for(Logic.Car car : displayState.cars) {
-		if(playerId.equals(car.owner)) {
-			Logic.Angle direction = pos.sub(car.pos).calcAngle().add(new Logic.DegreesAngle(0 * 180));
-			action(new Logic.Action(direction));
-			break;
-		}
-	}
-}
 public void action(Logic.Action action) {
 	synchronized(this) {
 		if(!ready()) return;
+		if(serverTick - clientTick > Params.DELAY_TICKS) return;
+		if(clientTick - serverTick > Params.FUTURE_TICKS) return;
 		int w = (int) (getLatencySeconds() / Logic.UPDATE_S) + 1;//todo Учитывать среднюю задержку
 		ClientPayload.ClientAction a = new ClientPayload.ClientAction();
 		a.aid = ++previousActionId;
@@ -128,6 +125,17 @@ public void action(Logic.Action action) {
 		client.say(payload);
 	}
 }
+public void touch(Logic.XY pos) {//todo move out?
+	Logic.State displayState = getDisplayState();
+	if(displayState == null) return;
+	for(Logic.Car car : displayState.cars) {
+		if(playerId.equals(car.owner)) {
+			Logic.Angle direction = pos.sub(car.pos).calcAngle().add(new Logic.DegreesAngle(0 * 180));
+			action(new Logic.Action(direction));
+			break;
+		}
+	}
+}
 public void update(float graphicDelta) {
 	if(serverTickPreviousTime == null) return;
 	float time = App.timeSinceCreate();
@@ -139,14 +147,32 @@ public void update(float graphicDelta) {
 public @Nullable Logic.State getDisplayState() {
 	return getState((int) clientTick);
 }
-private @Nullable Logic.State getState(int tick) {
-	StateWrapper temp;
-	synchronized(this) {
-		if(old == null) return null;
-		temp = old.copy();
+private StateWrapper cache;
+private void clearCache(int tick) {
+	if(cache != null && tick < cache.tick) {
+		cache = null;
 	}
-	temp.tick(tick);
-	return temp.state;
+}
+private StateWrapper getNearestCache(int tick) {
+	if(cache != null && cache.tick <= tick) {
+		return cache;
+	}
+	return null;
+}
+private void saveCache(StateWrapper value) {
+	cache = value;
+}
+private @Nullable Logic.State getState(int tick) {
+	StateWrapper result = getNearestCache(tick);
+	if(result == null) {
+		if(stable == null) return null;
+		synchronized(this) {
+			result = stable.copy();
+			saveCache(result);
+		}
+	}
+	result.tick(tick);
+	return result.state;
 }
 public void dispose() {
 	client.close();

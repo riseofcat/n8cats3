@@ -91,6 +91,7 @@ public void render() {
 		viewport2.apply();
 	}
 	batch.begin();
+	Resources.Font.loadedFont().draw(batch, "fps: " + Gdx.graphics.getFramesPerSecond(), 0, 150);
 	Resources.Font.loadedFont().draw(batch, model.getPlayerName(), 0, 200);
 	Resources.Font.loadedFont().draw(batch, "ping: " + model.getLatency(), 0, 250);
 	if(TEST_TEXTURE) {

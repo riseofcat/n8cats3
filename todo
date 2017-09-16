@@ -7,3 +7,39 @@ Heroku supports many different versions of Java, system.properties(optional), de
 Инди-площадки (itch.io, SlideDB, GameJolt — здесь везде можно оставить ссылку на Стор)
 Форумы (крупнейшие: 4PDA, XDA, TouchArcade, TIGSource и т.д.)
 Reddit
+
+
+[qtp942571759-17] ERROR main - OnWebSocketError org.eclipse.jetty.io.EofException
+8:01:51 PM web.1 |  org.eclipse.jetty.io.EofException
+8:01:51 PM web.1 |      at org.eclipse.jetty.io.ChannelEndPoint.flush(ChannelEndPoint.java:292)
+8:01:51 PM web.1 |      at org.eclipse.jetty.io.WriteFlusher.flush(WriteFlusher.java:429)
+8:01:51 PM web.1 |      at org.eclipse.jetty.io.WriteFlusher.write(WriteFlusher.java:322)
+8:01:51 PM web.1 |      at org.eclipse.jetty.io.AbstractEndPoint.write(AbstractEndPoint.java:372)
+8:01:51 PM web.1 |      at org.eclipse.jetty.websocket.common.io.FrameFlusher$Flusher.flush(FrameFlusher.java:153)
+8:01:51 PM web.1 |      at org.eclipse.jetty.websocket.common.io.FrameFlusher$Flusher.process(FrameFlusher.java:217)
+8:01:51 PM web.1 |      at org.eclipse.jetty.util.IteratingCallback.processing(IteratingCallback.java:241)
+8:01:51 PM web.1 |      at org.eclipse.jetty.util.IteratingCallback.iterate(IteratingCallback.java:224)
+8:01:51 PM web.1 |      at org.eclipse.jetty.websocket.common.io.FrameFlusher.enqueue(FrameFlusher.java:382)
+8:01:51 PM web.1 |      at org.eclipse.jetty.websocket.common.io.AbstractWebSocketConnection.outgoingFrame(AbstractWebSocketConnection.java:614)
+8:01:51 PM web.1 |      at org.eclipse.jetty.websocket.common.io.AbstractWebSocketConnection.onConnectionStateChange(AbstractWebSocketConnection.java:473)
+8:01:51 PM web.1 |      at org.eclipse.jetty.websocket.common.io.IOState.notifyStateListeners(IOState.java:184)
+8:01:51 PM web.1 |      at org.eclipse.jetty.websocket.common.io.IOState.onReadFailure(IOState.java:498)
+8:01:51 PM web.1 |      at org.eclipse.jetty.websocket.common.io.AbstractWebSocketConnection.readParse(AbstractWebSocketConnection.java:666)
+8:01:51 PM web.1 |      at org.eclipse.jetty.websocket.common.io.AbstractWebSocketConnection.onFillable(AbstractWebSocketConnection.java:511)
+8:01:51 PM web.1 |      at org.eclipse.jetty.io.AbstractConnection$ReadCallback.succeeded(AbstractConnection.java:279)
+8:01:51 PM web.1 |      at org.eclipse.jetty.io.FillInterest.fillable(FillInterest.java:110)
+8:01:51 PM web.1 |      at org.eclipse.jetty.io.ChannelEndPoint$2.run(ChannelEndPoint.java:124)
+8:01:51 PM web.1 |      at org.eclipse.jetty.util.thread.Invocable.invokePreferred(Invocable.java:128)
+8:01:51 PM web.1 |      at org.eclipse.jetty.util.thread.Invocable$InvocableExecutor.invoke(Invocable.java:222)
+8:01:51 PM web.1 |      at org.eclipse.jetty.util.thread.strategy.EatWhatYouKill.doProduce(EatWhatYouKill.java:294)
+8:01:51 PM web.1 |      at org.eclipse.jetty.util.thread.strategy.EatWhatYouKill.run(EatWhatYouKill.java:199)
+8:01:51 PM web.1 |      at org.eclipse.jetty.util.thread.QueuedThreadPool.runJob(QueuedThreadPool.java:672)
+8:01:51 PM web.1 |      at org.eclipse.jetty.util.thread.QueuedThreadPool$2.run(QueuedThreadPool.java:590)
+8:01:51 PM web.1 |      at java.lang.Thread.run(Thread.java:745)
+8:01:51 PM web.1 |  Caused by: java.io.IOException: Broken pipe
+8:01:51 PM web.1 |      at sun.nio.ch.FileDispatcherImpl.writev0(Native Method)
+8:01:51 PM web.1 |      at sun.nio.ch.SocketDispatcher.writev(SocketDispatcher.java:51)
+8:01:51 PM web.1 |      at sun.nio.ch.IOUtil.write(IOUtil.java:148)
+8:01:51 PM web.1 |      at sun.nio.ch.SocketChannelImpl.write(SocketChannelImpl.java:504)
+8:01:51 PM web.1 |      at org.eclipse.jetty.io.ChannelEndPoint.flush(ChannelEndPoint.java:272)
+8:01:51 PM web.1 |      ... 24 more
