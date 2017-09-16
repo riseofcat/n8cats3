@@ -57,8 +57,8 @@ private static class Sync {
 }
 public Model() {
 	final boolean LOCAL =
-			LibAllGwt.TRUE();
-//		  LibAllGwt.FALSE();
+//			LibAllGwt.TRUE();
+		  LibAllGwt.FALSE();
 	String host = "n8cats3.herokuapp.com";
 	int port = 80;
 	if(LOCAL) {//todo параметры при компиляции

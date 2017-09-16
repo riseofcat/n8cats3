@@ -165,7 +165,7 @@ public static class State /*implements Serializable, LibAllGwt.Cloneable<State>*
 			} else if(o.pos.y < 0) {
 				o.pos.y += height;
 			}
-//			o.speed = o.speed.scale(0.98f);
+//			o.speed = o.speed.scale(0.98f);//todo
 		}
 		Iterator<Reactive> reactItr = reactive.iterator();
 		while(reactItr.hasNext()) {
@@ -178,7 +178,7 @@ public static class State /*implements Serializable, LibAllGwt.Cloneable<State>*
 			while(foodItr.hasNext()) {
 				Food f = foodItr.next();
 				if(car.pos.sub(f.pos).len() <= car.radius()) {
-					car.size += f.size;
+//					car.size += f.size;//todo
 					foodItr.remove();
 				}
 			}
