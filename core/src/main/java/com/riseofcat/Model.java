@@ -19,8 +19,8 @@ import java.util.List;
 public class Model {
 public final PingClient<ServerPayload, ClientPayload> client;
 private Logic.Player.Id playerId;
-private final DefaultValueMap<Tick, List<Logic.PlayerAction>> actions = new DefaultValueMap<>(new HashMap<Tick, List<Logic.PlayerAction>>(), new DefaultValueMap.ICreateNew<List<Logic.PlayerAction>>() {
-	public List<Logic.PlayerAction> createNew() {return new ArrayList<>();}
+private final DefaultValueMap<Tick, List<Logic.BigAction>> actions = new DefaultValueMap<>(new HashMap<Tick, List<Logic.BigAction>>(), new DefaultValueMap.ICreateNew<List<Logic.BigAction>>() {
+	public List<Logic.BigAction> createNew() {return new ArrayList<>();}
 });
 private final DefaultValueMap<Tick, List<Action>> myActions = new DefaultValueMap<>(new HashMap<Tick, List<Action>>(), new DefaultValueMap.ICreateNew<List<Action>>() {
 	public List<Action> createNew() {return new ArrayList<>();}
@@ -106,7 +106,7 @@ public Model() {
 							for(ServerPayload.AppliedActions apply : s.apply) {
 								if(apply.aid == next.aid) {
 									if(apply.delay > 0) {
-										actions.getExistsOrPutDefault(t.add(apply.delay)).add(new Logic.PlayerAction(playerId, next.action));
+										actions.getExistsOrPutDefault(t.add(apply.delay)).add(new Logic.PlayerAction(playerId, next.action).toBig());
 										iterator.remove();
 										clearCache(t.tick + 1);
 									}
@@ -223,7 +223,7 @@ private class StateWrapper {
 	}
 	public void tick(int targetTick) {
 		while(tick < targetTick) {
-			List<Logic.PlayerAction> other = actions.map.get(new Tick(tick));
+			List<Logic.BigAction> other = actions.map.get(new Tick(tick));
 			if(other != null) state.act(other.iterator());
 			List<Action> my = myActions.map.get(new Tick(tick));
 			if(my != null) state.act(my.iterator());

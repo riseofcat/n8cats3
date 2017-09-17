@@ -2,6 +2,8 @@ package com.n8cats.share;
 
 import com.n8cats.lib_gwt.LibAllGwt;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 
@@ -16,9 +18,8 @@ private static final float MIN_RADIUS = 1f;
 
 abstract public static class Player {
 	abstract public Id getId();
-	public static class Id /*implements Serializable*/ {
-		@SuppressWarnings("unused")
-		public Id() {
+	public static class Id {
+		@SuppressWarnings("unused") public Id() {
 		}
 		public Id(int id) {
 			this.id = id;
@@ -64,6 +65,7 @@ public static class Food extends EatMe {
 public static class Reactive extends EatMe {
 	public Player.Id owner;
 	public int ticks;
+	@SuppressWarnings("unused")
 	public Reactive() {
 	}
 	public Reactive(Player.Id owner, int size, XY pos, XY speed) {
@@ -76,22 +78,12 @@ public static class Reactive extends EatMe {
 
 public static class Car extends EatMe {
 	public Car() {
-		size = MIN_SIZE * 2;
 	}
 	public Player.Id owner;
-	/*public Car clone() {
-		try {
-			return (Car) super.clone();
-		} catch(CloneNotSupportedException e) {
-			e.printStackTrace();
-		}
-		return null;
-	}*/
 }
 
 public static class Action {
-	@SuppressWarnings("unused")
-	public Action() {
+	@SuppressWarnings("unused") public Action() {
 	}
 	public Action(Angle direction) {
 		this.direction = direction;
@@ -99,80 +91,105 @@ public static class Action {
 	public Angle direction;
 }
 
-public static class PlayerAction {
+public interface InStateAction {
+	void act(State state, GetCarById getCar);
+}
+
+public interface GetCarById {
+	Car getCar(Player.Id id);
+}
+
+public static class PlayerAction implements InStateAction {
 	public Logic.Player.Id id;
 	public Logic.Action action;
-	@SuppressWarnings("unused")
-	public PlayerAction() {
+	@SuppressWarnings("unused") public PlayerAction() {
 	}
 	public PlayerAction(Player.Id id, Action action) {
 		this.id = id;
 		this.action = action;
 	}
+	public void act(State state, GetCarById getCar) {
+		final float scl = 100f;
+		Car car = getCar.getCar(id);
+		if(car == null) return;//todo handle null ?
+		car.speed = car.speed.add(action.direction.xy().scale(scl));
+		int s = car.size / 15 + 1;
+		if(car.size - s >= MIN_SIZE) car.size -= s;
+		state.reactive.add(new Reactive(id, s, new XY(car.pos), new XY(action.direction.add(new DegreesAngle(180)).xy().scale(3f * scl))));
+	}
+	public BigAction toBig() {
+		BigAction result = new BigAction();
+		result.p = this;
+		return result;
+	}
 }
 
-public static class State /*implements Serializable, LibAllGwt.Cloneable<State>*/ {
+public static class NewCarAction implements InStateAction {
+	public XY pos;
+	public Player.Id id;
+	@SuppressWarnings("unused") public NewCarAction() {
+	}
+	public NewCarAction(XY pos, Player.Id id) {
+		this.pos = pos;
+		this.id = id;
+	}
+	public void act(State state, GetCarById getCar) {
+		Car car = new Car();
+		car.pos = new XY(pos);
+		car.owner = id;
+		car.size = MIN_SIZE * 2;
+		state.cars.add(car);
+	}
+	public BigAction toBig() {
+		BigAction result = new BigAction();
+		result.n = this;
+		return result;
+	}
+}
+
+public static class BigAction implements InStateAction {//todo redundant because Json serialization
+	@Nullable public NewCarAction n;
+	@Nullable public PlayerAction p;
+	public void act(State state, GetCarById getCar) {
+		if(n != null) n.act(state, getCar);
+		if(p != null) p.act(state, getCar);
+	}
+}
+
+public static class State {
 	public ArrayList<Car> cars = new ArrayList<>();
 	public ArrayList<Food> foods = new ArrayList<>();
 	public ArrayList<Reactive> reactive = new ArrayList<>();
 	public int random;
-	public State act(Iterator<? extends PlayerAction> iterator) {
-		class Cache {
+	@SuppressWarnings("unused") public State() {
+	}
+	public State act(Iterator<? extends InStateAction> iterator) {//todo interface Action id act(getId, state
+		class Cache implements GetCarById {
 			public Car getCar(Logic.Player.Id id) {
-				for(Car car : cars) {
-					if(id.equals(car.owner)) {
-						return car;
-					}
-				}
+				for(Car car : cars) if(id.equals(car.owner)) return car;
 				return null;
 			}
 		}
 		Cache cache = new Cache();
 		while(iterator.hasNext()) {
-			PlayerAction p = iterator.next();
-			Car car = cache.getCar(p.id);
-			if(car == null) continue;
-			float scl = 100f;
-			car.speed = car.speed.add(p.action.direction.xy().scale(scl));
-			int s = car.size / 15 + 1;
-			if(car.size - s >= MIN_SIZE) {
-				car.size -= s;
-			}
-			reactive.add(new Reactive(p.id, s, new XY(car.pos), new XY(p.action.direction.add(new DegreesAngle(180)).xy().scale(3f * scl))));
+			InStateAction p = iterator.next();
+			p.act(this, cache);
 		}
 		return this;
 	}
-	/*public State clone() {
-		State result = new State();
-		result.cars = new ArrayList<>();
-		for(Car car : cars) {
-			result.cars.add(LibAllGwt.clone(car));
-		}
-		return result;
-	}*/
 	public State tick() {
 		CompositeIterator<SpeedObject> iterator = new CompositeIterator<SpeedObject>(cars, reactive);
 		while(iterator.hasNext()) {
 			SpeedObject o = iterator.next();
 			o.pos = o.pos.add(o.speed.scale(UPDATE_S));
-			if(o.pos.x > width) {
-				o.pos.x -= width;
-			} else if(o.pos.x < 0) {
-				o.pos.x += width;
-			}
-			if(o.pos.y > height) {
-				o.pos.y -= height;
-			} else if(o.pos.y < 0) {
-				o.pos.y += height;
-			}
+			if(o.pos.x > width) o.pos.x -= width;
+			else if(o.pos.x < 0) o.pos.x += width;
+			if(o.pos.y > height) o.pos.y -= height;
+			else if(o.pos.y < 0) o.pos.y += height;
 			o.speed = o.speed.scale(0.98f);
 		}
 		Iterator<Reactive> reactItr = reactive.iterator();
-		while(reactItr.hasNext()) {
-			if(reactItr.next().ticks++ > 60) {
-				reactItr.remove();
-			}
-		}
+		while(reactItr.hasNext()) if(reactItr.next().ticks++ > 60) reactItr.remove();
 		for(Car car : cars) {
 			Iterator<Food> foodItr = foods.iterator();
 			while(foodItr.hasNext()) {
@@ -183,9 +200,7 @@ public static class State /*implements Serializable, LibAllGwt.Cloneable<State>*
 				}
 			}
 		}
-		if(foods.size() < 100) {
-			foods.add(new Food(rndPos()));
-		}
+		if(foods.size() < 100) foods.add(new Food(rndPos()));
 		return this;
 	}
 	private int rnd(int min, int max) {
@@ -196,7 +211,7 @@ public static class State /*implements Serializable, LibAllGwt.Cloneable<State>*
 		return rnd(0, max);
 	}
 	private float rndf(float min, float max) {
-		return min + rnd(999)/1000f * (max - min);//todo optimize
+		return min + rnd(999) / 1000f * (max - min);//todo optimize
 	}
 	private float rndf(float max) {
 		return rndf(0, max);
@@ -211,25 +226,21 @@ public static class State /*implements Serializable, LibAllGwt.Cloneable<State>*
 
 public static class Angle {
 	static {
-		Angle pi = new Angle(2 * Math.PI);
-//	if(Math.abs(pi.radians) > 0.0001f) {
-//		throw new RuntimeException("test fail");
-//	}
-//	Angle minusPi = new Angle(-2.00001 * Math.PI);
-//	if(Math.abs(minusPi.radians) > 0.01f) {
-//		throw new RuntimeException("test fail");
-//	}
-//	Angle angle1 = new Angle(2 * Math.PI + 0.5f);
-//	if(angle1.radians < 0 || angle1.radians > 2 * Math.PI) {
-//		throw new RuntimeException("test fail");
-//	}
-//	Angle angle2 = new Angle(-2 * Math.PI - 0.5f);
-//	if(angle2.radians < 0 || angle2.radians > 2 * Math.PI) {
-//		throw new RuntimeException("test fail");
-//	}
+		if(false) {//todo move to tests
+			Angle pi = new Angle(2 * Math.PI);
+			if(Math.abs(pi.radians) > 0.0001f) throw new RuntimeException("test fail");
+			Angle minusPi = new Angle(-2.00001 * Math.PI);
+			if(Math.abs(minusPi.radians) > 0.01f) throw new RuntimeException("test fail");
+			Angle angle1 = new Angle(2 * Math.PI + 0.5f);
+			if(angle1.radians < 0 || angle1.radians > 2 * Math.PI)
+				throw new RuntimeException("test fail");
+			Angle angle2 = new Angle(-2 * Math.PI - 0.5f);
+			if(angle2.radians < 0 || angle2.radians > 2 * Math.PI)
+				throw new RuntimeException("test fail");
+		}
 	}
 	private float radians;
-	public Angle() {
+	@SuppressWarnings("unused") public Angle() {
 	}
 	public Angle(double radians) {
 		this.radians = (float) radians;
@@ -242,7 +253,7 @@ public static class Angle {
 	private void fix() {
 		int circles = (int) (radians / (2 * Math.PI));
 		if(Math.abs(circles) > 0) {
-			int a = 1 + 1;//todo
+			int a = 1 + 1;//todo breakpoint
 		}
 //	radians -= circles * 2 * Math.PI;
 //	if(radians < 0) {
@@ -273,7 +284,7 @@ public static class Angle {
 	public void addThis(double radians) {
 		this.radians += radians;
 		fix();
-		throw new RuntimeException("bad");
+		throw new RuntimeException("bad");//todo
 	}
 	public Angle add(Angle deltaAngle) {
 		return new Angle(this.radians + deltaAngle.radians);
@@ -288,7 +299,8 @@ public static class DegreesAngle extends Logic.Angle {
 		super(degrees / 180 * Math.PI);
 	}
 }
-public static class XY{
+
+public static class XY {//todo immutable?
 	public float x;
 	public float y;
 	public XY() {
@@ -299,7 +311,7 @@ public static class XY{
 		this.x = (float) x;
 		this.y = (float) y;
 	}
-	public XY(XY pos) {//todo Вынести копирование в context
+	public XY(XY pos) {//todo Вынести копирование в context?
 		this(pos.x, pos.y);
 	}
 	public XY add(XY a) {
@@ -321,26 +333,19 @@ public static class XY{
 		return Math.sqrt((xy.x - x) * (xy.x - x) + (xy.y - y) * (xy.y - y));
 	}
 	public double len() {
-		return dst(new XY(0,0));
+		return dst(new XY(0, 0));
 	}
 	public XY rotate(Logic.Angle angleA) {
 		Logic.Angle angle = calcAngle().add(angleA);
-		return new XY(len()*angle.cos(), len() * angle.sin());
+		return new XY(len() * angle.cos(), len() * angle.sin());
 	}
 	public Logic.Angle calcAngle() {
-		if(true) {
-			return new Angle(Math.atan2(y, x));
-		} else {
+		if(false) {
 			try {
-				Logic.Angle result = new Logic.Angle(Math.atan(y / x));
-				if(x < 0) {
-					result = result.add(new Logic.DegreesAngle(180));
-				}
-				return result;
-			} catch(Throwable t) {
-				return new Logic.DegreesAngle(LibAllGwt.Fun.sign(y) * 90);
-			}
+				return new Logic.Angle(Math.atan(y / x)).add(new DegreesAngle(x < 0 ? 180 : 0));
+			} catch(Throwable t) {return new Logic.DegreesAngle(LibAllGwt.Fun.sign(y) * 90);}
 		}
+		return new Angle(Math.atan2(y, x));
 	}
 }
 }
