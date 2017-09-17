@@ -4,6 +4,7 @@ import com.n8cats.share.ClientPayload;
 import com.n8cats.share.Logic;
 import com.n8cats.share.Params;
 import com.n8cats.share.ServerPayload;
+import com.n8cats.share.ShareTodo;
 import com.n8cats.share.Tick;
 
 import java.util.ArrayList;
@@ -63,8 +64,9 @@ public TickGame(ConcreteRoomsServer.Room room) {
 					}
 					payload.apply = new ArrayList<>();
 					payload.apply.add(new ServerPayload.AppliedActions(a.aid, delay));
-					message.player.session.send(payload);//todo move out of for
 					actions.getExistsOrPutDefault(new Tick(a.tick + delay)).add(new Action(++previousActionsVersion, new Logic.PlayerAction(message.player.getId(), a.action).toBig()));
+					if(ShareTodo.SIMPLIFY) updatePlayerInPayload(payload, message.player);
+					message.player.session.send(payload);//todo move out of for
 				}
 			}
 		}
@@ -98,18 +100,19 @@ public TickGame(ConcreteRoomsServer.Room room) {
 }
 private void updatePlayer(RoomsDecorator<ClientPayload, ServerPayload>.Room.Player p) {
 	ServerPayload payload = new ServerPayload();
+	updatePlayerInPayload(payload, p);
+	p.session.send(payload);
+}
+private void updatePlayerInPayload(ServerPayload payload, RoomsDecorator<ClientPayload, ServerPayload>.Room.Player p) {
 	payload.actions = new ArrayList<>();
 	synchronized(this) {
 		payload.tick = tick;
 		for(Map.Entry<Tick, List<Action>> entry : actions.map.entrySet()) {
 			ArrayList<Logic.BigAction> temp = new ArrayList<>();
-			for(Action a : entry.getValue())
-				if(a.pa.p == null || !a.pa.p.id.equals(p.getId()))
-					if(a.actionVersion > mapPlayerVersion.get(p.getId())) temp.add(a.pa);
+			for(Action a : entry.getValue()) if(ShareTodo.SIMPLIFY || a.pa.p == null || !a.pa.p.id.equals(p.getId())) if(a.actionVersion > mapPlayerVersion.get(p.getId())) temp.add(a.pa);
 			if(temp.size() > 0) payload.actions.add(new ServerPayload.TickActions(entry.getKey().tick, temp));
 		}
 		mapPlayerVersion.put(p.getId(), previousActionsVersion);
-		p.session.send(payload);
 	}
 }
 ServerPayload createStablePayload() {

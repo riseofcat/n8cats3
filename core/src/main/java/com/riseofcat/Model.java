@@ -6,6 +6,7 @@ import com.n8cats.share.ClientPayload;
 import com.n8cats.share.Logic;
 import com.n8cats.share.Params;
 import com.n8cats.share.ServerPayload;
+import com.n8cats.share.ShareTodo;
 import com.n8cats.share.Tick;
 import com.n8cats.share.redundant.ServerSayS;
 
@@ -105,7 +106,7 @@ public Model() {
 						if(s.apply != null) {
 							for(ServerPayload.AppliedActions apply : s.apply) {
 								if(apply.aid == next.aid) {
-									actions.getExistsOrPutDefault(t.add(apply.delay)).add(new Logic.PlayerAction(playerId, next.action).toBig());
+									if(!ShareTodo.SIMPLIFY) actions.getExistsOrPutDefault(t.add(apply.delay)).add(new Logic.PlayerAction(playerId, next.action).toBig());
 									iterator.remove();
 									clearCache(t.tick + 1);
 									continue whl;
