@@ -105,11 +105,9 @@ public Model() {
 						if(s.apply != null) {
 							for(ServerPayload.AppliedActions apply : s.apply) {
 								if(apply.aid == next.aid) {
-									if(apply.delay > 0) {
-										actions.getExistsOrPutDefault(t.add(apply.delay)).add(new Logic.PlayerAction(playerId, next.action).toBig());
-										iterator.remove();
-										clearCache(t.tick + 1);
-									}
+									actions.getExistsOrPutDefault(t.add(apply.delay)).add(new Logic.PlayerAction(playerId, next.action).toBig());
+									iterator.remove();
+									clearCache(t.tick + 1);
 									continue whl;
 								}
 							}

@@ -103,7 +103,9 @@ private void updatePlayer(RoomsDecorator<ClientPayload, ServerPayload>.Room.Play
 		payload.tick = tick;
 		for(Map.Entry<Tick, List<Action>> entry : actions.map.entrySet()) {
 			ArrayList<Logic.BigAction> temp = new ArrayList<>();
-			for(Action a : entry.getValue()) if(a.actionVersion > mapPlayerVersion.get(p.getId())) temp.add(a.pa);
+			for(Action a : entry.getValue())
+				if(a.pa.p == null || !a.pa.p.id.equals(p.getId()))
+					if(a.actionVersion > mapPlayerVersion.get(p.getId())) temp.add(a.pa);
 			if(temp.size() > 0) payload.actions.add(new ServerPayload.TickActions(entry.getKey().tick, temp));
 		}
 		mapPlayerVersion.put(p.getId(), previousActionsVersion);
