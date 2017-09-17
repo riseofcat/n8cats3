@@ -36,22 +36,18 @@ abstract public static class Player {
 		}
 	}
 }
-
 public static abstract class PosObject {
 	public XY pos = new XY();
 }
-
 public static abstract class SpeedObject extends PosObject {
 	public XY speed = new XY();
 }
-
 public static abstract class EatMe extends SpeedObject {
 	public int size;
 	public float radius() {
 		return (float) (Math.sqrt(size) * 5f) + MIN_RADIUS;
 	}
 }
-
 public static class Food extends EatMe {
 	public Food() {
 		size = FOOD_SIZE;
@@ -61,7 +57,6 @@ public static class Food extends EatMe {
 		this.pos = pos;
 	}
 }
-
 public static class Reactive extends EatMe {
 	public Player.Id owner;
 	public int ticks;
@@ -75,13 +70,11 @@ public static class Reactive extends EatMe {
 		this.owner = owner;
 	}
 }
-
 public static class Car extends EatMe {
 	public Car() {
 	}
 	public Player.Id owner;
 }
-
 public static class Action {
 	@SuppressWarnings("unused") public Action() {
 	}
@@ -90,15 +83,12 @@ public static class Action {
 	}
 	public Angle direction;
 }
-
 public interface InStateAction {
 	void act(State state, GetCarById getCar);
 }
-
 public interface GetCarById {
 	Car getCar(Player.Id id);
 }
-
 public static class PlayerAction implements InStateAction {
 	public Logic.Player.Id id;
 	public Logic.Action action;
@@ -123,7 +113,6 @@ public static class PlayerAction implements InStateAction {
 		return result;
 	}
 }
-
 public static class NewCarAction implements InStateAction {
 	public XY pos;
 	public Player.Id id;
@@ -146,7 +135,6 @@ public static class NewCarAction implements InStateAction {
 		return result;
 	}
 }
-
 public static class BigAction implements InStateAction {//todo redundant because Json serialization
 	@Nullable public NewCarAction n;
 	@Nullable public PlayerAction p;
@@ -155,7 +143,6 @@ public static class BigAction implements InStateAction {//todo redundant because
 		if(p != null) p.act(state, getCar);
 	}
 }
-
 public static class State {
 	public ArrayList<Car> cars = new ArrayList<>();
 	public ArrayList<Food> foods = new ArrayList<>();
@@ -223,7 +210,6 @@ public static class State {
 		return new XY(rndf(width), rndf(height));
 	}
 }
-
 public static class Angle {
 	static {
 		if(false) {//todo move to tests
@@ -293,13 +279,11 @@ public static class Angle {
 		return new Angle(this.radians - sub.radians);
 	}
 }
-
 public static class DegreesAngle extends Logic.Angle {
 	public DegreesAngle(double degrees) {
 		super(degrees / 180 * Math.PI);
 	}
 }
-
 public static class XY {//todo immutable?
 	public float x;
 	public float y;

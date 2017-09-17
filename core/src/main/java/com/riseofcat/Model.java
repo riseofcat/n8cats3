@@ -36,11 +36,8 @@ private static class Sync {
 	public Sync(float serverTick, @Nullable Sync oldSync) {
 		time = App.timeMs();
 		this.serverTick = serverTick;
-		if(oldSync == null) {
-			this.clientTick = serverTick;
-		} else {
-			this.clientTick = oldSync.calcClientTick();
-		}
+		if(oldSync == null) this.clientTick = serverTick;
+		else this.clientTick = oldSync.calcClientTick();
 	}
 	private float calcServerTick(long t) {
 		return serverTick + (t - time) / (float)Logic.UPDATE_MS;
@@ -50,9 +47,6 @@ private static class Sync {
 	}
 	public float calcClientTick() {
 		long t = App.timeMs();
-		if(t < time) {
-			return calcServerTick(t);
-		}
 		return calcServerTick(t) + (clientTick - serverTick) * (1f - LibAllGwt.Fun.arg0toInf(t - time, 600));
 	}
 }
@@ -72,17 +66,13 @@ public Model() {
 		public void onSignal(ServerPayload s) {
 			synchronized(this) {
 				sync = new Sync(s.tick + client.smartLatencyS / Logic.UPDATE_S, sync);
-				if(s.welcome != null) {
-					playerId = s.welcome.id;
-				}
+				if(s.welcome != null) playerId = s.welcome.id;
 				if(s.stable != null) {
 					if(s.stable.state != null) {
 						stable = new StateWrapper();
 						stable.state = s.stable.state;
 						stable.tick = s.stable.tick;
-					} else {
-						stable.tick(s.stable.tick);
-					}
+					} else stable.tick(s.stable.tick);
 					clearCache(s.stable.tick);
 				}
 				if(s.actions != null && s.actions.size() > 0) {
@@ -120,9 +110,7 @@ public Model() {
 	});
 }
 public String getPlayerName() {
-	if(playerId == null) {
-		return "Wait connection...";
-	}
+	if(playerId == null) return "Wait connection...";
 	return "Player " + playerId.toString();
 }
 public boolean ready() {
@@ -133,13 +121,15 @@ public void action(Logic.Action action) {
 	synchronized(this) {
 		final int clientTick = (int) sync.calcClientTick();
 		if(!ready()) return;
-		if(sync.calcServerTick() - sync.calcClientTick() > Params.DELAY_TICKS * 1.5) return;
-		if(sync.calcClientTick() - sync.calcServerTick() > Params.FUTURE_TICKS * 1.5) return;
-		int w = (int) (client.smartLatencyS / Logic.UPDATE_S + 1);
+		if(false) {
+			if(sync.calcServerTick() - sync.calcClientTick() > Params.DELAY_TICKS * 1.5) return;
+			if(sync.calcClientTick() - sync.calcServerTick() > Params.FUTURE_TICKS * 1.5) return;
+		}
+		int w = (int) (client.smartLatencyS / Logic.UPDATE_S + 1);//todo delta serverTick-clientTick
 		ClientPayload.ClientAction a = new ClientPayload.ClientAction();
 		a.aid = ++previousActionId;
 		a.wait = w;
-		a.tick = clientTick + w;
+		a.tick = clientTick + w;//todo serverTick?
 		a.action = action;
 		myActions.getExistsOrPutDefault(new Tick(clientTick + w)).add(new Action(a.aid, a.action));
 		ClientPayload payload = new ClientPayload();
@@ -174,14 +164,10 @@ public @Nullable Logic.State getDisplayState() {
 }
 private StateWrapper cache;
 private void clearCache(int tick) {
-	if(cache != null && tick < cache.tick) {
-		cache = null;
-	}
+	if(cache != null && tick < cache.tick) cache = null;
 }
 private StateWrapper getNearestCache(int tick) {
-	if(cache != null && cache.tick <= tick) {
-		return cache;
-	}
+	if(cache != null && cache.tick <= tick) return cache;
 	return null;
 }
 private void saveCache(StateWrapper value) {

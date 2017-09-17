@@ -73,9 +73,7 @@ public void render() {
 	Logic.State state = model.getDisplayState();
 	if(state != null) {
 		shapeRenderer.setColor(Color.GRAY);
-		for(Logic.Food food : state.foods) {
-			shapeRenderer.circle(food.pos.x, food.pos.y, food.radius());
-		}
+		for(Logic.Food food : state.foods) shapeRenderer.circle(food.pos.x, food.pos.y, food.radius());
 		for(Logic.Reactive react : state.reactive) {
 			Color color = colors[react.owner.id % (colors.length - 1)];
 			shapeRenderer.setColor(color);
@@ -88,17 +86,13 @@ public void render() {
 		}
 	}
 	shapeRenderer.end();
-	if(MULTIPLE_VIEWPORTS) {
-		viewport2.apply();
-	}
+	if(MULTIPLE_VIEWPORTS) viewport2.apply();
 	batch.begin();
 	Resources.Font.loadedFont().draw(batch, "fps: " + Gdx.graphics.getFramesPerSecond(), 0, 150);
 	Resources.Font.loadedFont().draw(batch, model.getPlayerName(), 0, 200);
 	Resources.Font.loadedFont().draw(batch, "latency:       " + (int) (model.client.latencyS * LibAllGwt.MILLIS_IN_SECCOND), 0, 250);
 	Resources.Font.loadedFont().draw(batch, "smart latency: " + (int) (model.client.smartLatencyS * LibAllGwt.MILLIS_IN_SECCOND), 0, 300);
-	if(TEST_TEXTURE) {
-		batch.draw(Resources.Textures.green, Logic.width / 2, Logic.height / 2);
-	}
+	if(TEST_TEXTURE) batch.draw(Resources.Textures.green, Logic.width / 2, Logic.height / 2);
 	batch.end();
 }
 public void dispose() {
