@@ -17,6 +17,8 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 import com.n8cats.lib_gwt.LibAllGwt;
 import com.n8cats.share.Logic;
 
+import sun.rmi.runtime.Log;
+
 public class Core extends ApplicationAdapter {
 private SpriteBatch batch;
 private ShapeRenderer shapeRenderer;
@@ -80,8 +82,18 @@ public void render() {
 		stage.draw();
 	}
 	viewport1.apply();
-	shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+	shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+	shapeRenderer.setColor(Color.WHITE);
+	float gridSize = 100;
+	for(int x = 0; x*gridSize <= Logic.width; x++) {
+		shapeRenderer.line(x*gridSize, 0, 0, x*gridSize, Logic.height, 0);
+	}
+	for(int y = 0; y*gridSize < Logic.height; y++) {
+		shapeRenderer.line(0, y*gridSize, 0, Logic.width, y*gridSize, 0);
+	}
+	shapeRenderer.end();
 	if(state != null) {
+		shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
 		shapeRenderer.setColor(Color.GRAY);
 		for(Logic.Food food : state.foods) shapeRenderer.circle(food.pos.x, food.pos.y, food.radius());
 		for(Logic.Reactive react : state.reactive) {
@@ -94,8 +106,8 @@ public void render() {
 			shapeRenderer.setColor(color);
 			shapeRenderer.circle(car.pos.x, car.pos.y, car.radius());
 		}
+		shapeRenderer.end();
 	}
-	shapeRenderer.end();
 	if(MULTIPLE_VIEWPORTS) viewport2.apply();
 	batch.begin();
 	Resources.Font.loadedFont().draw(batch, "fps: " + Gdx.graphics.getFramesPerSecond(), 0, 150);
