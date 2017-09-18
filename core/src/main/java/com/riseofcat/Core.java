@@ -91,7 +91,13 @@ public void render() {
 
 		shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
 		shapeRenderer.setColor(Color.GRAY);
-		for(Logic.Food food : state.foods) shapeRenderer.circle(food.pos.x, food.pos.y, food.radius());
+		for(Logic.Food food : state.foods) {
+			float x = food.pos.x;
+			float dx = viewport1.getCamera().position.x - x;
+			if(dx > state.width/2) x += state.width;
+			else if(dx < -state.width/2) x -= state.width;
+			shapeRenderer.circle(x, food.pos.y, food.radius());
+		}
 		for(Logic.Reactive react : state.reactive) {
 			Color color = colors[react.owner.id % (colors.length - 1)];
 			shapeRenderer.setColor(color);
