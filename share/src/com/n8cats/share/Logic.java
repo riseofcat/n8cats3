@@ -10,8 +10,6 @@ import java.util.Iterator;
 public class Logic {
 public static final int UPDATE_MS = 40;
 public static final float UPDATE_S = UPDATE_MS / LibAllGwt.MILLIS_IN_SECCOND;
-public static float width = 1000;
-public static float height = 1000;
 public static final int MIN_SIZE = 15;
 public static final int FOOD_SIZE = 7;
 private static final float MIN_RADIUS = 1f;
@@ -114,17 +112,15 @@ public static class PlayerAction implements InStateAction {
 	}
 }
 public static class NewCarAction implements InStateAction {
-	public XY pos;
 	public Player.Id id;
 	@SuppressWarnings("unused") public NewCarAction() {
 	}
-	public NewCarAction(XY pos, Player.Id id) {
-		this.pos = pos;
+	public NewCarAction(Player.Id id) {
 		this.id = id;
 	}
 	public void act(State state, GetCarById getCar) {
 		Car car = new Car();
-		car.pos = new XY(pos);
+		car.pos = new XY();
 		car.owner = id;
 		car.size = MIN_SIZE * 2;
 		state.cars.add(car);
@@ -147,6 +143,8 @@ public static class State {
 	public ArrayList<Car> cars = new ArrayList<>();
 	public ArrayList<Food> foods = new ArrayList<>();
 	public ArrayList<Reactive> reactive = new ArrayList<>();
+	public float width = 1000;
+	public float height = 1000;
 	public int random;
 	@SuppressWarnings("unused") public State() {
 	}

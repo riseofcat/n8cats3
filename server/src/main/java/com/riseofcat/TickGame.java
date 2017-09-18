@@ -27,7 +27,7 @@ public TickGame(ConcreteRoomsServer.Room room) {
 	room.onPlayerAdded.add(player -> {
 		synchronized(TickGame.this) {
 			int d = 1;
-			actions.getExistsOrPutDefault(new Tick(tick + d)).add(new Action(++previousActionsVersion, new Logic.NewCarAction(new Logic.XY(Math.random() * Logic.width, Math.random() * Logic.height), player.getId()).toBig()));
+			actions.getExistsOrPutDefault(new Tick(tick + d)).add(new Action(++previousActionsVersion, new Logic.NewCarAction(player.getId()).toBig()));
 			ServerPayload payload = createStablePayload();
 			payload.welcome = new ServerPayload.Welcome();
 			payload.welcome.id = player.getId();

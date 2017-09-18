@@ -17,8 +17,6 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 import com.n8cats.lib_gwt.LibAllGwt;
 import com.n8cats.share.Logic;
 
-import sun.rmi.runtime.Log;
-
 public class Core extends ApplicationAdapter {
 private SpriteBatch batch;
 private ShapeRenderer shapeRenderer;
@@ -34,14 +32,14 @@ public Core(App.Context context) {
 public void create() {
 	App.create();
 	batch = new SpriteBatch();
-	viewport1 = new ExtendViewport(Logic.width, Logic.height, new OrthographicCamera());
+	viewport1 = new ExtendViewport(1000f, 1000f, new OrthographicCamera());//todo 1000f
 	viewport2 = new ExtendViewport(500, 500, new OrthographicCamera());
 	stage = new Stage(viewport2/*, batch*/);
 	stage.addActor(new GradientShapeRect(200, 50));
 	stage.addActor(new Image(Resources.Textures.green));
 	model = new Model();
 	shapeRenderer = new ShapeRenderer(10000);
-	shapeRenderer.setAutoShapeType(false);//todo test true
+	shapeRenderer.setAutoShapeType(false);
 	Gdx.input.setInputProcessor(new InputMultiplexer(stage, new InputAdapter() {
 		public boolean touchDown(int screenX, int screenY, int pointer, int button) {
 			model.touch(new GdxXY(viewport1.unproject(new Vector2(screenX, screenY))));
@@ -78,21 +76,19 @@ public void render() {
 	Gdx.gl.glClearColor(0, 0, 0, 1);
 	Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 	if(TEST_TEXTURE) {
+		if(false)stage.getViewport().apply();
 		stage.act(/*Gdx.graphics.getDeltaTime()*/);
 		stage.draw();
 	}
 	viewport1.apply();
-	shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
-	shapeRenderer.setColor(Color.WHITE);
-	float gridSize = 100;
-	for(int x = 0; x*gridSize <= Logic.width; x++) {
-		shapeRenderer.line(x*gridSize, 0, 0, x*gridSize, Logic.height, 0);
-	}
-	for(int y = 0; y*gridSize < Logic.height; y++) {
-		shapeRenderer.line(0, y*gridSize, 0, Logic.width, y*gridSize, 0);
-	}
-	shapeRenderer.end();
 	if(state != null) {
+		shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+		shapeRenderer.setColor(Color.WHITE);
+		float gridSize = 100;
+		for(int x = 0; x*gridSize <= state.width; x++) shapeRenderer.line(x*gridSize, 0, 0, x*gridSize, state.height, 0);
+		for(int y = 0; y*gridSize < state.height; y++) shapeRenderer.line(0, y*gridSize, 0, state.width, y*gridSize, 0);
+		shapeRenderer.end();
+
 		shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
 		shapeRenderer.setColor(Color.GRAY);
 		for(Logic.Food food : state.foods) shapeRenderer.circle(food.pos.x, food.pos.y, food.radius());
@@ -114,7 +110,7 @@ public void render() {
 	Resources.Font.loadedFont().draw(batch, model.getPlayerName(), 0, 200);
 	Resources.Font.loadedFont().draw(batch, "latency:       " + (int) (model.client.latencyS * LibAllGwt.MILLIS_IN_SECCOND), 0, 250);
 	Resources.Font.loadedFont().draw(batch, "smart latency: " + (int) (model.client.smartLatencyS * LibAllGwt.MILLIS_IN_SECCOND), 0, 300);
-	if(TEST_TEXTURE) batch.draw(Resources.Textures.green, Logic.width / 2, Logic.height / 2);
+	if(TEST_TEXTURE) batch.draw(Resources.Textures.green, Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2);
 	batch.end();
 }
 public void dispose() {
