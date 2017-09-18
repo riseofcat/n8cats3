@@ -19,7 +19,7 @@ import java.util.List;
 
 public class Model {
 public final PingClient<ServerPayload, ClientPayload> client;
-private Logic.Player.Id playerId;
+public Logic.Player.Id playerId;
 private final DefaultValueMap<Tick, List<Logic.BigAction>> actions = new DefaultValueMap<>(new HashMap<Tick, List<Logic.BigAction>>(), new DefaultValueMap.ICreateNew<List<Logic.BigAction>>() {
 	public List<Logic.BigAction> createNew() {return new ArrayList<>();}
 });

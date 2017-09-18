@@ -62,6 +62,17 @@ public void resize(int width, int height) {
 public void render() {
 	final boolean TEST_TEXTURE = false;
 	model.update(Gdx.graphics.getDeltaTime());
+	Logic.State state = model.getDisplayState();
+	if(state != null) {
+		for(Logic.Car car : state.cars) {
+			if(car.owner.equals(model.playerId)) {
+				viewport1.getCamera().position.x = car.pos.x;
+				viewport1.getCamera().position.y = car.pos.y;
+				viewport1.getCamera().update();
+				shapeRenderer.setProjectionMatrix(viewport1.getCamera().combined);
+			}
+		}
+	}
 	Gdx.gl.glClearColor(0, 0, 0, 1);
 	Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 	if(TEST_TEXTURE) {
@@ -70,7 +81,6 @@ public void render() {
 	}
 	viewport1.apply();
 	shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-	Logic.State state = model.getDisplayState();
 	if(state != null) {
 		shapeRenderer.setColor(Color.GRAY);
 		for(Logic.Food food : state.foods) shapeRenderer.circle(food.pos.x, food.pos.y, food.radius());
