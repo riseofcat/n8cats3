@@ -8,7 +8,7 @@ import com.n8cats.lib_gwt.ILog;
 import java.util.List;
 
 public class App {
-private static long createMs;
+private static Long createMs;
 public static Context context;
 static {
 
@@ -33,18 +33,19 @@ public static final ILog log = new ILog() {
 		Gdx.app.debug(TAG, s);
 	}
 };
-public static void create() {
+public static void create() {//todo вынести
 	Gdx.app.setLogLevel(Application.LOG_DEBUG);
-	createMs = timeMs();
 }
 public static long timeMs() {//todo предусмотреть перевод времени
-	System.currentTimeMillis();
-	return TimeUtils.millis();
+	if(false) System.currentTimeMillis();
+	long result = TimeUtils.millis();
+	if(createMs == null) createMs = result;
+	return result;
 }
 public static void breakpoint() {
 	int a = 1+1;
 }
-public static interface Context {
+public interface Context {
 	<T>List<T> createConcurrentList();
 }
 }

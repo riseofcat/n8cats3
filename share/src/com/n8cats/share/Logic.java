@@ -148,7 +148,7 @@ public static class State {
 	public int random;
 	@SuppressWarnings("unused") public State() {
 	}
-	public State act(Iterator<? extends InStateAction> iterator) {//todo interface Action id act(getId, state
+	public State act(Iterator<? extends InStateAction> iterator) {
 		class Cache implements GetCarById {
 			public Car getCar(Logic.Player.Id id) {
 				for(Car car : cars) if(id.equals(car.owner)) return car;
@@ -162,14 +162,21 @@ public static class State {
 		}
 		return this;
 	}
+	private float distance(XY a, XY b) {
+		float dx = Math.min(Math.abs(b.x - a.x), b.x + width - a.x);
+		dx = Math.min(dx, a.x + width - b.x);
+		float dy = Math.min(Math.abs(b.y - a.y), b.y + height - a.y);
+		dy = Math.min(dy, a.y + height - b.y);
+		return (float) Math.sqrt(dx*dx + dy*dy);
+	}
 	public State tick() {
 		CompositeIterator<SpeedObject> iterator = new CompositeIterator<SpeedObject>(cars, reactive);
 		while(iterator.hasNext()) {
 			SpeedObject o = iterator.next();
 			o.pos = o.pos.add(o.speed.scale(UPDATE_S));
-			if(o.pos.x > width) o.pos.x -= width;
+			if(o.pos.x >= width) o.pos.x -= width;
 			else if(o.pos.x < 0) o.pos.x += width;
-			if(o.pos.y > height) o.pos.y -= height;
+			if(o.pos.y >= height) o.pos.y -= height;
 			else if(o.pos.y < 0) o.pos.y += height;
 			o.speed = o.speed.scale(0.98f);
 		}
@@ -179,7 +186,7 @@ public static class State {
 			Iterator<Food> foodItr = foods.iterator();
 			while(foodItr.hasNext()) {
 				Food f = foodItr.next();
-				if(car.pos.sub(f.pos).len() <= car.radius()) {
+				if(distance(car.pos, f.pos) <= car.radius()) {
 					car.size += f.size;
 					foodItr.remove();
 				}
@@ -297,19 +304,13 @@ public static class XY {//todo immutable?
 		this(pos.x, pos.y);
 	}
 	public XY add(XY a) {
-		XY result = new XY();
-		result.x = this.x + a.x;
-		result.y = this.y + a.y;
-		return result;
+		return new XY(this.x + a.x, this.y + a.y);
 	}
 	public XY sub(XY a) {
 		return add(a.scale(-1));
 	}
 	public XY scale(float scl) {
-		XY result = new XY();
-		result.x = this.x * scl;
-		result.y = this.y * scl;
-		return result;
+		return new XY(this.x * scl, this.y * scl);
 	}
 	public double dst(XY xy) {
 		return Math.sqrt((xy.x - x) * (xy.x - x) + (xy.y - y) * (xy.y - y));

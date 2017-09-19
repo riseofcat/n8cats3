@@ -60,7 +60,7 @@ public void resize(int width, int height) {
 	shapeRenderer.setProjectionMatrix(viewport1.getCamera().combined);
 }
 public void render() {
-	final boolean TEST_TEXTURE = false;
+	final boolean TEST_TEXTURE = LibAllGwt.FALSE();
 	model.update(Gdx.graphics.getDeltaTime());
 	Logic.State state = model.getDisplayState();
 	if(state != null) {
@@ -76,7 +76,7 @@ public void render() {
 	Gdx.gl.glClearColor(0, 0, 0, 1);
 	Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 	if(TEST_TEXTURE) {
-		if(false)stage.getViewport().apply();
+		if(LibAllGwt.FALSE())stage.getViewport().apply();
 		stage.act(/*Gdx.graphics.getDeltaTime()*/);
 		stage.draw();
 	}
@@ -88,15 +88,11 @@ public void render() {
 		for(int x = 0; x*gridSize <= state.width; x++) shapeRenderer.line(x*gridSize, 0, 0, x*gridSize, state.height, 0);
 		for(int y = 0; y*gridSize < state.height; y++) shapeRenderer.line(0, y*gridSize, 0, state.width, y*gridSize, 0);
 		shapeRenderer.end();
-
 		shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
 		shapeRenderer.setColor(Color.GRAY);
 		for(Logic.Food food : state.foods) {
-			float x = food.pos.x;
-			float dx = viewport1.getCamera().position.x - x;
-			if(dx > state.width/2) x += state.width;
-			else if(dx < -state.width/2) x -= state.width;
-			shapeRenderer.circle(x, food.pos.y, food.radius());
+			Logic.XY r = calcRenderXY(state, food.pos);
+			shapeRenderer.circle(r.x, r.y, food.radius());
 		}
 		for(Logic.Reactive react : state.reactive) {
 			Color color = colors[react.owner.id % (colors.length - 1)];
@@ -118,6 +114,13 @@ public void render() {
 	Resources.Font.loadedFont().draw(batch, "smart latency: " + (int) (model.client.smartLatencyS * LibAllGwt.MILLIS_IN_SECCOND), 0, 300);
 	if(TEST_TEXTURE) batch.draw(Resources.Textures.green, Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2);
 	batch.end();
+}
+private Logic.XY calcRenderXY(Logic.State state, Logic.XY pos) {
+	float x = pos.x;
+	float dx = viewport1.getCamera().position.x - x;
+	if(dx > state.width/2) x += state.width;
+	else if(dx < -state.width/2) x -= state.width;
+	return new Logic.XY(x, pos.y);//todo y
 }
 public void dispose() {
 	model.dispose();
