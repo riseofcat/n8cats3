@@ -1,51 +1,29 @@
-// from https://www.shadertoy.com/view/Msf3Wr
-
-#define GLSLSANDBOX
-#ifdef GLSLSANDBOX
 #ifdef GL_ES
     precision highp float;
     precision highp int;
 #endif
 uniform float time;
-#ifndef GLSLSANDBOXTOYNOTCOMPATIBLE
-uniform vec4 iMouse;
-uniform int iFrame;
-#else /*GLSLSANDBOXTOYNOTCOMPATIBLE*/
-uniform vec2 mouse;
-#define iMouse mouse
-#endif /*GLSLSANDBOXTOYNOTCOMPATIBLE*/
 uniform vec2 resolution;
-#define iGlobalTime time
-#define iResolution (vec3(resolution, 1.))
-#endif /*GLSLSANDBOX*/
-
-
 #define iterations 12
 #define formuparam 0.53
-
 #define volsteps 5
 #define stepsize 0.1
-
 #define zoom   3.900
 #define tile   0.850
 #define speed  0.010
-
 #define brightness 0.0095
 #define darkmatter 0.200
 #define distfading 0.830
 #define saturation 0.750
-
-
 void mainImage( out vec4 fragColor, in vec2 fragCoord )
 {
 	//get coords and direction
-	vec2 uv=fragCoord.xy/iResolution.xy-.5;
-	uv.y*=iResolution.y/iResolution.x;
+	vec2 uv=fragCoord.xy/resolution.xy-.5;
+	uv.y*=resolution.y/resolution.x;
 	vec3 dir=vec3(uv*zoom,1.);
-	float time=iGlobalTime*speed+.25;
-
-	float a1=.5+time/iResolution.x*2.;
-	float a2=.8+time/iResolution.y*2.;
+	float time=time*speed+.25;
+	float a1=.5+time/resolution.x*2.;
+	float a2=.8+time/resolution.y*2.;
 	mat2 rot1=mat2(cos(a1),sin(a1),-sin(a1),cos(a1));
 	mat2 rot2=mat2(cos(a2),sin(a2),-sin(a2),cos(a2));
 	dir.xz*=rot1;
@@ -78,9 +56,7 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord )
 	}
 	v=mix(vec3(length(v)),v,saturation); //color adjust
 	fragColor = vec4(v*.01,1.);
-
 }
-
 void main (void)
 {
   vec4 color = vec4 (0.0, 0.0, 0.0, 1.0);
