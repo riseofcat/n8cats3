@@ -39,6 +39,8 @@ public void create() {
 	if(BACKGROUND_BATCH) {
 		backgroundBatch = new SpriteBatch();
 		backgroundBatchShader = new ShaderProgram(Gdx.files.internal("v1.vert"), Gdx.files.internal("f1.frag"));
+		boolean compiled = backgroundBatchShader.isCompiled();
+		String log = backgroundBatchShader.getLog();
 		backgroundBatch.setShader(backgroundBatchShader);
 	}
 	viewport1 = new ExtendViewport(1000f, 1000f, new OrthographicCamera());//todo 1000f
@@ -92,9 +94,9 @@ public void render() {
 		viewport2.apply();
 //		backgroundBatchShader.setUniformf(), viewport2.getWorldWidth(), viewport2.getWorldHeight());
 		backgroundBatch.begin();
-		if(true)backgroundBatchShader.setUniformf(backgroundBatchShader.fetchUniformLocation("resolution", false), Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+		if(true)backgroundBatchShader.setUniformf(backgroundBatchShader.fetchUniformLocation("resolution", false), Gdx.graphics.getWidth(), Gdx.graphics.getHeight());//todo width height reverse in landscape
 		else backgroundBatchShader.setUniformf("resolution", viewport2.getWorldWidth(), viewport2.getWorldHeight());
-		backgroundBatchShader.setUniformf("time", App.sinceStartS());
+		backgroundBatchShader.setUniformf("time", 30f);
 		backgroundBatch.draw(Resources.Textures.green, 0, 0, viewport2.getWorldWidth(), viewport2.getWorldHeight());
 		backgroundBatch.end();
 	}
