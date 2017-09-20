@@ -919,7 +919,7 @@ public class ShapeRenderer2 implements Disposable {
 			check(ShapeType.Line, ShapeType.Filled, segments * 3 + 3);
 			segments--;
 			for (int i = 0; i < segments; i++) {
-				renderer.color(colorBits);
+				renderer.color(Color.WHITE.toFloatBits());//todo colorBits
 				renderer.vertex(x, y, 0);
 				renderer.color(colorBits);
 				renderer.vertex(x + cx, y + cy, 0);
@@ -930,7 +930,7 @@ public class ShapeRenderer2 implements Disposable {
 				renderer.vertex(x + cx, y + cy, 0);
 			}
 			// Ensure the last segment is identical to the first.
-			renderer.color(colorBits);
+			renderer.color(Color.WHITE.toFloatBits());//todo colorBits
 			renderer.vertex(x, y, 0);
 			renderer.color(colorBits);
 			renderer.vertex(x + cx, y + cy, 0);
