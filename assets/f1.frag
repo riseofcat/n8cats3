@@ -1,59 +1,90 @@
+// from https://www.shadertoy.com/view/Msf3Wr
+
+#define GLSLSANDBOX
+#ifdef GLSLSANDBOX
 #ifdef GL_ES
-    #define LOWP lowp
     precision highp float;
     precision highp int;
-#else
-    #define LOWP
 #endif
-
 uniform float time;
+#ifndef GLSLSANDBOXTOYNOTCOMPATIBLE
+uniform vec4 iMouse;
+uniform int iFrame;
+#else /*GLSLSANDBOXTOYNOTCOMPATIBLE*/
+uniform vec2 mouse;
+#define iMouse mouse
+#endif /*GLSLSANDBOXTOYNOTCOMPATIBLE*/
 uniform vec2 resolution;
+#define iGlobalTime time
+#define iResolution (vec3(resolution, 1.))
+#endif /*GLSLSANDBOX*/
 
-void main(void)
+
+#define iterations 12
+#define formuparam 0.53
+
+#define volsteps 5
+#define stepsize 0.1
+
+#define zoom   3.900
+#define tile   0.850
+#define speed  0.010
+
+#define brightness 0.0095
+#define darkmatter 0.200
+#define distfading 0.830
+#define saturation 0.750
+
+
+void mainImage( out vec4 fragColor, in vec2 fragCoord )
 {
-    float time2 = time*0.3;
-    vec2 uv = gl_FragCoord.xy / resolution.xy - .5;
-    uv.y *= resolution.y / resolution.x;
-    vec3 dir = vec3(uv * 0.7, 1.2);
-    float a2 = time2 * 20. + .5;
-    float a1 = 0.0;
-    mat2 rot1 = mat2(cos(a1), sin(a1), - sin(a1), cos(a1));
-    mat2 rot2 = rot1;
-    dir.xz *= rot1;
-    dir.xy *= rot2;
-    vec3 from = vec3(0., 0., 0.);
-    from += vec3(.025 * time2, .03 * time2, - 2.);
-    from.xz *= rot1;
-    from.xy *= rot2;
-    float s = .1, fade = .07;
-    vec3 v = vec3(0.4);
-    for(
-        int r = 0;
-        r < 5;//определяет количество и цвет 12
-        r ++
-    )
-        {
-	    float my_scale = 1.;
-            vec3 p = from + s * dir * my_scale;
-            p = abs(vec3(0.750) - mod(p, vec3(0.750 * 2.)));
-            p.x += float(r * r) * 0.01;
-            p.y += float(r) * 0.02;
-            float pa, a = pa = 0.;
-            for(
-                int i = 0;
-                i < 20;//todo 12 определяет яркость
-                i ++
-            )
-                {
-                    p = abs(p) / dot(p, p) - 0.340;
-                    a += abs(length(p) - pa * 0.2);
-                    pa = length(p);
-                }
-            a *= a * a * 4.;//яркость белого
-            v += vec3(s*s, s*s*s*s, s) * a * 0.0017 * fade;//оттенок
-            fade *= 0.960;
-            s += 0.110;//Интересный параметр
-        }
-    v = mix(vec3(length(v)), v, 0.8);
-    gl_FragColor = vec4(v * .01, 1.);
+	//get coords and direction
+	vec2 uv=fragCoord.xy/iResolution.xy-.5;
+	uv.y*=iResolution.y/iResolution.x;
+	vec3 dir=vec3(uv*zoom,1.);
+	float time=iGlobalTime*speed+.25;
+
+	float a1=.5+time/iResolution.x*2.;
+	float a2=.8+time/iResolution.y*2.;
+	mat2 rot1=mat2(cos(a1),sin(a1),-sin(a1),cos(a1));
+	mat2 rot2=mat2(cos(a2),sin(a2),-sin(a2),cos(a2));
+	dir.xz*=rot1;
+	dir.xy*=rot2;
+	vec3 from=vec3(1.,.5,0.5);
+	from+=vec3(time*2.,time,-2.);
+	from.xz*=rot1;
+	from.xy*=rot2;
+
+	//volumetric rendering
+	float s=0.1,fade=1.;
+	vec3 v=vec3(0.);
+	for (int r=0; r<volsteps; r++) {
+		vec3 p=from+s*dir*.5;
+		p = abs(vec3(tile)-mod(p,vec3(tile*2.))); // tiling fold
+		float pa,a=pa=0.;
+		for (int i=0; i<iterations; i++) {
+			p=abs(p)/dot(p,p)-formuparam; // the magic formula
+			a+=abs(length(p)-pa); // absolute sum of average change
+			pa=length(p);
+		}
+		float dm=max(0.,darkmatter-a*a*.001); //dark matter
+		a*=a*a; // add contrast
+		if (r>6) fade*=1.-dm; // dark matter, don't render near
+		//v+=vec3(dm,dm*.5,0.);
+		v+=fade;
+		v+=vec3(s,s*s,s)*a*brightness*fade; // coloring based on distance
+		fade*=distfading; // distance fading
+		s+=stepsize;
+	}
+	v=mix(vec3(length(v)),v,saturation); //color adjust
+	fragColor = vec4(v*.01,1.);
+
+}
+
+void main (void)
+{
+  vec4 color = vec4 (0.0, 0.0, 0.0, 1.0);
+  mainImage (color, gl_FragCoord.xy);
+  color.w = 1.0;
+  gl_FragColor = color;
 }
