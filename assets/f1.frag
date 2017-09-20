@@ -4,23 +4,28 @@
 #endif
 uniform float time;
 uniform vec2 resolution;
-#define iterations 12
-#define formuparam 0.53
+//Качество:
+#define iterations 8
 #define volsteps 5
-#define stepsize 0.1
+//От 0.2 до 1.0
+#define formuparam 0.44
+//Важный параметр
+#define stepsize 0.29
 #define zoom   3.900
 #define tile   0.850
-#define speed  0.010
+#define speed  0.050
 #define brightness 0.0095
 #define darkmatter 0.200
 #define distfading 0.830
 #define saturation 0.750
+//Может быть как положительный так и отрицательный целые значения увеличивают выпад пятен
+#define interesting1 4.
 void mainImage( out vec4 fragColor, in vec2 fragCoord )
 {
 	//get coords and direction
-	vec2 uv=fragCoord.xy/resolution.xy-.5;
+	vec2 uv= fragCoord.xy/resolution.xy-.5;
 	uv.y*=resolution.y/resolution.x;
-	vec3 dir=vec3(uv*zoom,1.);
+	vec3 dir=vec3(uv*zoom,1.1);
 	float time=time*speed+.25;
 	float a1=.5+time/resolution.x*2.;
 	float a2=.8+time/resolution.y*2.;
@@ -29,7 +34,7 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord )
 	dir.xz*=rot1;
 	dir.xy*=rot2;
 	vec3 from=vec3(1.,.5,0.5);
-	from+=vec3(time*2.,time,-2.);
+	from+=vec3(time*1.,time * 0.5,interesting1);//Направление движения
 	from.xz*=rot1;
 	from.xy*=rot2;
 
