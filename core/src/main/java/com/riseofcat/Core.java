@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -38,7 +39,8 @@ public void create() {
 	stage.addActor(new GradientShapeRect(200, 50));
 	stage.addActor(new Image(Resources.Textures.green));
 	model = new Model();
-	shapeRenderer = new ShapeRenderer(10000);
+	ShaderProgram defaultShader = null;
+	shapeRenderer = new ShapeRenderer(10000, defaultShader);
 	shapeRenderer.setAutoShapeType(false);
 	Gdx.input.setInputProcessor(new InputMultiplexer(stage, new InputAdapter() {
 		public boolean touchDown(int screenX, int screenY, int pointer, int button) {
@@ -102,7 +104,7 @@ public void render() {
 		for(Logic.Car car : state.cars) {
 			Color color = colors[car.owner.id % (colors.length - 1)];
 			shapeRenderer.setColor(color);
-			shapeRenderer.circle(car.pos.x, car.pos.y, car.radius());
+			shapeRenderer.circle(car.pos.x, car.pos.y, car.radius(), 6);
 		}
 		shapeRenderer.end();
 	}
