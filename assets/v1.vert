@@ -2,6 +2,7 @@ attribute vec4 a_position; //позиция вершины
 attribute vec4 a_color; //цвет вершины
 attribute vec2 a_texCoord0; //координаты текстуры
 uniform mat4 u_projTrans;  //матрица, которая содержим данные для преобразования проекции и вида
+uniform vec2 resolution;
 varying vec4 v_color;  //цвет который будет передан в фрагментный шейдер
 varying vec2 v_texCoords;  //координаты текстуры
 void main(){

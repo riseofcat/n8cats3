@@ -8,6 +8,8 @@ Heroku supports many different versions of Java, system.properties(optional), de
 Форумы (крупнейшие: 4PDA, XDA, TouchArcade, TIGSource и т.д.)
 Reddit
 
+Отрабатывать ошибку отсутствия соединения с сервером и запускать в offline режиме и уведомлять об этом! Ловить Exception
+
 <uses-feature android:glEsVersion="0x00020000" android:required="true" />
 
 [qtp942571759-17] ERROR main - OnWebSocketError org.eclipse.jetty.io.EofException

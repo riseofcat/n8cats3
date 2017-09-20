@@ -9,7 +9,6 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
@@ -20,6 +19,7 @@ import com.n8cats.share.Logic;
 
 public class Core extends ApplicationAdapter {
 private SpriteBatch batch;
+private SpriteBatch backgroundBatch;
 private ShapeRenderer2 shapeRenderer;
 private Model model;
 private Viewport viewport1;
@@ -27,14 +27,23 @@ private Viewport viewport2;
 private Stage stage;
 private static final Color[] colors = {Color.BLUE, Color.GOLD, Color.PINK, Color.RED, Color.GREEN, Color.VIOLET, Color.LIME, Color.TEAL, Color.YELLOW};
 private static final boolean MULTIPLE_VIEWPORTS = false;
+private static final boolean BACKGROUND_BATCH = true;
+private ShaderProgram backgroundBatchShader;
 public Core(App.Context context) {
 	App.context = context;
 }
 public void create() {
+	ShaderProgram.pedantic = false;
 	App.create();
 	batch = new SpriteBatch();
+	if(BACKGROUND_BATCH) {
+		backgroundBatch = new SpriteBatch();
+		backgroundBatchShader = new ShaderProgram(Gdx.files.internal("v1.vert"), Gdx.files.internal("f1.frag"));
+		backgroundBatch.setShader(backgroundBatchShader);
+	}
 	viewport1 = new ExtendViewport(1000f, 1000f, new OrthographicCamera());//todo 1000f
-	viewport2 = new ExtendViewport(1000, 1000, new OrthographicCamera());
+	if(MULTIPLE_VIEWPORTS) viewport2 = new ExtendViewport(500, 500, new OrthographicCamera());
+	else viewport2 = viewport1;
 	stage = new Stage(viewport2/*, batch*/);
 	stage.addActor(new GradientShapeRect(200, 50));
 	stage.addActor(new Image(Resources.Textures.green));
@@ -54,11 +63,8 @@ public void resize(int width, int height) {
 		viewport1.update(width / 2, height, true);
 		viewport1.setScreenX(width / 2);
 		viewport2.update(width / 2, height, true);
-		batch.setProjectionMatrix(viewport2.getCamera().combined);
-	} else {
-		viewport1.update(width, height, true);
-		batch.setProjectionMatrix(viewport1.getCamera().combined);
-	}
+	} else viewport1.update(width, height, true);
+	batch.setProjectionMatrix(viewport2.getCamera().combined);
 	shapeRenderer.setProjectionMatrix(viewport1.getCamera().combined);
 }
 public void render() {
@@ -75,12 +81,21 @@ public void render() {
 			}
 		}
 	}
-	Gdx.gl.glClearColor(0, 0, 0, 1);
+	Gdx.gl.glClearColor(0.9f, 0.9f, 0.9f, 1);
 	Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 	if(TEST_TEXTURE) {
 		if(LibAllGwt.FALSE())stage.getViewport().apply();
 		stage.act(/*Gdx.graphics.getDeltaTime()*/);
 		stage.draw();
+	}
+	if(BACKGROUND_BATCH) {
+		viewport2.apply();
+//		backgroundBatchShader.setUniformf(backgroundBatchShader.fetchUniformLocation("resolution", false), viewport2.getWorldWidth(), viewport2.getWorldHeight());
+		backgroundBatch.begin();
+		if(true)backgroundBatchShader.setUniformf("resolution", Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+		else backgroundBatchShader.setUniformf("resolution", viewport2.getWorldWidth(), viewport2.getWorldHeight());
+		backgroundBatch.draw(Resources.Textures.green, 0, 0, viewport2.getWorldWidth(), viewport2.getWorldHeight());
+		backgroundBatch.end();
 	}
 	viewport1.apply();
 	if(state != null) {

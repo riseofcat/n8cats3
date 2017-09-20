@@ -4,6 +4,8 @@ precision mediump float;
 
 // MODS BY NRLABS
 
+uniform vec2 resolution;
+
 // Component wise blending
 #define Blend(base, blend, funcf)       vec3(funcf(base.r, blend.r), funcf(base.g, blend.g), funcf(base.b, blend.b))
 // Blend Funcs
@@ -72,13 +74,13 @@ vec3 genstars(float starsize, float density, float intensity, vec2 seed)
 
 void main(void)
 {
-    vec2 resolution = vec2(1000, 1000);
+    vec2 resolution2 = resolution;//vec2(1000, 1000);
     float time = 100.0;
 	vec2 offset = vec2(time*cos(time/100.0),time*sin(time/100.0));
 	float n = 30.0;
 
-	vec2 p = 2.0 * (gl_FragCoord.xy / resolution) - 1.0 ;
-	p.x *= resolution.x/resolution.y;
+	vec2 p = 2.0 * (gl_FragCoord.xy / resolution2) - 1.0 ;
+	p.x *= resolution2.x/resolution2.y;
 
 	p *= 500.0;
 
