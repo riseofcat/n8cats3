@@ -73,7 +73,7 @@ public void connect(Signal.Listener<S> incomeListener) {
 	incoming.add(incomeListener);
 	try {
 		socket.connect();
-	} catch(Exception e) {//todo
+	} catch(Exception e) {Todo.handleOffline();//todo
 		e.printStackTrace();
 
 	}
