@@ -4,6 +4,7 @@ import com.badlogic.gdx.Application;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.utils.TimeUtils;
 import com.n8cats.lib_gwt.ILog;
+import com.n8cats.lib_gwt.LibAllGwt;
 
 import java.util.List;
 
@@ -41,6 +42,12 @@ public static long timeMs() {//todo предусмотреть перевод в
 	long result = TimeUtils.millis();
 	if(createMs == null) createMs = result;
 	return result;
+}
+public static float sinceStartS() {
+	return sinceStartMs() / LibAllGwt.MILLIS_IN_SECCOND;
+}
+public static int sinceStartMs() {
+	return (int) (timeMs() - createMs);
 }
 public static void breakpoint() {
 	int a = 1+1;

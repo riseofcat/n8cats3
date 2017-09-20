@@ -71,7 +71,12 @@ public PingClient(String host, int port, String path, final Class<ServerSay<S>> 
 }
 public void connect(Signal.Listener<S> incomeListener) {
 	incoming.add(incomeListener);
-	socket.connect();
+	try {
+		socket.connect();
+	} catch(Exception e) {//todo
+		e.printStackTrace();
+
+	}
 }
 public void close() {
 	WebSockets.closeGracefully(socket); // Null-safe closing method that catches and logs any exceptions.

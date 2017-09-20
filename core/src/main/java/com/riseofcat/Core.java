@@ -81,7 +81,7 @@ public void render() {
 			}
 		}
 	}
-	Gdx.gl.glClearColor(0.9f, 0.9f, 0.9f, 1);
+	Gdx.gl.glClearColor(0.5f, 0.5f, 0.5f, 1);
 	Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 	if(TEST_TEXTURE) {
 		if(LibAllGwt.FALSE())stage.getViewport().apply();
@@ -90,15 +90,16 @@ public void render() {
 	}
 	if(BACKGROUND_BATCH) {
 		viewport2.apply();
-//		backgroundBatchShader.setUniformf(backgroundBatchShader.fetchUniformLocation("resolution", false), viewport2.getWorldWidth(), viewport2.getWorldHeight());
+//		backgroundBatchShader.setUniformf(), viewport2.getWorldWidth(), viewport2.getWorldHeight());
 		backgroundBatch.begin();
-		if(true)backgroundBatchShader.setUniformf("resolution", Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+		if(true)backgroundBatchShader.setUniformf(backgroundBatchShader.fetchUniformLocation("resolution", false), Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		else backgroundBatchShader.setUniformf("resolution", viewport2.getWorldWidth(), viewport2.getWorldHeight());
+		backgroundBatchShader.setUniformf("time", App.sinceStartS());
 		backgroundBatch.draw(Resources.Textures.green, 0, 0, viewport2.getWorldWidth(), viewport2.getWorldHeight());
 		backgroundBatch.end();
 	}
 	viewport1.apply();
-	if(state != null) {
+	if(false && state != null) {
 		shapeRenderer.begin(ShapeRenderer2.ShapeType.Line);
 		shapeRenderer.setColor(Color.WHITE);
 		float gridSize = 100;
