@@ -20,7 +20,7 @@ import com.n8cats.share.Logic;
 
 public class Core extends ApplicationAdapter {
 private SpriteBatch batch;
-private ShapeRenderer shapeRenderer;
+private ShapeRenderer2 shapeRenderer;
 private Model model;
 private Viewport viewport1;
 private Viewport viewport2;
@@ -40,7 +40,7 @@ public void create() {
 	stage.addActor(new Image(Resources.Textures.green));
 	model = new Model();
 	ShaderProgram defaultShader = null;
-	shapeRenderer = new ShapeRenderer(10000, defaultShader);
+	shapeRenderer = new ShapeRenderer2(10000, defaultShader);
 	shapeRenderer.setAutoShapeType(false);
 	Gdx.input.setInputProcessor(new InputMultiplexer(stage, new InputAdapter() {
 		public boolean touchDown(int screenX, int screenY, int pointer, int button) {
@@ -84,13 +84,13 @@ public void render() {
 	}
 	viewport1.apply();
 	if(state != null) {
-		shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+		shapeRenderer.begin(ShapeRenderer2.ShapeType.Line);
 		shapeRenderer.setColor(Color.WHITE);
 		float gridSize = 100;
 		for(int x = 0; x*gridSize <= state.width; x++) shapeRenderer.line(x*gridSize, 0, 0, x*gridSize, state.height, 0);
 		for(int y = 0; y*gridSize < state.height; y++) shapeRenderer.line(0, y*gridSize, 0, state.width, y*gridSize, 0);
 		shapeRenderer.end();
-		shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+		shapeRenderer.begin(ShapeRenderer2.ShapeType.Filled);
 		shapeRenderer.setColor(Color.GRAY);
 		for(Logic.Food food : state.foods) {
 			Logic.XY r = calcRenderXY(state, food.pos);
