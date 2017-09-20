@@ -5,28 +5,27 @@
 uniform float time;
 uniform vec2 resolution;
 //Качество:
-#define iterations 8
-#define volsteps 5
+#define ITERATIONS 8
+#define VOLSTEPS 3
 //От 0.2 до 1.0
-#define formuparam 0.44
+#define FORMUPARAM 0.44
 //Важный параметр
-#define stepsize 0.29
-#define zoom   3.900
-#define tile   0.850
-#define speed  0.050
-#define brightness 0.0095
-#define darkmatter 0.200
-#define distfading 0.830
-#define saturation 0.750
+#define STEPSIZE 0.65
+#define ZOOM   3.900
+#define TILE   0.850
+#define SPEED  0.050
+#define BRIGHTNESS 0.0095
+#define DISTFADING 0.830
+#define SATURATION 0.750
 //Может быть как положительный так и отрицательный целые значения увеличивают выпад пятен
-#define interesting1 4.
+#define INTERESTING1 4.
 void mainImage( out vec4 fragColor, in vec2 fragCoord )
 {
 	//get coords and direction
 	vec2 uv= fragCoord.xy/resolution.xy-.5;
 	uv.y*=resolution.y/resolution.x;
-	vec3 dir=vec3(uv*zoom,1.1);
-	float time=time*speed+.25;
+	vec3 dir=vec3(uv*ZOOM,1.1);
+	float time=time*SPEED+.25;
 	float a1=.5+time/resolution.x*2.;
 	float a2=.8+time/resolution.y*2.;
 	mat2 rot1=mat2(cos(a1),sin(a1),-sin(a1),cos(a1));
@@ -34,33 +33,30 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord )
 	dir.xz*=rot1;
 	dir.xy*=rot2;
 	vec3 from=vec3(1.,.5,0.5);
-	from+=vec3(time*1.,time * 0.5,interesting1);//Направление движения
+	from+=vec3(time*1.,time * 0.5,INTERESTING1);//Направление движения
 	from.xz*=rot1;
 	from.xy*=rot2;
 
 	//volumetric rendering
-	float s=0.1,fade=1.;
+	float s=0.1,fade=1.1;
 	vec3 v=vec3(0.);
-	for (int r=0; r<volsteps; r++) {
+	for (int r=0; r<VOLSTEPS; r++) {
 		vec3 p=from+s*dir*.5;
-		p = abs(vec3(tile)-mod(p,vec3(tile*2.))); // tiling fold
+		p = abs(vec3(TILE)-mod(p,vec3(TILE*2.))); // tiling fold
 		float pa,a=pa=0.;
-		for (int i=0; i<iterations; i++) {
-			p=abs(p)/dot(p,p)-formuparam; // the magic formula
+		for (int i=0; i<ITERATIONS; i++) {
+			p=abs(p)/dot(p,p)-FORMUPARAM; // the magic formula
 			a+=abs(length(p)-pa); // absolute sum of average change
 			pa=length(p);
 		}
-		float dm=max(0.,darkmatter-a*a*.001); //dark matter
 		a*=a*a; // add contrast
-		if (r>6) fade*=1.-dm; // dark matter, don't render near
-		//v+=vec3(dm,dm*.5,0.);
 		v+=fade;
-		v+=vec3(s,s*s,s)*a*brightness*fade; // coloring based on distance
-		fade*=distfading; // distance fading
-		s+=stepsize;
+		v+=vec3(s,s*s,s)*a*BRIGHTNESS*fade; // COLOR based on distance
+		fade*=DISTFADING; // distance fading
+		s+=STEPSIZE;
 	}
-	v=mix(vec3(length(v)),v,saturation); //color adjust
-	fragColor = vec4(v*.01,1.);
+	v=mix(vec3(length(v)),v,SATURATION); //color adjust
+	fragColor = vec4(v*.009,1.0);
 }
 void main (void)
 {
