@@ -96,7 +96,7 @@ public void render() {
 		backgroundBatch.begin();
 		if(true)backgroundBatchShader.setUniformf(backgroundBatchShader.fetchUniformLocation("resolution", false), Gdx.graphics.getWidth(), Gdx.graphics.getHeight());//todo width height reverse in landscape
 		else backgroundBatchShader.setUniformf("resolution", viewport2.getWorldWidth(), viewport2.getWorldHeight());
-		backgroundBatchShader.setUniformf("time", 30f);
+		backgroundBatchShader.setUniformf("time", App.sinceStartS());//30f
 		backgroundBatch.draw(Resources.Textures.green, 0, 0, viewport2.getWorldWidth(), viewport2.getWorldHeight());
 		backgroundBatch.end();
 	}

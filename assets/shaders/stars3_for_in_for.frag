@@ -1,10 +1,5 @@
-#ifdef GL_ES
-    #define LOWP lowp
-    precision highp float;
-    precision highp int;
-#else
-    #define LOWP
-#endif
+precision highp float;
+precision highp int;
 
 uniform float time;
 uniform vec2 resolution;
