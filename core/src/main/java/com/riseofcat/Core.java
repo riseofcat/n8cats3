@@ -34,7 +34,7 @@ public void create() {
 	App.create();
 	batch = new SpriteBatch();
 	viewport1 = new ExtendViewport(1000f, 1000f, new OrthographicCamera());//todo 1000f
-	viewport2 = new ExtendViewport(500, 500, new OrthographicCamera());
+	viewport2 = new ExtendViewport(1000, 1000, new OrthographicCamera());
 	stage = new Stage(viewport2/*, batch*/);
 	stage.addActor(new GradientShapeRect(200, 50));
 	stage.addActor(new Image(Resources.Textures.green));
@@ -62,7 +62,7 @@ public void resize(int width, int height) {
 	shapeRenderer.setProjectionMatrix(viewport1.getCamera().combined);
 }
 public void render() {
-	final boolean TEST_TEXTURE = LibAllGwt.FALSE();
+	final boolean TEST_TEXTURE = LibAllGwt.TRUE();
 	model.update(Gdx.graphics.getDeltaTime());
 	Logic.State state = model.getDisplayState();
 	if(state != null) {
@@ -114,7 +114,7 @@ public void render() {
 	Resources.Font.loadedFont().draw(batch, model.getPlayerName(), 0, 200);
 	Resources.Font.loadedFont().draw(batch, "latency:       " + (int) (model.client.latencyS * LibAllGwt.MILLIS_IN_SECCOND), 0, 250);
 	Resources.Font.loadedFont().draw(batch, "smart latency: " + (int) (model.client.smartLatencyS * LibAllGwt.MILLIS_IN_SECCOND), 0, 300);
-	if(TEST_TEXTURE) batch.draw(Resources.Textures.green, Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2);
+	if(TEST_TEXTURE) batch.draw(Resources.Textures.green, viewport2.getWorldWidth()/2, viewport2.getWorldHeight()/2);
 	batch.end();
 }
 private Logic.XY calcRenderXY(Logic.State state, Logic.XY pos) {
