@@ -10,6 +10,7 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
@@ -69,6 +70,7 @@ public void resize(int width, int height) {
 	batch.setProjectionMatrix(viewport2.getCamera().combined);
 	shapeRenderer.setProjectionMatrix(viewport1.getCamera().combined);
 }
+Logic.XY backgroundOffset = new GdxXY(new Logic.XY());
 public void render() {
 	final boolean TEST_TEXTURE = LibAllGwt.TRUE();
 	model.update(Gdx.graphics.getDeltaTime());
@@ -76,10 +78,19 @@ public void render() {
 	if(state != null) {
 		for(Logic.Car car : state.cars) {
 			if(car.owner.equals(model.playerId)) {
+				Logic.XY previous = new GdxXY(viewport1.getCamera().position);
 				viewport1.getCamera().position.x = car.pos.x;
 				viewport1.getCamera().position.y = car.pos.y;
 				viewport1.getCamera().update();
 				shapeRenderer.setProjectionMatrix(viewport1.getCamera().combined);
+				Logic.XY change = new GdxXY(viewport1.getCamera().position).sub(previous);
+				if(change.x > state.width/2) change.x -= state.width;
+				else if(change.x < -state.width/2) change.x += state.width;
+				if(change.y > state.height/2) change.y -= state.height;
+				else if(change.y < -state.height/2) change.y += state.height;
+				backgroundOffset = backgroundOffset.add(new GdxXY(change).scale(0.0001f));
+
+				break;
 			}
 		}
 	}
@@ -97,7 +108,7 @@ public void render() {
 		if(true)backgroundBatchShader.setUniformf(backgroundBatchShader.fetchUniformLocation("resolution", false), Gdx.graphics.getWidth(), Gdx.graphics.getHeight());//todo width height reverse in landscape
 		else backgroundBatchShader.setUniformf("resolution", viewport2.getWorldWidth(), viewport2.getWorldHeight());
 		backgroundBatchShader.setUniformf("time", App.sinceStartS());//30f
-		backgroundBatchShader.setUniformf("mouse", App.sinceStartS()/10, App.sinceStartS()/10);//30f
+		backgroundBatchShader.setUniformf("mouse", backgroundOffset.x, backgroundOffset.y);
 		backgroundBatch.draw(Resources.Textures.green, 0, 0, viewport2.getWorldWidth(), viewport2.getWorldHeight());
 		backgroundBatch.end();
 	}
