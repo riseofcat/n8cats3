@@ -30,6 +30,7 @@ private static final Color[] colors = {Color.BLUE, Color.GOLD, Color.PINK, Color
 private static final boolean MULTIPLE_VIEWPORTS = false;
 private static final boolean BACKGROUND_BATCH = true;
 private ShaderProgram backgroundBatchShader;
+private ShaderProgram batchShader;
 public Core(App.Context context) {
 	App.context = context;
 }
@@ -51,10 +52,8 @@ public void create() {
 	stage.addActor(new GradientShapeRect(200, 50));
 	stage.addActor(new Image(Resources.Textures.green));
 	model = new Model();
-	ShaderProgram defaultShader = null;
-	if(false) defaultShader = new ShaderProgram(Gdx.files.internal("glow.vert"), Gdx.files.internal("glow.frag"));
-	else defaultShader = new ShaderProgram(Gdx.files.internal("shaders/UniBlurVertexShader.vs"), Gdx.files.internal("shaders/UniBlurFragmentShader.fs"));
-	batch.setShader(defaultShader);
+	batchShader = new ShaderProgram(Gdx.files.internal("shaders/default_vertex_shader.vert"), Gdx.files.internal("shaders/good_glow.frag"));
+	batch.setShader(batchShader);
 	shapeRenderer = new ShapeRenderer2(10000, null);
 	shapeRenderer.setAutoShapeType(false);
 	Gdx.input.setInputProcessor(new InputMultiplexer(stage, new InputAdapter() {
@@ -143,6 +142,12 @@ public void render() {
 	}
 	if(MULTIPLE_VIEWPORTS) viewport2.apply();
 	batch.begin();
+	float width = Gdx.graphics.getWidth();
+	float height = Gdx.graphics.getHeight();
+	batchShader.setUniformf("u_viewportInverse", new Vector2(1f / width, 1f / height));
+	batchShader.setUniformf("u_offset",2f);
+	batchShader.setUniformf("u_step", Math.min(1f, width / 70f));
+	batchShader.setUniformf("u_color", new Vector3(0, 1, 1));
 	Resources.Font.loadedFont().draw(batch, "fps: " + Gdx.graphics.getFramesPerSecond(), 0, 150);
 	Resources.Font.loadedFont().draw(batch, model.getPlayerName(), 0, 200);
 	Resources.Font.loadedFont().draw(batch, "latency:       " + (int) (model.client.latencyS * LibAllGwt.MILLIS_IN_SECCOND), 0, 250);
