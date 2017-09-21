@@ -28,7 +28,7 @@ uniform vec2 mouse;
 #define BlendMultiply(base, blend)       (base * blend)
 #define BlendScreen(base, blend)       Blend(base, blend, BlendScreenf)
 
-void mainImage( out vec4 fragColor, in vec2 fragCoord )
+void mainImage( out vec3 fragColor, in vec2 fragCoord )
 {
 	//get coords and direction
 	vec2 uv= fragCoord.xy/resolution.xy-.5;
@@ -68,28 +68,20 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord )
 		s+=STEPSIZE;
 	}
 	v=mix(vec3(length(v)),v,SATURATION); //color adjust
-	fragColor = vec4(v*.009,1.0);
+	fragColor = v*.009;
 }
 float snoise(vec3 uv, float res)
 {
    const vec3 s = vec3(1e0, 1e2, 1e4);
-
    uv *= res;
-
    vec3 uv0 = floor(mod(uv, res))*s;
    vec3 uv1 = floor(mod(uv+vec3(1.), res))*s;
-
    vec3 f = fract(uv); f = f*f*f*(3.0-2.0*f);
-
-   vec4 v = vec4(uv0.x+uv0.y+uv0.z, uv1.x+uv0.y+uv0.z,
-                 uv0.x+uv1.y+uv0.z, uv1.x+uv1.y+uv0.z);
-
+   vec4 v = vec4(uv0.x+uv0.y+uv0.z, uv1.x+uv0.y+uv0.z,uv0.x+uv1.y+uv0.z, uv1.x+uv1.y+uv0.z);
    vec4 r = fract(sin(v*1e-3)*1e5);
    float r0 = mix(mix(r.x, r.y, f.x), mix(r.z, r.w, f.x), f.y);
-
    r = fract(sin((v + uv1.z - uv0.z)*1e-3)*1e5);
    float r1 = mix(mix(r.x, r.y, f.x), mix(r.z, r.w, f.x), f.y);
-
    return mix(r0, r1, f.z)*2.-0.3;
 }
 vec3 getrainbow(vec2 coords,float intensity)
@@ -101,21 +93,21 @@ vec3 getrainbow(vec2 coords,float intensity)
 }
 void main (void)
 {
-  vec4 color = vec4 (0.0, 0.0, 0.0, 1.0);
+  vec3 color = vec3 (0.0, 0.0, 0.0);
   mainImage (color, gl_FragCoord.xy);
-  color.w = 1.0;
+  //color.w = 1.0;
   vec2 p = 2.0 * (gl_FragCoord.xy / resolution) - 1.0 ;
   p.x *= resolution.x/resolution.y;
   p *= 500.0;
   float dx = mouse.x*30.0;
   float dy = mouse.y*50.0;
   vec2 offset = vec2(dx*cos(dx/100.0),dy*sin(dy/100.0));
-  vec3 rainbow = getrainbow(p.xy+offset*30.0,11.0)*0.12;
-  vec3 rgb = color.rgb;
-  float r = 1.0 - (1.0 - rgb.r) * (1.0 - rainbow.r);
-  float g = 1.0 - (1.0 - rgb.g) * (1.0 - rainbow.g);
-  float b = 1.0 - (1.0 - rgb.b) * (1.0 - rainbow.b);
+  vec3 rainbow = getrainbow(p.xy+offset*30.0,11.0)*0.2;
+  float r = 1.0 - (1.0 - color.r) * (1.0 - rainbow.r);
+  float g = 1.0 - (1.0 - color.g) * (1.0 - rainbow.g);
+  float b = 1.0 - (1.0 - color.b) * (1.0 - rainbow.b);
   //vec3 result = BlendScreen(color.rgb, rainbow);
   //gl_FragColor = vec4(result, 1.0);
-  gl_FragColor = vec4(r, g, b, 1.0);
+  //gl_FragColor = vec4(r, g, b, 1.0);
+  gl_FragColor = vec4(rainbow, 1.0);
 }
