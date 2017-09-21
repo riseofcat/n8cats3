@@ -102,7 +102,7 @@ public void render() {
 		backgroundBatch.end();
 	}
 	viewport1.apply();
-	if(false && state != null) {
+	if(state != null) {
 		shapeRenderer.begin(ShapeRenderer2.ShapeType.Line);
 		shapeRenderer.setColor(Color.WHITE);
 		float gridSize = 100;

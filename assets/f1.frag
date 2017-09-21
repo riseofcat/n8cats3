@@ -110,6 +110,12 @@ void main (void)
   float dx = mouse.x*30.0;
   float dy = mouse.y*50.0;
   vec2 offset = vec2(dx*cos(dx/100.0),dy*sin(dy/100.0));
-  vec3 rainbow = getrainbow(p.xy+offset*30.0,11.0)*0.2;
-  gl_FragColor.rgb = BlendScreen(color.rgb, rainbow);
+  vec3 rainbow = getrainbow(p.xy+offset*30.0,11.0)*0.12;
+  vec3 rgb = color.rgb;
+  float r = 1.0 - (1.0 - rgb.r) * (1.0 - rainbow.r);
+  float g = 1.0 - (1.0 - rgb.g) * (1.0 - rainbow.g);
+  float b = 1.0 - (1.0 - rgb.b) * (1.0 - rainbow.b);
+  //vec3 result = BlendScreen(color.rgb, rainbow);
+  //gl_FragColor = vec4(result, 1.0);
+  gl_FragColor = vec4(r, g, b, 1.0);
 }
