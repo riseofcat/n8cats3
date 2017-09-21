@@ -52,7 +52,10 @@ public void create() {
 	stage.addActor(new Image(Resources.Textures.green));
 	model = new Model();
 	ShaderProgram defaultShader = null;
-	shapeRenderer = new ShapeRenderer2(10000, defaultShader);
+	if(false) defaultShader = new ShaderProgram(Gdx.files.internal("glow.vert"), Gdx.files.internal("glow.frag"));
+	else defaultShader = new ShaderProgram(Gdx.files.internal("shaders/UniBlurVertexShader.vs"), Gdx.files.internal("shaders/UniBlurFragmentShader.fs"));
+	batch.setShader(defaultShader);
+	shapeRenderer = new ShapeRenderer2(10000, null);
 	shapeRenderer.setAutoShapeType(false);
 	Gdx.input.setInputProcessor(new InputMultiplexer(stage, new InputAdapter() {
 		public boolean touchDown(int screenX, int screenY, int pointer, int button) {
@@ -94,7 +97,7 @@ public void render() {
 			}
 		}
 	}
-	Gdx.gl.glClearColor(0.5f, 0.5f, 0.5f, 1);
+	Gdx.gl.glClearColor(0.f, 0.f, 0.f, 1);
 	Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 	if(TEST_TEXTURE) {
 		if(LibAllGwt.FALSE())stage.getViewport().apply();
@@ -134,7 +137,7 @@ public void render() {
 		for(Logic.Car car : state.cars) {
 			Color color = colors[car.owner.id % (colors.length - 1)];
 			shapeRenderer.setColor(color);
-			shapeRenderer.circle(car.pos.x, car.pos.y, car.radius(), 6);
+			shapeRenderer.circle(car.pos.x, car.pos.y, car.radius(), 20);
 		}
 		shapeRenderer.end();
 	}
