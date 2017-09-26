@@ -192,7 +192,7 @@ public static class State {
 				}
 			}
 		}
-		if(foods.size() < 100) foods.add(new Food(rndPos()));
+		if(foods.size() < 60) foods.add(new Food(rndPos()));
 		return this;
 	}
 	private int rnd(int min, int max) {

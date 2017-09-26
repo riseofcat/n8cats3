@@ -4,6 +4,7 @@ import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.InputMultiplexer;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -29,6 +30,7 @@ private Stage stage;
 private static final Color[] colors = {Color.BLUE, Color.GOLD, Color.PINK, Color.RED, Color.GREEN, Color.VIOLET, Color.LIME, Color.TEAL, Color.YELLOW};
 private static final boolean MULTIPLE_VIEWPORTS = false;
 private static final boolean BACKGROUND_BATCH = true;
+private static final boolean DRAW_GRID = true;
 private ShaderProgram backgroundBatchShader;
 private ShaderProgram batchShader;
 public Core(App.Context context) {
@@ -52,7 +54,8 @@ public void create() {
 	stage.addActor(new GradientShapeRect(200, 50));
 	stage.addActor(new Image(Resources.Textures.green));
 	model = new Model();
-	batchShader = new ShaderProgram(Gdx.files.internal("shaders/default_vertex_shader.vert"), Gdx.files.internal("shaders/good_glow.frag"));
+	FileHandle fragmentShader = Gdx.files.internal("shaders/UniBlurFragmentShader.fs");
+	batchShader = new ShaderProgram(Gdx.files.internal("shaders/default_vertex_shader.vert"), fragmentShader);
 	batch.setShader(batchShader);
 	shapeRenderer = new ShapeRenderer2(10000, null);
 	shapeRenderer.setAutoShapeType(false);
@@ -116,12 +119,14 @@ public void render() {
 	}
 	viewport1.apply();
 	if(state != null) {
-		shapeRenderer.begin(ShapeRenderer2.ShapeType.Line);
-		shapeRenderer.setColor(Color.WHITE);
-		float gridSize = 100;
-		for(int x = 0; x*gridSize <= state.width; x++) shapeRenderer.line(x*gridSize, 0, 0, x*gridSize, state.height, 0);
-		for(int y = 0; y*gridSize < state.height; y++) shapeRenderer.line(0, y*gridSize, 0, state.width, y*gridSize, 0);
-		shapeRenderer.end();
+		if(DRAW_GRID) {
+			shapeRenderer.begin(ShapeRenderer2.ShapeType.Line);
+			shapeRenderer.setColor(Color.WHITE);
+			float gridSize = 100;
+			for(int x = 0; x*gridSize <= state.width; x++) shapeRenderer.line(x*gridSize, 0, 0, x*gridSize, state.height, 0);
+			for(int y = 0; y*gridSize < state.height; y++) shapeRenderer.line(0, y*gridSize, 0, state.width, y*gridSize, 0);
+			shapeRenderer.end();
+		}
 		shapeRenderer.begin(ShapeRenderer2.ShapeType.Filled);
 		shapeRenderer.setColor(Color.GRAY);
 		for(Logic.Food food : state.foods) {

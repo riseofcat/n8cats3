@@ -1,6 +1,7 @@
 #ifdef GL_ES
 #define LOWP lowp
-   precision mediump float;
+   precision highp float;
+   precision highp int;
 #else
 #define LOWP 
 #endif
@@ -10,7 +11,7 @@ varying vec2 vTexCoord;
 			
 uniform sampler2D u_texture;
 const float resolution = 800.;
-const float radius = 5.;
+const float radius = 2.;
 const vec2 dir = vec2(1.,1.);
 			
 void main() 
