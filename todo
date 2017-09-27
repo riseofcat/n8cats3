@@ -7,6 +7,7 @@ Heroku supports many different versions of Java, system.properties(optional), de
 Инди-площадки (itch.io, SlideDB, GameJolt — здесь везде можно оставить ссылку на Стор)
 Форумы (крупнейшие: 4PDA, XDA, TouchArcade, TIGSource и т.д.)
 Reddit
+preloader посмотреть в save/develop/libgdx/github/samples...
 
 Отрабатывать ошибку отсутствия соединения с сервером и запускать в offline режиме и уведомлять об этом! Ловить Exception
 
