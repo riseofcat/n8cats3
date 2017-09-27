@@ -8,7 +8,11 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
 public class Resources {
 public static class Textures {
-	public static final Texture green = new Texture("green_tank.png");
+	public static final Texture tank = new Texture("green_tank.png");
+	public static final Texture green = new Texture("green.png");
+	public static final Texture blue = new Texture("blue.png");
+	public static final Texture red = new Texture("red.png");
+	public static final Texture yellow = new Texture("yellow.png");
 	public static final Texture font = new Texture(Gdx.files.internal("dejavu_sans_mono.png"));
 	public static Texture background;
 	static {
@@ -38,7 +42,7 @@ public static class Font {
 public static void dispose() {
 	Font.defaultFont.dispose();
 	Font.loadedFont.dispose();
-	Textures.green.dispose();
+	Textures.tank.dispose();
 	Textures.font.dispose();
 	if(false) {
 		Textures.background.dispose();

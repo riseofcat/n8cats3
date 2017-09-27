@@ -37,12 +37,13 @@ public Core(App.Context context) {
 	App.context = context;
 }
 public void create() {
+	final FileHandle defaultVertex = Gdx.files.internal("shaders/default_vertex_shader.vert");
 	ShaderProgram.pedantic = false;
-	App.create();
+	App.create();//todo
 	batch = new SpriteBatch();
 	if(BACKGROUND_BATCH) {
 		backgroundBatch = new SpriteBatch();
-		backgroundBatchShader = new ShaderProgram(Gdx.files.internal("v1.vert"), Gdx.files.internal("f1.frag"));
+		backgroundBatchShader = new ShaderProgram(defaultVertex, Gdx.files.internal("shaders/background/stars.frag"));
 		boolean compiled = backgroundBatchShader.isCompiled();
 		String log = backgroundBatchShader.getLog();
 		backgroundBatch.setShader(backgroundBatchShader);
@@ -52,10 +53,13 @@ public void create() {
 	else viewport2 = viewport1;
 	stage = new Stage(viewport2/*, batch*/);
 	stage.addActor(new GradientShapeRect(200, 50));
-	stage.addActor(new Image(Resources.Textures.green));
+	stage.addActor(new Image(Resources.Textures.tank));
 	model = new Model();
-	FileHandle fragmentShader = Gdx.files.internal("shaders/UniBlurFragmentShader.fs");
-	batchShader = new ShaderProgram(Gdx.files.internal("shaders/default_vertex_shader.vert"), fragmentShader);
+	FileHandle fragmentShader = Gdx.files.internal("shaders/good_blur.frag");
+	batchShader = new ShaderProgram(defaultVertex, fragmentShader);
+	if(!batchShader.isCompiled()) {
+		App.log.error(batchShader.getLog());
+	}
 	batch.setShader(batchShader);
 	shapeRenderer = new ShapeRenderer2(10000, null);
 	shapeRenderer.setAutoShapeType(false);
@@ -114,7 +118,7 @@ public void render() {
 		else backgroundBatchShader.setUniformf("resolution", viewport2.getWorldWidth(), viewport2.getWorldHeight());
 		backgroundBatchShader.setUniformf("time", App.sinceStartS());//30f
 		backgroundBatchShader.setUniformf("mouse", backgroundOffset.x, backgroundOffset.y);
-		backgroundBatch.draw(Resources.Textures.green, 0, 0, viewport2.getWorldWidth(), viewport2.getWorldHeight());
+		backgroundBatch.draw(Resources.Textures.tank, 0, 0, viewport2.getWorldWidth(), viewport2.getWorldHeight());//todo change to mesh https://github.com/mc-imperial/libgdx-get-image
 		backgroundBatch.end();
 	}
 	viewport1.apply();
@@ -157,7 +161,13 @@ public void render() {
 	Resources.Font.loadedFont().draw(batch, model.getPlayerName(), 0, 200);
 	Resources.Font.loadedFont().draw(batch, "latency:       " + (int) (model.client.latencyS * LibAllGwt.MILLIS_IN_SECCOND), 0, 250);
 	Resources.Font.loadedFont().draw(batch, "smart latency: " + (int) (model.client.smartLatencyS * LibAllGwt.MILLIS_IN_SECCOND), 0, 300);
-	if(TEST_TEXTURE) batch.draw(Resources.Textures.green, viewport2.getWorldWidth()/2, viewport2.getWorldHeight()/2);
+	if(TEST_TEXTURE) {
+		batch.draw(Resources.Textures.tank, viewport2.getWorldWidth()/2, viewport2.getWorldHeight()/2);
+		batch.draw(Resources.Textures.red, viewport2.getWorldWidth()/3, viewport2.getWorldHeight()/2);
+		batch.draw(Resources.Textures.green, viewport2.getWorldWidth()/2, viewport2.getWorldHeight()/3);
+		batch.draw(Resources.Textures.blue, viewport2.getWorldWidth()/3, viewport2.getWorldHeight()/3);
+		batch.draw(Resources.Textures.yellow, viewport2.getWorldWidth()*2/3, viewport2.getWorldHeight()/2);
+	}
 	batch.end();
 }
 private Logic.XY calcRenderXY(Logic.State state, Logic.XY pos) {
