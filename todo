@@ -13,6 +13,7 @@ preloader посмотреть в save/develop/libgdx/github/samples...
 
 <uses-feature android:glEsVersion="0x00020000" android:required="true" />
 
+Когда отсоединяется клиент:
 [qtp942571759-17] ERROR main - OnWebSocketError org.eclipse.jetty.io.EofException
 8:01:51 PM web.1 |  org.eclipse.jetty.io.EofException
 8:01:51 PM web.1 |      at org.eclipse.jetty.io.ChannelEndPoint.flush(ChannelEndPoint.java:292)
@@ -49,3 +50,4 @@ preloader посмотреть в save/develop/libgdx/github/samples...
 8:01:51 PM web.1 |      ... 24 more
 
 ifconfig wlx2cd05ad18a19 | grep 'inet addr:' | cut -d: -f2 | awk '{ print $1}'
+

@@ -52,8 +52,8 @@ private static class Sync {
 }
 public Model() {
 	final boolean LOCAL =
-			LibAllGwt.TRUE();
-//		  LibAllGwt.FALSE();
+//			LibAllGwt.TRUE();
+		  LibAllGwt.FALSE();
 	String host = "n8cats3.herokuapp.com";
 	int port = 80;
 	if(LOCAL) {//todo параметры при компиляции
@@ -131,7 +131,10 @@ public void action(Logic.Action action) {
 		a.wait = w;
 		a.tick = clientTick + w;//todo serverTick?
 		a.action = action;
-		myActions.getExistsOrPutDefault(new Tick(clientTick + w)).add(new Action(a.aid, a.action));
+		List<Action> my = myActions.getExistsOrPutDefault(new Tick(clientTick + w));
+		synchronized(my) {
+			my.add(new Action(a.aid, a.action));
+		}
 		ClientPayload payload = new ClientPayload();
 		payload.tick = clientTick;
 		payload.actions = new ArrayList<>();
@@ -211,7 +214,11 @@ private class StateWrapper {
 			List<Logic.BigAction> other = actions.map.get(new Tick(tick));
 			if(other != null) state.act(other.iterator());
 			List<Action> my = myActions.map.get(new Tick(tick));
-			if(my != null) state.act(my.iterator());
+			if(my != null) {
+				synchronized(my) {//todo test ConcurrentModificationException
+					state.act(my.iterator());
+				}
+			}
 			state.tick();
 			tick++;
 		}
