@@ -143,7 +143,7 @@ public void action(Logic.Action action) {
 }
 public void touch(Logic.XY pos) {//todo move out?
 	Logic.State displayState = getDisplayState();
-	if(displayState == null) return;
+	if(displayState == null || playerId == null) return;
 	for(Logic.Car car : displayState.cars) {
 		if(playerId.equals(car.owner)) {
 			Logic.Angle direction = pos.sub(car.pos).calcAngle().add(new Logic.DegreesAngle(0 * 180));
