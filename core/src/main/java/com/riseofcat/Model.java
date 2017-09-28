@@ -24,7 +24,7 @@ private final DefaultValueMap<Tick, List<Logic.BigAction>> actions = new Default
 	public List<Logic.BigAction> createNew() {return App.context.createConcurrentList();}
 });
 private final DefaultValueMap<Tick, List<Action>> myActions = new DefaultValueMap<>(new HashMap<Tick, List<Action>>(), new DefaultValueMap.ICreateNew<List<Action>>() {
-	public List<Action> createNew() {return App.context.createConcurrentList();}
+	public List<Action> createNew() {return new ArrayList<>();}
 });
 private StateWrapper stable;
 private Sync sync;
@@ -131,7 +131,10 @@ public void action(Logic.Action action) {
 		a.wait = w;
 		a.tick = clientTick + w;//todo serverTick?
 		a.action = action;
-		myActions.getExistsOrPutDefault(new Tick(clientTick + w)).add(new Action(a.aid, a.action));
+		List<Action> my = myActions.getExistsOrPutDefault(new Tick(clientTick + w));
+		synchronized(my) {
+			my.add(new Action(a.aid, a.action));
+		}
 		ClientPayload payload = new ClientPayload();
 		payload.tick = clientTick;
 		payload.actions = new ArrayList<>();
@@ -211,7 +214,11 @@ private class StateWrapper {
 			List<Logic.BigAction> other = actions.map.get(new Tick(tick));
 			if(other != null) state.act(other.iterator());
 			List<Action> my = myActions.map.get(new Tick(tick));
-			if(my != null) state.act(my.iterator());
+			if(my != null) {
+				synchronized(my) {
+					state.act(my.iterator());
+				}
+			}
 			state.tick();
 			tick++;
 		}
