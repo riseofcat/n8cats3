@@ -7,7 +7,10 @@ import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.Mesh;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.VertexAttribute;
+import com.badlogic.gdx.graphics.VertexAttributes;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.math.Vector2;
@@ -29,24 +32,34 @@ private Viewport viewport2;
 private Stage stage;
 private static final Color[] colors = {Color.BLUE, Color.GOLD, Color.PINK, Color.RED, Color.GREEN, Color.VIOLET, Color.LIME, Color.TEAL, Color.YELLOW};
 private static final boolean MULTIPLE_VIEWPORTS = false;
-private static final boolean BACKGROUND_BATCH = true;
+private static final boolean BACKGROUND_BATCH = false;
+private static final boolean BACKGROUND_MESH = true;
 private static final boolean DRAW_GRID = true;
 private ShaderProgram backgroundBatchShader;
 private ShaderProgram batchShader;
+private Mesh mesh;
+private ShaderProgram meshShader;
 public Core(App.Context context) {
 	App.context = context;
 }
 public void create() {
-	final FileHandle defaultVertex = Gdx.files.internal("shaders/default_vertex_shader.vert");
+	final FileHandle defaultVertex = Gdx.files.internal("shader/default_vertex_shader.vert");
 	ShaderProgram.pedantic = false;
 	App.create();//todo
 	batch = new SpriteBatch();
 	if(BACKGROUND_BATCH) {
+		backgroundBatchShader = new ShaderProgram(defaultVertex, Gdx.files.internal("shader/background/stars.frag"));
+		if(!backgroundBatchShader.isCompiled()) App.log.error(backgroundBatchShader.getLog());
 		backgroundBatch = new SpriteBatch();
-		backgroundBatchShader = new ShaderProgram(defaultVertex, Gdx.files.internal("shaders/background/stars.frag"));
-		boolean compiled = backgroundBatchShader.isCompiled();
-		String log = backgroundBatchShader.getLog();
 		backgroundBatch.setShader(backgroundBatchShader);
+	}
+	if(BACKGROUND_MESH) {
+		mesh = new Mesh(true, 4, 6, new VertexAttribute(VertexAttributes.Usage.Position, 2, "aVertexPosition"));
+		mesh.setVertices(new float[] {-1.0f,1.0f, -1.0f,-1.0f, 1.0f,-1.0f, 1.0f,1.0f});
+		mesh.setIndices(new short[]{0, 1, 2, 2, 3, 0});
+		meshShader = new ShaderProgram(Gdx.files.internal("shader/mesh/default.vert"),
+				Gdx.files.internal("shader/background/stars.frag"));
+		if(!meshShader.isCompiled()) App.log.error(meshShader.getLog());
 	}
 	viewport1 = new ExtendViewport(1000f, 1000f, new OrthographicCamera());//todo 1000f
 	if(MULTIPLE_VIEWPORTS) viewport2 = new ExtendViewport(500, 500, new OrthographicCamera());
@@ -55,11 +68,9 @@ public void create() {
 	stage.addActor(new GradientShapeRect(200, 50));
 	stage.addActor(new Image(Resources.Textures.tank));
 	model = new Model();
-	FileHandle fragmentShader = Gdx.files.internal("shaders/good_blur.frag");
+	FileHandle fragmentShader = Gdx.files.internal("shader/good_blur.frag");
 	batchShader = new ShaderProgram(defaultVertex, fragmentShader);
-	if(!batchShader.isCompiled()) {
-		App.log.error(batchShader.getLog());
-	}
+	if(!batchShader.isCompiled()) App.log.error(batchShader.getLog());
 	batch.setShader(batchShader);
 	shapeRenderer = new ShapeRenderer2(10000, null);
 	shapeRenderer.setAutoShapeType(false);
@@ -98,13 +109,21 @@ public void render() {
 				if(change.y > state.height/2) change.y -= state.height;
 				else if(change.y < -state.height/2) change.y += state.height;
 				backgroundOffset = backgroundOffset.add(new GdxXY(change).scale(0.0001f));
-
 				break;
 			}
 		}
 	}
 	Gdx.gl.glClearColor(0.f, 0.f, 0.f, 1);
 	Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+	if(BACKGROUND_MESH) {
+		meshShader.begin();
+		applyUniform(meshShader);
+		mesh.render(meshShader, GL20.GL_TRIANGLES);
+		checkForGlError();
+		meshShader.end();
+		Gdx.gl.glFlush();
+		Gdx.gl.glFinish();
+	}
 	if(TEST_TEXTURE) {
 		if(LibAllGwt.FALSE())stage.getViewport().apply();
 		stage.act(/*Gdx.graphics.getDeltaTime()*/);
@@ -114,10 +133,7 @@ public void render() {
 		viewport2.apply();
 //		backgroundBatchShader.setUniformf(), viewport2.getWorldWidth(), viewport2.getWorldHeight());
 		backgroundBatch.begin();
-		if(true)backgroundBatchShader.setUniformf(backgroundBatchShader.fetchUniformLocation("resolution", false), Gdx.graphics.getWidth(), Gdx.graphics.getHeight());//todo width height reverse in landscape
-		else backgroundBatchShader.setUniformf("resolution", viewport2.getWorldWidth(), viewport2.getWorldHeight());
-		backgroundBatchShader.setUniformf("time", App.sinceStartS());//30f
-		backgroundBatchShader.setUniformf("mouse", backgroundOffset.x, backgroundOffset.y);
+		applyUniform(backgroundBatchShader);
 		backgroundBatch.draw(Resources.Textures.tank, 0, 0, viewport2.getWorldWidth(), viewport2.getWorldHeight());//todo change to mesh https://github.com/mc-imperial/libgdx-get-image
 		backgroundBatch.end();
 	}
@@ -170,6 +186,12 @@ public void render() {
 	}
 	batch.end();
 }
+private void applyUniform(ShaderProgram program) {
+	if(true)program.setUniformf(program.fetchUniformLocation("resolution", false), Gdx.graphics.getWidth(), Gdx.graphics.getHeight());//todo width height reverse in landscape
+	else program.setUniformf("resolution", viewport2.getWorldWidth(), viewport2.getWorldHeight());
+	program.setUniformf("time", App.sinceStartS());//30f
+	program.setUniformf("mouse", backgroundOffset.x, backgroundOffset.y);
+}
 private Logic.XY calcRenderXY(Logic.State state, Logic.XY pos) {
 	float x = pos.x;
 	float dx = viewport1.getCamera().position.x - x;
@@ -177,10 +199,17 @@ private Logic.XY calcRenderXY(Logic.State state, Logic.XY pos) {
 	else if(dx < -state.width/2) x -= state.width;
 	return new Logic.XY(x, pos.y);//todo y
 }
+private void checkForGlError() {
+	int error = Gdx.gl.glGetError();
+	if(error != GL20.GL_NO_ERROR) {
+		App.log.error("GL Error: " + error);
+	}
+}
 public void dispose() {
 	model.dispose();
 	batch.dispose();
 	shapeRenderer.dispose();
+	//todo dispose shaders
 	Resources.dispose();
 }
 }
