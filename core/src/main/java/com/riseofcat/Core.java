@@ -68,10 +68,9 @@ public void create() {
 	stage.addActor(new GradientShapeRect(200, 50));
 	stage.addActor(new Image(Resources.Textures.tank));
 	model = new Model();
-	FileHandle fragmentShader = Gdx.files.internal("shader/good_blur.frag");
-	batchShader = new ShaderProgram(defaultVertex, fragmentShader);
+	batchShader = new ShaderProgram(defaultVertex, Gdx.files.internal("shader/good_blur.frag"));
 	if(!batchShader.isCompiled()) App.log.error(batchShader.getLog());
-	batch.setShader(batchShader);
+	if(false) batch.setShader(batchShader);
 	shapeRenderer = new ShapeRenderer2(10000, null);
 	shapeRenderer.setAutoShapeType(false);
 	Gdx.input.setInputProcessor(new InputMultiplexer(stage, new InputAdapter() {
@@ -169,10 +168,12 @@ public void render() {
 	batch.begin();
 	float width = Gdx.graphics.getWidth();
 	float height = Gdx.graphics.getHeight();
-	batchShader.setUniformf("u_viewportInverse", new Vector2(1f / width, 1f / height));
-	batchShader.setUniformf("u_offset",2f);
-	batchShader.setUniformf("u_step", Math.min(1f, width / 70f));
-	batchShader.setUniformf("u_color", new Vector3(0, 1, 1));
+	if(batchShader != null) {
+		batchShader.setUniformf("u_viewportInverse", new Vector2(1f / width, 1f / height));
+		batchShader.setUniformf("u_offset",2f);
+		batchShader.setUniformf("u_step", Math.min(1f, width / 70f));
+		batchShader.setUniformf("u_color", new Vector3(0, 1, 1));
+	}
 	Resources.Font.loadedFont().draw(batch, "fps: " + Gdx.graphics.getFramesPerSecond(), 0, 150);
 	Resources.Font.loadedFont().draw(batch, model.getPlayerName(), 0, 200);
 	Resources.Font.loadedFont().draw(batch, "latency:       " + (int) (model.client.latencyS * LibAllGwt.MILLIS_IN_SECCOND), 0, 250);
