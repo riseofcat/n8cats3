@@ -6,7 +6,7 @@ uniform float time;
 uniform vec2 resolution;
 uniform vec2 mouse;
 //Качество:
-#define ITERATIONS 4
+#define ITERATIONS 3
 #define VOLSTEPS 2//количество слоёв
 //От 0.2 до 1.0
 #define FORMUPARAM 0.96
@@ -15,8 +15,8 @@ uniform vec2 mouse;
 #define ZOOM   5.900
 #define TILE   0.850
 #define SPEED  0.150
-#define BRIGHTNESS 0.15
-#define DISTFADING 0.5
+#define BRIGHTNESS 1.15
+#define DISTFADING 0.65
 #define SATURATION 0.750
 //Может быть как положительный так и отрицательный целые значения увеличивают выпад пятен
 #define INTERESTING1 2.2
@@ -56,12 +56,12 @@ void mainImage( out vec3 fragColor, in vec2 fragCoord )
 		float a=0.;
 		float pa = 6.0;
 		float param = FORMUPARAM * (1.0 + sin(time*2.0)*0.03);
-		for (int i=0; i<ITERATIONS; i++) {
+		for (int i=0; i<ITERATIONS + 2*(VOLSTEPS - r - 1); i++) {
 			p=1.4*abs(p)/dot(p,p)-param; // the magic formula
-			a+=0.8*abs(length(p)-pa); // absolute sum of average change
+			a+=1.0 * abs(length(p)-pa); // absolute sum of average change
 			pa*=0.65;//length(p);
 		}
-		a*=a; // add contrast
+		//a*=a; // add contrast
 		v+=fade;
 		v+=vec3(sin(s/0.01999)*0.5*exp(s),s,0.25*exp(s))*a*BRIGHTNESS*fade; // COLOR based on distance
 		fade*=DISTFADING; // distance fading
