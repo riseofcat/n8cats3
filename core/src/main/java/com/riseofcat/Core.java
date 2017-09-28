@@ -34,7 +34,7 @@ private static final Color[] colors = {Color.BLUE, Color.GOLD, Color.PINK, Color
 private static final boolean MULTIPLE_VIEWPORTS = false;
 private static final boolean BACKGROUND_BATCH = false;
 private static final boolean BACKGROUND_MESH = true;
-private static final boolean DRAW_GRID = true;
+private static final boolean DRAW_GRID = false;
 private ShaderProgram backgroundBatchShader;
 private ShaderProgram batchShader;
 private Mesh mesh;
@@ -91,7 +91,7 @@ public void resize(int width, int height) {
 }
 Logic.XY backgroundOffset = new GdxXY(new Logic.XY());
 public void render() {
-	final boolean TEST_TEXTURE = LibAllGwt.TRUE();
+	final boolean TEST_TEXTURE = LibAllGwt.FALSE();
 	model.update(Gdx.graphics.getDeltaTime());
 	Logic.State state = model.getDisplayState();
 	if(state != null) {
@@ -153,14 +153,16 @@ public void render() {
 			shapeRenderer.circle(r.x, r.y, food.radius());
 		}
 		for(Logic.Reactive react : state.reactive) {
+			Logic.XY r = calcRenderXY(state, react.pos);
 			Color color = colors[react.owner.id % (colors.length - 1)];
 			shapeRenderer.setColor(color);
-			shapeRenderer.circle(react.pos.x, react.pos.y, react.radius());
+			shapeRenderer.circle(r.x, r.y, react.radius());
 		}
 		for(Logic.Car car : state.cars) {
+			Logic.XY r = calcRenderXY(state, car.pos);
 			Color color = colors[car.owner.id % (colors.length - 1)];
 			shapeRenderer.setColor(color);
-			shapeRenderer.circle(car.pos.x, car.pos.y, car.radius(), 20);
+			shapeRenderer.circle(r.x, r.y, car.radius(), 20);
 		}
 		shapeRenderer.end();
 	}
@@ -176,8 +178,8 @@ public void render() {
 	}
 	Resources.Font.loadedFont().draw(batch, "fps: " + Gdx.graphics.getFramesPerSecond(), 0, 150);
 	Resources.Font.loadedFont().draw(batch, model.getPlayerName(), 0, 200);
-	Resources.Font.loadedFont().draw(batch, "latency:       " + (int) (model.client.latencyS * LibAllGwt.MILLIS_IN_SECCOND), 0, 250);
-	Resources.Font.loadedFont().draw(batch, "smart latency: " + (int) (model.client.smartLatencyS * LibAllGwt.MILLIS_IN_SECCOND), 0, 300);
+	Resources.Font.loadedFont().draw(batch, "latency: " + (int) (model.client.latencyS * LibAllGwt.MILLIS_IN_SECCOND), 0, 250);
+	if(false)Resources.Font.loadedFont().draw(batch, "smart latency: " + (int) (model.client.smartLatencyS * LibAllGwt.MILLIS_IN_SECCOND), 0, 300);
 	if(TEST_TEXTURE) {
 		batch.draw(Resources.Textures.tank, viewport2.getWorldWidth()/2, viewport2.getWorldHeight()/2);
 		batch.draw(Resources.Textures.red, viewport2.getWorldWidth()/3, viewport2.getWorldHeight()/2);
@@ -188,8 +190,14 @@ public void render() {
 	batch.end();
 }
 private void applyUniform(ShaderProgram program) {
-	if(true)program.setUniformf(program.fetchUniformLocation("resolution", false), Gdx.graphics.getWidth(), Gdx.graphics.getHeight());//todo width height reverse in landscape
-	else program.setUniformf("resolution", viewport2.getWorldWidth(), viewport2.getWorldHeight());
+	int width = Gdx.graphics.getWidth();
+	int height = Gdx.graphics.getHeight();
+	if(height > width) {//todo check landscape
+		int temp = width;
+		width = height;
+		height = temp;
+	}
+	program.setUniformf(program.fetchUniformLocation("resolution", false), width, height);
 	program.setUniformf("time", App.sinceStartS());//30f
 	program.setUniformf("mouse", backgroundOffset.x, backgroundOffset.y);
 }
@@ -198,7 +206,11 @@ private Logic.XY calcRenderXY(Logic.State state, Logic.XY pos) {
 	float dx = viewport1.getCamera().position.x - x;
 	if(dx > state.width/2) x += state.width;
 	else if(dx < -state.width/2) x -= state.width;
-	return new Logic.XY(x, pos.y);//todo y
+	float y = pos.y;
+	float dy = viewport1.getCamera().position.y - y;
+	if(dy > state.height/2) y += state.height;
+	else if(dy < -state.height/2) y -= state.height;
+	return new Logic.XY(x, y);
 }
 private void checkForGlError() {
 	int error = Gdx.gl.glGetError();

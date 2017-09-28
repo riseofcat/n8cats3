@@ -143,8 +143,8 @@ public static class State {
 	public ArrayList<Car> cars = new ArrayList<>();
 	public ArrayList<Food> foods = new ArrayList<>();
 	public ArrayList<Reactive> reactive = new ArrayList<>();
-	public float width = 1000;
-	public float height = 1000;
+	public float width = 2000;
+	public float height = 2000;
 	public int random;
 	@SuppressWarnings("unused") public State() {
 	}
@@ -192,7 +192,7 @@ public static class State {
 				}
 			}
 		}
-		if(foods.size() < 60) foods.add(new Food(rndPos()));
+		if(foods.size() < 180) foods.add(new Food(rndPos()));
 		return this;
 	}
 	private int rnd(int min, int max) {
