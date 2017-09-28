@@ -35,6 +35,6 @@ public T next() {
 	return null;
 }
 public void remove() {
-	throw new RuntimeException("todo");//todo
+	iterator.remove();//todo test
 }
 }

@@ -122,7 +122,7 @@ public static class NewCarAction implements InStateAction {
 		Car car = new Car();
 		car.pos = new XY();
 		car.owner = id;
-		car.size = MIN_SIZE * 2;
+		car.size = MIN_SIZE * 4;
 		state.cars.add(car);
 	}
 	public BigAction toBig() {
@@ -143,8 +143,8 @@ public static class State {
 	public ArrayList<Car> cars = new ArrayList<>();
 	public ArrayList<Food> foods = new ArrayList<>();
 	public ArrayList<Reactive> reactive = new ArrayList<>();
-	public float width = 2000;
-	public float height = 2000;
+	public float width = 3000;
+	public float height = 3000;
 	public int random;
 	@SuppressWarnings("unused") public State() {
 	}
@@ -189,6 +189,14 @@ public static class State {
 				if(distance(car.pos, f.pos) <= car.radius()) {
 					car.size += f.size;
 					foodItr.remove();
+				}
+			}
+			reactItr = reactive.iterator();
+			while(reactItr.hasNext()) {
+				Reactive r = reactItr.next();
+				if(!r.owner.equals(car.owner) && distance(car.pos, r.pos) <= car.radius()) {
+					car.size += r.size;
+					reactItr.remove();
 				}
 			}
 		}
