@@ -21,10 +21,10 @@ public class Model {
 public final PingClient<ServerPayload, ClientPayload> client;
 public Logic.Player.Id playerId;
 private final DefaultValueMap<Tick, List<Logic.BigAction>> actions = new DefaultValueMap<>(new HashMap<Tick, List<Logic.BigAction>>(), new DefaultValueMap.ICreateNew<List<Logic.BigAction>>() {
-	public List<Logic.BigAction> createNew() {return new ArrayList<>();}
+	public List<Logic.BigAction> createNew() {return App.context.createConcurrentList();}
 });
 private final DefaultValueMap<Tick, List<Action>> myActions = new DefaultValueMap<>(new HashMap<Tick, List<Action>>(), new DefaultValueMap.ICreateNew<List<Action>>() {
-	public List<Action> createNew() {return new ArrayList<>();}
+	public List<Action> createNew() {return App.context.createConcurrentList();}
 });
 private StateWrapper stable;
 private Sync sync;
@@ -131,10 +131,7 @@ public void action(Logic.Action action) {
 		a.wait = w;
 		a.tick = clientTick + w;//todo serverTick?
 		a.action = action;
-		List<Action> my = myActions.getExistsOrPutDefault(new Tick(clientTick + w));
-		synchronized(my) {
-			my.add(new Action(a.aid, a.action));
-		}
+		myActions.getExistsOrPutDefault(new Tick(clientTick + w)).add(new Action(a.aid, a.action));
 		ClientPayload payload = new ClientPayload();
 		payload.tick = clientTick;
 		payload.actions = new ArrayList<>();
@@ -214,11 +211,7 @@ private class StateWrapper {
 			List<Logic.BigAction> other = actions.map.get(new Tick(tick));
 			if(other != null) state.act(other.iterator());
 			List<Action> my = myActions.map.get(new Tick(tick));
-			if(my != null) {
-				synchronized(my) {//todo test ConcurrentModificationException
-					state.act(my.iterator());
-				}
-			}
+			if(my != null) state.act(my.iterator());
 			state.tick();
 			tick++;
 		}
