@@ -120,8 +120,8 @@ public void render() {
 		mesh.render(meshShader, GL20.GL_TRIANGLES);
 		checkForGlError();
 		meshShader.end();
-		Gdx.gl.glFlush();
-		Gdx.gl.glFinish();
+		if(false) Gdx.gl.glFlush();//save fps
+		if(false) Gdx.gl.glFinish();//save fps
 	}
 	if(TEST_TEXTURE) {
 		if(LibAllGwt.FALSE())stage.getViewport().apply();
