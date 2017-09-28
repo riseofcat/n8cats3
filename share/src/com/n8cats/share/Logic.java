@@ -10,8 +10,8 @@ import java.util.Iterator;
 public class Logic {
 public static final int UPDATE_MS = 40;
 public static final float UPDATE_S = UPDATE_MS / LibAllGwt.MILLIS_IN_SECCOND;
-public static final int MIN_SIZE = 15;
-public static final int FOOD_SIZE = 7;
+public static final int MIN_SIZE = 20;
+public static final int FOOD_SIZE = 20;
 private static final float MIN_RADIUS = 1f;
 
 abstract public static class Player {
@@ -35,10 +35,10 @@ abstract public static class Player {
 	}
 }
 public static abstract class PosObject {
-	public XY pos = new XY();
+	public XY pos = new XY(true);
 }
 public static abstract class SpeedObject extends PosObject {
-	public XY speed = new XY();
+	public XY speed = new XY(true);
 }
 public static abstract class EatMe extends SpeedObject {
 	public int size;
@@ -103,7 +103,7 @@ public static class PlayerAction implements InStateAction {
 		car.speed = car.speed.add(action.direction.xy().scale(scl));
 		int s = car.size / 15 + 1;
 		if(car.size - s >= MIN_SIZE) car.size -= s;
-		state.reactive.add(new Reactive(id, s, new XY(car.pos), new XY(action.direction.add(new DegreesAngle(180)).xy().scale(3f * scl))));
+		state.reactive.add(new Reactive(id, s, new XY(car.pos, true), new XY(action.direction.add(new DegreesAngle(180)).xy().scale(3f * scl), true)));
 	}
 	public BigAction toBig() {
 		BigAction result = new BigAction();
@@ -120,9 +120,9 @@ public static class NewCarAction implements InStateAction {
 	}
 	public void act(State state, GetCarById getCar) {
 		Car car = new Car();
-		car.pos = new XY();
+		car.pos = new XY(true);
 		car.owner = id;
-		car.size = MIN_SIZE * 4;
+		car.size = MIN_SIZE * 6;
 		state.cars.add(car);
 	}
 	public BigAction toBig() {
@@ -173,7 +173,7 @@ public static class State {
 		CompositeIterator<SpeedObject> iterator = new CompositeIterator<SpeedObject>(cars, reactive);
 		while(iterator.hasNext()) {
 			SpeedObject o = iterator.next();
-			o.pos = o.pos.add(o.speed.scale(UPDATE_S));
+			o.pos = o.pos.add(new XY(o.speed, true).scale(UPDATE_S));
 			if(o.pos.x >= width) o.pos.x -= width;
 			else if(o.pos.x < 0) o.pos.x += width;
 			if(o.pos.y >= height) o.pos.y -= height;
@@ -200,7 +200,7 @@ public static class State {
 				}
 			}
 		}
-		if(foods.size() < 200) foods.add(new Food(rndPos()));
+		if(foods.size() < 120) foods.add(new Food(rndPos()));
 		return this;
 	}
 	private int rnd(int min, int max) {
@@ -220,7 +220,7 @@ public static class State {
 		return rndf(1f);
 	}
 	private XY rndPos() {
-		return new XY(rndf(width), rndf(height));
+		return new XY(rndf(width), rndf(height), true);
 	}
 }
 public static class Angle {
@@ -297,10 +297,10 @@ public static class DegreesAngle extends Logic.Angle {
 		super(degrees / 180 * Math.PI);
 	}
 }
-public static class XY {//todo immutable?
+public static class XY {
 	public float x;
 	public float y;
-	public final boolean mutable;
+	public boolean mutable;
 	public XY(boolean mutable) {
 		this.mutable = mutable;
 		x = y = 0;

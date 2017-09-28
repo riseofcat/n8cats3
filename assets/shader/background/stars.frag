@@ -6,17 +6,17 @@ uniform float time;
 uniform vec2 resolution;
 uniform vec2 mouse;
 //Качество:
-#define ITERATIONS 5
-#define VOLSTEPS 3
+#define ITERATIONS 4
+#define VOLSTEPS 2//количество слоёв
 //От 0.2 до 1.0
-#define FORMUPARAM 0.8
+#define FORMUPARAM 0.93
 //Важный параметр
 #define STEPSIZE 0.65
 #define ZOOM   5.900
 #define TILE   0.850
 #define SPEED  0.150
-#define BRIGHTNESS 0.0025
-#define DISTFADING 1.130
+#define BRIGHTNESS 0.0055
+#define DISTFADING 1.04
 #define SATURATION 0.750
 //Может быть как положительный так и отрицательный целые значения увеличивают выпад пятен
 #define INTERESTING1 2.2
@@ -48,7 +48,7 @@ void mainImage( out vec3 fragColor, in vec2 fragCoord )
 	from.xy*=rot2;
 
 	//volumetric rendering
-	float s=0.1,fade=1.1;
+	float s=0.1 + STEPSIZE,fade=1.1;
 	vec3 v=vec3(0.);
 	for (int r=0; r<VOLSTEPS; r++) {
 		vec3 p=from+s*dir*.5;
@@ -64,7 +64,7 @@ void mainImage( out vec3 fragColor, in vec2 fragCoord )
 		a*=a*a; // add contrast
 		v+=fade;
 		v+=vec3(sin(s/0.01999)*0.5*exp(s),s,0.2*exp(s))*a*BRIGHTNESS*fade; // COLOR based on distance
-		fade*=DISTFADING*exp(float(r)*0.7); // distance fading
+		fade*=DISTFADING; // distance fading
 		s+=STEPSIZE;
 	}
 	v=mix(vec3(length(v)),v,SATURATION); //color adjust
@@ -95,6 +95,10 @@ void main (void)
 {
   vec3 color = vec3 (0.0, 0.0, 0.0);
   mainImage (color, gl_FragCoord.xy);
+  //color.r = sqrt(sqrt(color.r));
+  //color.g = sqrt(sqrt(color.g));
+  //color.b = sqrt(color.b);
+  //color = color*0.23;
   //color.w = 1.0;
   vec2 p = 2.0 * (gl_FragCoord.xy / resolution) - 1.0 ;
   p.x *= resolution.x/resolution.y;

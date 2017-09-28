@@ -33,7 +33,7 @@ private Stage stage;
 private static final Color[] colors = {Color.BLUE, Color.GOLD, Color.PINK, Color.RED, Color.GREEN, Color.VIOLET, Color.LIME, Color.TEAL, Color.YELLOW};
 private static final boolean MULTIPLE_VIEWPORTS = false;
 private static final boolean BACKGROUND_BATCH = false;
-private static final boolean BACKGROUND_MESH = false;
+private static final boolean BACKGROUND_MESH = true;
 private static final boolean DRAW_GRID = false;
 private ShaderProgram backgroundBatchShader;
 private ShaderProgram batchShader;
