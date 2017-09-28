@@ -7,13 +7,11 @@ uniform vec2 resolution;
 uniform vec2 mouse;
 #define VOLSTEPS 2//количество слоёв
 //От 0.2 до 1.0
-#define FORMUPARAM 0.96
 //Важный параметр
 #define STEPSIZE 0.65
 #define ZOOM   5.900
 #define TILE   0.850
 #define SPEED  0.150
-#define BRIGHTNESS 1.15
 #define SATURATION 0.750
 //Может быть как положительный так и отрицательный целые значения увеличивают выпад пятен
 #define INTERESTING1 2.2
@@ -52,16 +50,22 @@ void mainImage( out vec3 fragColor, in vec2 fragCoord )
 		p = abs(vec3(TILE)-mod(p,vec3(TILE*2.))); // tiling fold
 		float a=0.;
 		float pa = 6.0;
-		float param = FORMUPARAM * (1.0 + sin(time*2.0)*0.03);
-		for (int i=0; i< 2 + 3*(VOLSTEPS - r - 1); i++) { //Качество
+		float param = 0.8;
+		if(r == 0) {
+		    param = 1.2 * (1.0 + sin(time*3.1)*0.05);
+		}
+		if(r == 1) {
+		    param = 0.8 * (1.0 + sin(time)*0.02);
+		}
+		for (int i=0; i< 2 + 2*(VOLSTEPS - r - 1); i++) { //Качество
 			p=1.4*abs(p)/dot(p,p)-param; // the magic formula
 			a+=1.0 * abs(length(p)-pa); // absolute sum of average change
 			pa*=0.65;//length(p);
 		}
-		//a*=a; // add contrast
+		a*=sqrt(sqrt(a))*(1.0 + sqrt(sqrt(sqrt(a)))*float(r)); // add contrast
 		v+=fade;
-		v+=vec3(sin(s/0.01999)*0.5*exp(s),s,0.25*exp(s))*a*BRIGHTNESS*fade; // COLOR based on distance
-		fade*=0.65; // distance fading
+		v+=vec3(sin(s/0.01999)*0.5*exp(s),s,0.25*exp(s))*a*fade * 0.470; // COLOR based on distance
+		fade*= a * 0.03; // distance fading
 		s+=STEPSIZE;
 	}
 	v=mix(vec3(length(v)),v,SATURATION); //color adjust
