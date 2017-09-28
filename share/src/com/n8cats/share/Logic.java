@@ -167,7 +167,7 @@ public static class State {
 		dx = Math.min(dx, a.x + width - b.x);
 		float dy = Math.min(Math.abs(b.y - a.y), b.y + height - a.y);
 		dy = Math.min(dy, a.y + height - b.y);
-		return (float) Math.sqrt(dx*dx + dy*dy);
+		return (float) Math.sqrt(dx * dx + dy * dy);
 	}
 	public State tick() {
 		CompositeIterator<SpeedObject> iterator = new CompositeIterator<SpeedObject>(cars, reactive);
@@ -300,25 +300,52 @@ public static class DegreesAngle extends Logic.Angle {
 public static class XY {//todo immutable?
 	public float x;
 	public float y;
+	public final boolean mutable;
+	public XY(boolean mutable) {
+		this.mutable = mutable;
+		x = y = 0;
+	}
 	public XY() {
-		x = 0;
-		y = 0;
+		this(false);
+	}
+	public XY(float x, float y, boolean mutable) {
+		this(mutable);
+		this.x = x;
+		this.y = y;
+	}
+	public XY(float x, float y) {
+		this(x, y, false);
+	}
+	public XY(double x, double y, boolean mutable) {
+		this((float) x, (float) y, mutable);
 	}
 	public XY(double x, double y) {
-		this.x = (float) x;
-		this.y = (float) y;
+		this(x, y, false);
 	}
-	public XY(XY pos) {//todo Вынести копирование в context?
-		this(pos.x, pos.y);
+	public XY(XY pos, boolean mutable) {
+		this(pos.x, pos.y, mutable);
+	}
+	@Deprecated
+	public XY(XY pos) {
+		this(pos, false);
 	}
 	public XY add(XY a) {
-		return new XY(this.x + a.x, this.y + a.y);
+		XY result = mutable ? this : new XY(this, false);
+		result.x += a.x;
+		result.y += a.y;
+		return result;
 	}
 	public XY sub(XY a) {
-		return add(a.scale(-1));
+		XY result = mutable ? this : new XY(this, false);
+		result.x -= a.x;
+		result.y -= a.y;
+		return result;
 	}
 	public XY scale(float scl) {
-		return new XY(this.x * scl, this.y * scl);
+		XY result = mutable ? this : new XY(this, false);
+		result.x *= scl;
+		result.y *= scl;
+		return result;
 	}
 	public double dst(XY xy) {
 		return Math.sqrt((xy.x - x) * (xy.x - x) + (xy.y - y) * (xy.y - y));
@@ -327,16 +354,18 @@ public static class XY {//todo immutable?
 		return dst(new XY(0, 0));
 	}
 	public XY rotate(Logic.Angle angleA) {
+		XY result = mutable ? this : new XY(false);
 		Logic.Angle angle = calcAngle().add(angleA);
-		return new XY(len() * angle.cos(), len() * angle.sin());
+		double len = len();
+		result.x = (float) (len * angle.cos());
+		result.y = (float) (len * angle.sin());
+		return result;
 	}
 	public Logic.Angle calcAngle() {
-		if(false) {
-			try {
-				return new Logic.Angle(Math.atan(y / x)).add(new DegreesAngle(x < 0 ? 180 : 0));
-			} catch(Throwable t) {return new Logic.DegreesAngle(LibAllGwt.Fun.sign(y) * 90);}
-		}
-		return new Angle(Math.atan2(y, x));
+		if(true) return new Angle(Math.atan2(y, x));
+		else try {
+			return new Logic.Angle(Math.atan(y / x)).add(new DegreesAngle(x < 0 ? 180 : 0));
+		} catch(Throwable t) {return new Logic.DegreesAngle(LibAllGwt.Fun.sign(y) * 90);}
 	}
 }
 }
